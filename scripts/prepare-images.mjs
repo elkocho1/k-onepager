@@ -9,7 +9,7 @@
  *    content/de.json. The logo wall tints logos via CSS mask, which needs an
  *    alpha channel – PNGs on a solid white background get the white knocked out.
  */
-import { copyFile, mkdir, stat } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -109,6 +109,9 @@ for (const logo of LOGOS) {
   } else if (logo.trim) {
     await sharp(input).trim().png().toFile(output);
     action = 'trimmed       ';
+  } else if (logo.out.endsWith('.svg')) {
+    // Text asset: normalise to LF (repo policy in .gitattributes)
+    await writeFile(output, (await readFile(input, 'utf8')).replace(/\r\n?/g, '\n'));
   } else {
     await copyFile(input, output);
   }
