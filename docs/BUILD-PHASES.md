@@ -35,7 +35,7 @@ Aufruf in Claude Code, z. B.: `Lies CLAUDE.md und docs/phases/PHASE-0-setup.md u
 
 _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
-### Phase 0 – Setup · 2026-09-09 · Commit `folgt`
+### Phase 0 – Setup · 2026-09-09 · Commit `bec2aed`
 
 - Stack: Astro 5.18.2 (CLAUDE.md: „neueste 5.x"), @astrojs/sitemap 3.7.4, sharp 0.35.4, gsap 3.15, lenis 1.3.26; Dev: @types/node, @astrojs/check, typescript. `npm run build` und `npm run check` grün.
 - **Hinweis Astro-Version:** `npm audit` meldet für alle Versionen ≤ 7.2.7 eine kritische Advisory-Sammlung; die 5.x-Linie erhält keine Fixes mehr (aktuell 7.3.2). Für den statischen Build nicht akut, Upgrade-Entscheidung auf 7.x vor Phase 8 (Deploy) treffen.
