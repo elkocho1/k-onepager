@@ -57,7 +57,7 @@ src/styles/{tokens,global}.css
 src/pages/{index,impressum,datenschutz}.astro
 src/lib/content.ts             # typisierter Loader für de.json
 src/lib/images.ts              # de.json-Bildpfade → astro:assets, Logo-Maße
-scripts/{prepare-images,phase-check}.mjs   # Assets aufbereiten · Screenshots + Lighthouse je Phase
+scripts/{prepare-images,phase-check,browser-eval}.mjs   # Assets aufbereiten · Screenshots + Lighthouse je Phase · JS-Ausdruck in Headless Chrome (Funktionstests)
 docs/                          # Spec + Phasen (nicht deployen), docs/screens/ gitignored
 _material/                     # Rohmaterial (gitignored)
 ```

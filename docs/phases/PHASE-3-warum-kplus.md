@@ -18,10 +18,10 @@
 
 ## Definition of Done
 
-- [ ] Sechs Karten in einer Reihe, horizontal scrollbar per Maus/Trackpad/Touch, Snap auf Kartenanfang
-- [ ] Erste Karte beginnt bei 160 px, Reihe läuft rechts aus, kein Body-Scrollbalken
-- [ ] Icons magenta 50×50 (mind. Platzhalter), Titel teal 42, Glow sichtbar oben links jeder Karte
-- [ ] Fortschrittslinie und Zähler folgen dem Scroll
-- [ ] Mobile: Stapel, kein Zähler
-- [ ] Tastatur: Track per Tab erreichbar (`tabindex="0"`, `aria-label`), Pfeiltasten scrollen (nativ durch overflow)
-- [ ] Commit `feat(phase-3): warum k+ cards`
+- [x] Sechs Karten in einer Reihe, horizontal scrollbar per Maus/Trackpad/Touch, Snap auf Kartenanfang
+- [x] Erste Karte beginnt bei 160 px, Reihe läuft rechts aus, kein Body-Scrollbalken
+- [x] Icons magenta 50×50 (mind. Platzhalter), Titel teal 42, Glow sichtbar oben links jeder Karte
+- [x] Fortschrittslinie und Zähler folgen dem Scroll
+- [x] Mobile: Stapel, kein Zähler
+- [x] Tastatur: Track per Tab erreichbar (`tabindex="0"`, `aria-label`), Pfeiltasten scrollen (nativ durch overflow)
+- [x] Commit `feat(phase-3): warum k+ cards`

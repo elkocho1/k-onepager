@@ -113,7 +113,7 @@ Eyebrow (14, Bold, uppercase, magenta, 8 px vertical padding) → 24 px → H2 (
   - Titel 42 KMR Regular teal, tracking 0.96; gap 14; Text 18/28 weiß (Karte 3–5 im Figma 16/28 → einheitlich 18).
   - Glow: absolut positionierter Kreis 384×384 bei left −1 / top −170, `filter: blur(32px)`, `linear-gradient(142deg, rgba(204,255,0,.05) 43%, rgba(204,255,0,0) 96%)`, `overflow: hidden` an der Karte.
 - Statement-Karte (`166:2`): gleiche Hülle, Inhalt 536×243 zentriert, Text 32/1.25 Inter → KMR Regular, teal, zentriert.
-- Fortschrittslinie (`139:185`): unter den Karten (gap 40), Linie 1540 px breit, 1 px `rgba(126,209,201,.3)`, gefüllter Anteil teal; rechts daneben Zähler „01/06" (18, muted).
+- Fortschrittslinie (`139:185`): unter den Karten (gap 40), Linie 1540 px breit, 1 px `rgba(126,209,201,.3)`, gefüllter Anteil **magenta** (`--c-magenta`, Figma-Linie `139:188` = #FF00FF – frühere Angabe „teal" war ein Extraktionsfehler); rechts daneben Zähler „01/06" (18, muted).
 - Mobile (`242:81`): Karten gestapelt, Breite 342, gap 12, padding 28, Icon 40×40, Titel 30, Text 18/28 (16 falls zu lang), Glow-Kreis 230 px bei −40/−120. Keine Fortschrittslinie.
 - Icons: 5 Stück aus Figma exportieren (Knoten `139:87` partnership-Maske, `139:97` building, `75:503` project, `75:516` network, `75:530` capital-Maske) → `public/icons/warum/*.svg`, einfarbig, viewBox 0 0 50 50.
 

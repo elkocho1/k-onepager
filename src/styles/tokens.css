@@ -64,6 +64,8 @@
   --c-night-a40: rgba(42, 50, 51, 0.4);       /* hero gradient, bottom layer end */
   --c-night-a85: rgba(42, 50, 51, 0.85);      /* nav background when scrolled */
   --c-teal-a40: rgba(126, 209, 201, 0.4);     /* footer rule */
+  --c-teal-a30: rgba(126, 209, 201, 0.3);     /* progress base line, card hover border */
+  --c-lime-a10: rgba(204, 255, 0, 0.1);       /* card glow gradient (shown at 50 % opacity = .05) */
 
   /* --- Typography --------------------------------------------------------- */
   --font-brand: "KMR Apparat", "Inter", system-ui, sans-serif;
@@ -84,6 +86,8 @@
   --fs-statement: clamp(24px, 21.961px + 0.5229vw, 32px);
   --fs-tile-name: clamp(15.5px, 13.333px + 0.5556vw, 24px);
   --fs-footer-city: 24px;
+  --fs-small: 16px;            /* slider label */
+  --lh-small: 1.65;            /* 26.4 / 16 */
 
   --lh-display: 1;
   --lh-h2: 1.2;

@@ -18,4 +18,5 @@ npm run build            # → dist/
 npm run preview
 npm run check            # astro check (TypeScript)
 npm run check:phase -- 1 index impressum   # Screenshots (docs/screens) + Lighthouse a11y via Chrome headless
+node scripts/browser-eval.mjs http://127.0.0.1:4321/ "document.title"   # JS im Headless Chrome auswerten (Preview vorher starten)
 ```

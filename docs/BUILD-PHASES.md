@@ -9,7 +9,7 @@ Aufruf in Claude Code, z. B.: `Lies CLAUDE.md und docs/phases/PHASE-0-setup.md u
 | 0 | [Setup](phases/PHASE-0-setup.md) – Astro, Tokens, Fonts, Assets, Base-Layout, Content-Loader | Leere Seite mit Fonts, Meta, JSON-LD; Build grün | fertig |
 | 1 | [Rahmen](phases/PHASE-1-rahmen.md) – Nav, Hero, Footer, Impressum/Datenschutz-Seiten | Seite mit Kopf und Fuß, Anker funktionieren | fertig |
 | 2 | [Vision · Mission · Marquee](phases/PHASE-2-vision-mission-marquee.md) | Drei statische Sektionen | fertig |
-| 3 | [Warum K+](phases/PHASE-3-warum-kplus.md) – Karten-Slider (statisch scrollbar) | Sektion Desktop + Mobile | offen |
+| 3 | [Warum K+](phases/PHASE-3-warum-kplus.md) – Karten-Slider (statisch scrollbar) | Sektion Desktop + Mobile | fertig |
 | 4 | [Portfolio](phases/PHASE-4-portfolio.md) – Logo-Wall + Spotlight mit Umschaltung | Sektion inkl. Klick-Logik | offen |
 | 5 | [Schwerpunkte · Founder · CTA](phases/PHASE-5-schwerpunkte-founder-cta.md) | Restliche Sektionen statisch | offen |
 | 6 | [Responsive](phases/PHASE-6-responsive.md) – Mobile-Frame 1:1, Zwischen-Breakpoints | Alle Sektionen bei 390 / 768 / 1024 / 1440 / 1920 sauber | offen |
@@ -69,3 +69,12 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Abstände laut Spec: Hero → Vision 80, Vision → Mission 80, Mission → Marquee 80, danach `--section-gap`. Zwischenbreakpoint < 1440: Spalten proportional (`minmax`), gap 64 – Feinschliff in Phase 6.
 - `index.astro`: Platzhalter `vision` durch die drei Komponenten ersetzt; die restlichen Anker bleiben Platzhalter.
 - Abnahme: Build (3 Seiten) und Check grün, `npm run check:phase -- 2 index`: Lighthouse a11y **100/100** Desktop und Mobile, Screenshots in `docs/screens/phase-2-*`. Vision-/Mission-Positionen im Screenshot (1015 / 1760 / 2150) decken sich mit den Figma-Y-Werten (1016 / 1746 / 2139).
+- Nachtrag `fix(phase-2)` (Commit `ea5ecfc`): Marquee-Outline-Einträge rendern jetzt hohl (`color: transparent`, 2 px Teal-Stroke, Bold) – das scoped `.marquee__item` hatte die globale `.outline-text`-Regel überstimmt. Abgleich mit Figma 139:59.
+
+### Phase 3 – Warum K+ · 2026-09-09 · Commit `folgt`
+
+- Neu: `WarumKplus.astro` – Kopf (Eyebrow max. 163 px, H2, Slider-Label muted 16/26,4, `align-items: flex-end`), Karten-Track `<ul role="list" tabindex="0" aria-label>` mit `overflow-x: auto`, `scroll-snap-type: x mandatory`, `scroll-padding-inline-start: var(--gutter)`, Karten 636 px, gap 32, Trailing-Padding `calc(100% - gutter - 636px)`, damit auch die letzte Karte am Startrand einrastet. Fünf Feature-Karten (Icon 50 × 50 als inline SVG aus `public/icons/warum/` zur Buildzeit gelesen, `currentColor` = `--c-magenta`; gap 100; H3 `--fs-h3-card` teal; Text 18/28) + Statement-Karte (32/1,25 teal zentriert). Glow 384 px, `blur(32px)`, Gradient `--c-lime-a10` bei 50 % Opazität (Hover ×2 = 100 %), Hover-Rahmen `--c-teal-a30` nur bei `hover: hover`.
+- Fortschrittslinie: Basis `--c-teal-a30`, Füllung **magenta** – Figma-Linie 139:188 ist #FF00FF, der Spec-Text „teal" war ein Extraktionsfehler (in DESIGN-SPEC.md korrigiert). Zähler 01/06 muted. Inline-Modul-Script (Astro-Bundle, kein GSAP) setzt `--progress` (kontinuierlich aus `scrollLeft`) und den Zähler (Karte, deren Start dem Snap-Rand am nächsten liegt); ohne JS 1/6 und 01/06.
+- Mobile (< 768): Track als Grid, gap 12, Karten 342, padding 28, Icon 40, Abstände Icon → 20 → Titel → 20 → Text (Figma 242:87), Glow 230 px bei −40/−120, Slider-Label und Fortschritt ausgeblendet. Tablet (768–1023): Karten 480, padding 40, weiter scrollbar.
+- `de.json`: `warumKplus.trackLabel` als `aria-label` des Tracks ergänzt. Tokens: `--c-teal-a30`, `--c-lime-a10`, `--fs-small`, `--lh-small`.
+- Abnahme: Build/Check grün, `npm run check:phase -- 3 index` a11y **100/100**. Funktionstest mit neuem `scripts/browser-eval.mjs` (DevTools-Protokoll über Nodes WebSocket, kein Playwright): Desktop `scrollLeft` 0 → 01/06 · Karte 3 → 03/06 / Progress 0,5 · Ende → 06/06 / 1,0, kein horizontaler Body-Overflow; Mobile Grid 342 px, Icon 40, Fortschritt `display: none`. Icons `partnership`/`capital` weiterhin Platzhalter-Kreise (siehe Phase 0).
