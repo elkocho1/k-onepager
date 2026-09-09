@@ -49,7 +49,7 @@ Alle Logos werden von `scripts/prepare-images.mjs` aus `_material/` nach `public
 
 Aus Figma exportieren (Selection → Export SVG), Node-IDs in DESIGN-SPEC.md Abschnitt 5. Dateinamen = `icon`-Wert in `de.json`: `partnership.svg`, `building.svg`, `project.svg`, `network.svg`, `capital.svg`. Alle Füllungen auf `currentColor` setzen.
 
-Stand Phase 0: `building` (139:97), `project` (75:503) und `network` (75:516) sind exportiert und bereinigt (viewBox 0 0 50 50, `fill="currentColor"`, `aria-hidden`). `partnership` (Maskengruppe 139:85) und `capital` (Gruppe 75:528) liegen im Figma nur als Rasterbilder vor → Platzhalter-Kreise mit TODO-Kommentar; die 512×512-PNGs (transparent) sind in `_material/figma-export/` abgelegt und könnten notfalls per `mask-image` genutzt werden.
+Stand Phase 3: `building` (139:97), `project` (75:503) und `network` (75:516) sind aus Figma exportiert und bereinigt (viewBox 0 0 50 50, `fill="currentColor"`, `aria-hidden`). `partnership` (Maskengruppe 139:85) und `capital` (Gruppe 75:528) liegen im Figma nur als Rasterbilder vor (PNGs in `_material/figma-export/`) → als Stroke-SVGs selbst gezeichnet: zwei verschränkte Ringe bzw. Münze mit Euro-Zeichen, `stroke="currentColor"`, `fill="none"`, `stroke-width="1.4"` (die Figma-Icons haben 1,37 Einheiten Linienbreite). Bei Bedarf durch Kunden-SVGs ersetzen.
 
 ## Sonstiges
 

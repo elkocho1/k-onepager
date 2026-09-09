@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="currentColor" aria-hidden="true">
-  <!-- TODO: export from Figma 139:87 (mask group 139:85 holds a raster only,
-       see _material/figma-export/icon-partnership-139-85.png) -->
-  <circle cx="25" cy="25" r="22"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <!-- Partnership: two interlocking rings – drawn by hand in the line style of the
+       Figma icons (stroke 1.4 ≈ 1.37 units in building/project/network). -->
+  <circle cx="17.5" cy="25" r="12"/>
+  <circle cx="32.5" cy="25" r="12"/>
 </svg>

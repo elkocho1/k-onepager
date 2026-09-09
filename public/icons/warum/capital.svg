@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="currentColor" aria-hidden="true">
-  <!-- TODO: export from Figma 75:530 (group 75:528 holds a raster only,
-       see _material/figma-export/icon-capital-75-528.png) -->
-  <circle cx="25" cy="25" r="22"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <!-- Capital: coin with euro sign – drawn by hand in the line style of the
+       Figma icons (stroke 1.4 ≈ 1.37 units in building/project/network). -->
+  <circle cx="25" cy="25" r="21.5"/>
+  <circle cx="25" cy="25" r="17"/>
+  <path d="M31.5 18.5A8.5 8.5 0 1 0 31.5 31.5"/>
+  <path d="M16.5 23.2h12"/>
+  <path d="M16.5 26.8h12"/>
 </svg>
