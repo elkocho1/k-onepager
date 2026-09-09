@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
-    "prepare-images": "node scripts/prepare-images.mjs"
+    "prepare-images": "node scripts/prepare-images.mjs",
+    "check:phase": "node scripts/phase-check.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

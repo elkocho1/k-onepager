@@ -1,0 +1,139 @@
+---
+/**
+ * Footer (spec section 10, Figma 139:469 / mobile 242:260): centred brand
+ * block (logo, claim, rule, city, address) and a bottom bar with copyright
+ * and legal links. Left-aligned on mobile, legal links above the copyright.
+ */
+import { content } from '../lib/content';
+import { publicImageSize } from '../lib/images';
+
+const { footer, nav } = content;
+const logo = await publicImageSize(nav.logo);
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__brand">
+      <img
+        src={nav.logo}
+        alt={nav.logoAlt}
+        width={logo.width}
+        height={logo.height}
+        loading="lazy"
+        decoding="async"
+      />
+      <p class="site-footer__claim">{footer.claim}</p>
+      <hr class="site-footer__rule" />
+      <address class="site-footer__address">
+        <span class="site-footer__city">{footer.location.city}</span>
+        <span>{footer.location.address}</span>
+      </address>
+    </div>
+    <div class="site-footer__bar">
+      <p class="site-footer__copyright">{footer.copyright}</p>
+      <nav aria-label={footer.linksLabel}>
+        <ul class="site-footer__links" role="list">
+          {footer.links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--section-gap);
+    color: var(--c-teal);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .site-footer__brand img {
+    height: 47px;
+    width: auto;
+    margin-bottom: 24px;
+  }
+
+  .site-footer__claim {
+    max-width: 448px;
+    margin-bottom: 40px;
+  }
+
+  .site-footer__rule {
+    width: 134px;
+    height: 1px;
+    margin: 0 0 40px;
+    border: 0;
+    background: var(--c-teal-a40);
+  }
+
+  .site-footer__address {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .site-footer__city {
+    font-size: var(--fs-footer-city);
+    font-weight: 500;
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-h2);
+    color: var(--c-magenta);
+  }
+
+  .site-footer__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 40px;
+    padding: 25px 0 24px;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .site-footer__links {
+    display: flex;
+    gap: 25.6px;
+  }
+
+  .site-footer__links a {
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .site-footer__links a:hover {
+    color: var(--c-white);
+  }
+
+  @media (max-width: 767px) {
+    .site-footer__brand {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .site-footer__brand img {
+      height: 40px;
+    }
+
+    .site-footer__rule {
+      width: 100%;
+    }
+
+    .site-footer__bar {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+</style>

@@ -1,37 +1,30 @@
 ---
 import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
 import { content } from '../lib/content';
 
-const { meta, hero } = content;
+const { meta, vision, warumKplus, portfolio, schwerpunkte, founder, cta } = content;
+
+/** Empty anchor targets until each section is built in the phase noted. */
+const placeholders = [
+  { id: vision.id, phase: 2 },
+  { id: warumKplus.id, phase: 3 },
+  { id: portfolio.id, phase: 4 },
+  { id: schwerpunkte.id, phase: 5 },
+  { id: founder.id, phase: 5 },
+  { id: cta.id, phase: 5 },
+];
 ---
 
 <Base title={meta.title} description={meta.description}>
-  <!-- Phase 0 placeholder – replaced by <Hero> in phase 1 -->
-  <section class="placeholder container">
-    <h1>
-      {
-        hero.headline.map((line, index) => (
-          <span class:list={{ 'outline-text': index === 1 }}>{line}</span>
-        ))
-      }
-    </h1>
-  </section>
+  <Hero />
+  {placeholders.map(({ id, phase }) => <section id={id} class="placeholder" data-phase={phase}></section>)}
 </Base>
 
 <style>
+  /* Phase 1 placeholders – replaced by the real sections (see data-phase) */
   .placeholder {
-    display: grid;
-    place-content: center;
-    min-height: 100vh;
-  }
-
-  h1 {
-    font-size: var(--fs-display);
-    font-weight: 800;
-    line-height: var(--lh-display);
-  }
-
-  h1 span {
-    display: block;
+    min-height: 400px;
+    margin-top: var(--section-gap);
   }
 </style>

@@ -6,6 +6,8 @@
  */
 import '../styles/tokens.css';
 import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 import { content } from '../lib/content';
 
 interface Props {
@@ -15,6 +17,8 @@ interface Props {
   canonical?: string;
   /** Path or absolute URL of the Open Graph image (1200×630). */
   ogImage?: string;
+  /** Keep the page out of search indexes (legal pages until their copy exists). */
+  noindex?: boolean;
 }
 
 const { meta, nav } = content;
@@ -23,6 +27,7 @@ const {
   description = meta.description,
   canonical = Astro.url.pathname,
   ogImage = meta.ogImage,
+  noindex = false,
 } = Astro.props;
 
 const site = Astro.site ?? new URL(meta.siteUrl);
@@ -59,7 +64,7 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- --c-night from tokens.css; meta tags cannot read CSS variables -->
@@ -100,8 +105,10 @@ const jsonLd = {
     <slot name="head" />
   </head>
   <body>
+    <Nav />
     <main id="main">
       <slot />
     </main>
+    <Footer />
   </body>
 </html>

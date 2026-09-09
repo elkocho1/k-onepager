@@ -35,7 +35,7 @@ Die Logo-Wall färbt Logos per `mask-image` teal ein – dafür braucht jede Dat
 
 | Ziel | Quelle | Status |
 |---|---|---|
-| `kplus.svg` (Nav/Footer, Favicon) | **fehlt im Material.** `einzeilig-logo_kappes (neu).svg` ist das Kappes-Wortzeichen (K-Symbol + „Kappes", 938×253, fill #0026FF), nicht die K+-Marke. Figma Node `139:34` enthält die Marke nur als PNG (674×370, teal auf transparent) → Interim `kplus.png` in `public/logos/` (Quelle `_material/figma-export/`, `nav.logo` in de.json). SVG vom Kunden anfordern; `favicon.svg` ist bis dahin ein teal Quadrat | **Interim PNG, SVG offen** |
+| `kplus.svg` (Nav/Footer, Favicon) | **fehlt im Material.** `einzeilig-logo_kappes (neu).svg` ist das Kappes-Wortzeichen (K-Symbol + „Kappes", 938×253, fill #0026FF), nicht die K+-Marke. Figma Node `139:34` enthält die Marke nur als PNG (674×370 mit transparentem Rand, teal) → Interim `kplus.png` in `public/logos/`, per `prepare-images.mjs` auf 481×165 getrimmt (Quelle `_material/figma-export/`, `nav.logo` in de.json). SVG vom Kunden anfordern; `favicon.svg` ist bis dahin ein teal Quadrat | **Interim PNG, SVG offen** |
 | `kappes-group.svg` | `Logos/einzeilig-logo_kappes (neu).svg` (7 Pfade, fill #0026FF → wird maskiert, Farbe egal) | ok |
 | `place-strategy.png` | `Logos/Place.png` 738×288, **ohne Alphakanal** (weißer Hintergrund) | Weiß wird in `scripts/prepare-images.mjs` freigestellt (Alpha aus dunkelstem Kanal); SVG nachfordern |
 | `vyncitech.png` | `Logos/vynci.png` 738×228, **ohne Alphakanal** (weißer Hintergrund) | Weiß wird in `scripts/prepare-images.mjs` freigestellt; SVG nachfordern |

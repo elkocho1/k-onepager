@@ -7,7 +7,7 @@ Aufruf in Claude Code, z. B.: `Lies CLAUDE.md und docs/phases/PHASE-0-setup.md u
 | Phase | Inhalt | Ergebnis | Status |
 |---|---|---|---|
 | 0 | [Setup](phases/PHASE-0-setup.md) – Astro, Tokens, Fonts, Assets, Base-Layout, Content-Loader | Leere Seite mit Fonts, Meta, JSON-LD; Build grün | fertig |
-| 1 | [Rahmen](phases/PHASE-1-rahmen.md) – Nav, Hero, Footer, Impressum/Datenschutz-Seiten | Seite mit Kopf und Fuß, Anker funktionieren | offen |
+| 1 | [Rahmen](phases/PHASE-1-rahmen.md) – Nav, Hero, Footer, Impressum/Datenschutz-Seiten | Seite mit Kopf und Fuß, Anker funktionieren | fertig |
 | 2 | [Vision · Mission · Marquee](phases/PHASE-2-vision-mission-marquee.md) | Drei statische Sektionen | offen |
 | 3 | [Warum K+](phases/PHASE-3-warum-kplus.md) – Karten-Slider (statisch scrollbar) | Sektion Desktop + Mobile | offen |
 | 4 | [Portfolio](phases/PHASE-4-portfolio.md) – Logo-Wall + Spotlight mit Umschaltung | Sektion inkl. Klick-Logik | offen |
@@ -50,3 +50,14 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Astro 5.18.2 → **7.3.2** nach den offiziellen Guides „Upgrade to v6" und „Upgrade to v7" (`npx @astrojs/upgrade` bricht nicht-interaktiv an der Rückfrage ab → `npm install astro@7.3.2`). @astrojs/sitemap 3.7.4 und @astrojs/check 0.9.10 waren bereits die zu 7.x passenden Versionen; sharp 0.35.4 entspricht Astros optionaler Abhängigkeit.
 - Relevante Breaking Changes geprüft: Node ≥ 22.12 (vorhanden: 24.14), Vite 8 (keine eigenen Plugins), Rust-Compiler (JSON-LD-`<script>` explizit geschlossen; keine ungeschlossenen Tags), `compressHTML: 'jsx'` als neuer Default (Inline-Elemente in Templates auf einer Zeile halten, Hinweis in CLAUDE.md), Sätteri-Markdown und `@astrojs/db` nicht betroffen, keine `experimental`-Flags in der Config.
 - Ergebnis: `npm run build` grün (1 Seite, Sitemap), `npm run check` 0 Fehler / 0 Warnungen, `npm audit` **0 Schwachstellen** (vorher 3: 1 critical, 1 high, 1 low). CLAUDE.md nennt als Stack jetzt die aktuelle Major-Version (7.x).
+
+### Phase 1 – Rahmen · 2026-09-09 · Commit `folgt`
+
+- Neu: `Nav.astro`, `Hero.astro`, `Footer.astro`, `Button.astro` (Props `href`, `label`, `variant`; restliche Attribute werden auf das `<a>` durchgereicht), Layout `Legal.astro` mit den Seiten `/impressum` und `/datenschutz` (Platzhaltertext, `noindex` über neue Base-Prop), `src/lib/images.ts` (`resolveImage()` mappt `de.json`-Pfade `/images/*` auf `src/assets/images/` für astro:assets; `publicImageSize()` liest Logo-Maße für `width`/`height`).
+- `de.json` ergänzt: `nav.ariaLabel`, `footer.linksLabel`, `legal.*` (Titel, Meta, Platzhalter, Zurück-Link) sowie der Zeilenumbruch `\n` in `hero.text` nach dem ersten Satz (Spec Abschnitt 1, Figma).
+- Tokens ergänzt: `--c-night-a30/-a40/-a85`, `--c-teal-a40`, `--nav-top`, `--nav-height`, `--nav-height-scrolled`, `--scroll-offset` (= `scroll-padding-top` 96 px in global.css).
+- Hero: `<Picture>` mit AVIF/WebP (768–2560 px), `loading="eager"`, `fetchpriority="high"`, `width`/`height` aus der Quelle; Verläufe als `::before`/`::after` (je 50 % Höhe = 469/936). Mobile: Outline-Zeile ohne 10-px-Tracking (Mobile-Frame 242:22), Buttons volle Breite / 46 px, Block unten ausgerichtet (Buttons enden bei 725 wie im Frame). Feinschliff der Mobile-Abstände in Phase 6.
+- K+-Logo-PNG per `sharp().trim()` auf 481×165 beschnitten (der Figma-Export hatte transparenten Rand) → in der Nav 175×60, Spec 174×60.
+- Hinweis: `resolveImage()` nutzt ein eager `import.meta.glob`; dadurch landen derzeit auch ungenutzte Original-JPGs in `dist/_astro/` (~1,2 MB). Ab Phase 5 sind alle Bilder in Verwendung.
+- Abnahme: `npm run build` (3 Seiten) und `npm run check` grün. Neues Skript `npm run check:phase -- 1 index impressum` (`scripts/phase-check.mjs`): startet `astro preview` als IPv4-Daemon, Lighthouse-Accessibility je Seite für Desktop 1920 und Mobile 390 (Screen-Emulation), Full-Page-Screenshots nach `docs/screens/` (gitignored). Ergebnis: index **100/100**, impressum 96/100, datenschutz 96/100. Einziger Abzug (`color-contrast`): Nav-Button Magenta `#FF00FF` auf Night = 4,17:1, AA verlangt 4,5:1 für 16-px-Text – Designwert aus dem Manual; auf dem Hero-Foto nicht messbar, auf flachem Hintergrund (Rechtsseiten) schon. → Hinweis an Design (Option: leicht helleres Magenta oder größere Schrift), kein Code-Workaround.
+- Gelernt (Windows): Chrome `--headless=new` hängt mit `--virtual-time-budget`; Chrome erzwingt ~480 px Mindest-Fensterbreite (390er-Screenshots nur per Emulation); `astro preview` ist in Astro 7 ein Daemon (`astro preview stop`); die `preview()`-JS-API ignoriert `server.host` und lauscht nur auf `::1`.

@@ -1,0 +1,154 @@
+---
+/**
+ * Hero (spec section 1, Figma 139:14 / mobile 242:22): full-width photo that
+ * fades into night at the top and bottom, text block on the left, two buttons.
+ */
+import { Picture } from 'astro:assets';
+import Button from './Button.astro';
+import { content, nl2br } from '../lib/content';
+import { resolveImage } from '../lib/images';
+
+const { hero } = content;
+const image = resolveImage(hero.image.src);
+const textLines = nl2br(hero.text);
+---
+
+<section class="hero">
+  <Picture
+    src={image}
+    alt={hero.image.alt}
+    widths={[768, 1280, 1920, 2560]}
+    sizes="100vw"
+    formats={['avif', 'webp']}
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+    class="hero__image"
+    pictureAttributes={{ class: 'hero__picture' }}
+  />
+  <div class="container">
+    <div class="hero__content">
+      <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
+      <h1 class="hero__title">
+        {hero.headline.map((line, index) => (
+          <span class:list={['line', { 'outline-text': index === 1 }]} data-hero-line>{line}</span>
+        ))}
+      </h1>
+      <p class="body hero__text">
+        {textLines.map((line, index) => (
+          <Fragment>{index > 0 && <br />}{line}</Fragment>
+        ))}
+      </p>
+      <div class="hero__actions">
+        <Button href={hero.primaryCta.href} label={hero.primaryCta.label} variant="primary" />
+        <Button href={hero.secondaryCta.href} label={hero.secondaryCta.label} variant="secondary" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: min(936px, 100svh);
+    padding-top: 60px; /* text block centred +30px (spec) */
+    overflow: hidden;
+  }
+
+  .hero :global(.hero__picture) {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero :global(.hero__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Night fades: top 469px of 936 (50 %) and mirrored at the bottom */
+  .hero::before,
+  .hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%;
+    pointer-events: none;
+  }
+
+  .hero::before {
+    top: 0;
+    background: linear-gradient(180deg, var(--c-night) 0%, var(--c-night-a30) 100%);
+  }
+
+  .hero::after {
+    bottom: 0;
+    background: linear-gradient(0deg, var(--c-night) 3.8%, var(--c-night-a40) 100%);
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 809px;
+  }
+
+  .hero__eyebrow {
+    padding-inline: 16px;
+  }
+
+  .hero__title {
+    font-size: var(--fs-display);
+    font-weight: 800;
+    line-height: var(--lh-display);
+    color: var(--c-white);
+  }
+
+  .hero__title .line {
+    display: block;
+  }
+
+  .hero__title .line + .line {
+    margin-top: -20px; /* lines overlap by 20px (spec) */
+    letter-spacing: var(--ls-outline-hero);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  @media (max-width: 767px) {
+    .hero {
+      align-items: end;
+      min-height: 780px;
+      padding-top: var(--scroll-offset);
+      padding-bottom: 56px;
+    }
+
+    /* Mobile frame 242:22 shows the outline line without extra tracking */
+    .hero__title .line + .line {
+      letter-spacing: normal;
+    }
+
+    .hero__actions {
+      flex-direction: column;
+      align-self: stretch;
+      gap: 12px;
+    }
+
+    .hero__actions .btn {
+      width: 100%;
+      height: 46px;
+    }
+  }
+</style>

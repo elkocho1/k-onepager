@@ -16,11 +16,11 @@
 
 ## Definition of Done
 
-- [ ] Nav fixed und transparent auf dem Hero, drei Links + Button, Logo verlinkt auf `/`
-- [ ] Hero entspricht Spec bei 1920 (Textblock 809 breit ab 160 px, Display 120 px, Outline-Zeile lime) und bei 390 (Buttons volle Breite untereinander)
-- [ ] Hero-Bild als `<picture>` mit AVIF/WebP-Quellen im Build, `width`/`height` gesetzt, kein CLS
-- [ ] Footer laut Spec, Links auf `/impressum` und `/datenschutz` funktionieren
-- [ ] Klick auf Nav-Links springt zu den Platzhalter-Sektionen (Anker-Offset stimmt)
-- [ ] Ohne JS vollständig nutzbar
-- [ ] Lighthouse (Preview, Desktop) Accessibility ≥ 95 für index
-- [ ] Commit `feat(phase-1): nav, hero, footer, legal pages`
+- [x] Nav fixed und transparent auf dem Hero, drei Links + Button, Logo verlinkt auf `/`
+- [x] Hero entspricht Spec bei 1920 (Textblock 809 breit ab 160 px, Display 120 px, Outline-Zeile lime) und bei 390 (Buttons volle Breite untereinander)
+- [x] Hero-Bild als `<picture>` mit AVIF/WebP-Quellen im Build, `width`/`height` gesetzt, kein CLS
+- [x] Footer laut Spec, Links auf `/impressum` und `/datenschutz` funktionieren
+- [x] Klick auf Nav-Links springt zu den Platzhalter-Sektionen (Anker-Offset stimmt)
+- [x] Ohne JS vollständig nutzbar
+- [x] Lighthouse (Preview, Desktop) Accessibility ≥ 95 für index
+- [x] Commit `feat(phase-1): nav, hero, footer, legal pages`

@@ -65,9 +65,10 @@ for (const job of JOBS) {
 }
 
 // --- Logos (paths relative to _material/) -----------------------------------
-/** @type {{ src: string; out: string; knockOutWhite?: boolean }[]} */
+/** @type {{ src: string; out: string; knockOutWhite?: boolean; trim?: boolean }[]} */
 const LOGOS = [
-  { src: 'figma-export/kplus-logo-139-34.png', out: 'kplus.png' }, // interim, SVG pending
+  // Interim until the SVG mark arrives; Figma export has transparent padding → trim
+  { src: 'figma-export/kplus-logo-139-34.png', out: 'kplus.png', trim: true },
   { src: 'Logos/einzeilig-logo_kappes (neu).svg', out: 'kappes-group.svg' },
   { src: 'Logos/Place.png', out: 'place-strategy.png', knockOutWhite: true },
   { src: 'Logos/vynci.png', out: 'vyncitech.png', knockOutWhite: true },
@@ -101,13 +102,16 @@ await mkdir(LOGO_OUT, { recursive: true });
 for (const logo of LOGOS) {
   const input = path.join(LOGO_SRC, logo.src);
   const output = path.join(LOGO_OUT, logo.out);
+  let action = 'copied        ';
   if (logo.knockOutWhite) {
     await knockOutWhite(input, output);
+    action = 'white -> alpha';
+  } else if (logo.trim) {
+    await sharp(input).trim().png().toFile(output);
+    action = 'trimmed       ';
   } else {
     await copyFile(input, output);
   }
   const { size } = await stat(output);
-  console.log(
-    `${logo.out.padEnd(34)} ${logo.knockOutWhite ? 'white -> alpha' : 'copied        '} ${(size / 1024).toFixed(0).padStart(5)} kB`,
-  );
+  console.log(`${logo.out.padEnd(34)} ${action} ${(size / 1024).toFixed(0).padStart(5)} kB`);
 }

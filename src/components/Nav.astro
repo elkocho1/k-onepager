@@ -1,0 +1,121 @@
+---
+/**
+ * Fixed site header (spec section 0, Figma 139:32 / mobile 242:27).
+ * Transparent on the hero; `.is-scrolled` (toggled by JS in phase 7) adds the
+ * night background and blur. Mobile shows only the logo (spec deviation 7).
+ */
+import Button from './Button.astro';
+import { content } from '../lib/content';
+import { publicImageSize } from '../lib/images';
+
+const { nav } = content;
+const logo = await publicImageSize(nav.logo);
+---
+
+<header class="site-header" data-nav>
+  <div class="site-header__inner container">
+    <a href="/" class="site-header__logo">
+      <img src={nav.logo} alt={nav.logoAlt} width={logo.width} height={logo.height} decoding="async" />
+    </a>
+    <nav class="site-header__nav" aria-label={nav.ariaLabel}>
+      <ul role="list">
+        {nav.items.map((item) => (
+          <li>
+            <a href={item.anchor}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <Button href={nav.cta.href} label={nav.cta.label} variant="primary" class="site-header__cta" />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: var(--nav-top) 0 auto 0;
+    z-index: 100;
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      top var(--dur-base) var(--ease-out);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    height: var(--nav-height);
+    transition: height var(--dur-base) var(--ease-out);
+  }
+
+  .site-header__logo {
+    display: block;
+    flex: none;
+  }
+
+  .site-header__logo img {
+    height: 60px;
+    width: auto;
+  }
+
+  .site-header__nav ul {
+    display: flex;
+    gap: 30px;
+  }
+
+  .site-header__nav a {
+    font-size: var(--fs-nav);
+    font-weight: 400;
+    color: var(--c-teal);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .site-header__nav a:hover,
+  .site-header__nav a.is-active {
+    color: var(--c-white);
+  }
+
+  .site-header__nav a.is-active {
+    font-weight: 350;
+  }
+
+  .site-header__cta {
+    width: 222px;
+    flex: none;
+  }
+
+  /* Scroll state – class toggled in phase 7 */
+  .site-header.is-scrolled {
+    top: 0;
+    background: var(--c-night-a85);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .site-header.is-scrolled .site-header__inner {
+    height: var(--nav-height-scrolled);
+  }
+
+  @media (max-width: 767px) {
+    .site-header {
+      top: 0;
+    }
+
+    .site-header__inner {
+      height: var(--nav-height-scrolled);
+      justify-content: flex-start;
+    }
+
+    .site-header__logo img {
+      height: 36px;
+    }
+
+    .site-header__nav,
+    .site-header__cta {
+      display: none;
+    }
+  }
+</style>

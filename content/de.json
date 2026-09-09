@@ -18,6 +18,7 @@
   "nav": {
     "logo": "/logos/kplus.png",
     "logoAlt": "K+ – Build beyond",
+    "ariaLabel": "Hauptnavigation",
     "items": [
       {
         "label": "Warum K+",
@@ -43,7 +44,7 @@
       "Build",
       "Beyond."
     ],
-    "text": "Wir investieren in die Zukunft des Bauens. K+ investiert in Unternehmen, Technologien und Ideen, die das Bauen digitaler, effizienter und nachhaltiger machen. Mit Kapital, unternehmerischer Erfahrung und echter Branchenkompetenz.",
+    "text": "Wir investieren in die Zukunft des Bauens.\nK+ investiert in Unternehmen, Technologien und Ideen, die das Bauen digitaler, effizienter und nachhaltiger machen. Mit Kapital, unternehmerischer Erfahrung und echter Branchenkompetenz.",
     "primaryCta": {
       "label": "Pitch einreichen",
       "href": "#kontakt"
@@ -307,6 +308,7 @@
       "address": "Ramsbachstr. 3, 70597 Stuttgart"
     },
     "copyright": "© 2026 Kplus GmbH · Build beyond.",
+    "linksLabel": "Rechtliches",
     "links": [
       {
         "label": "Impressum",
@@ -317,5 +319,21 @@
         "href": "/datenschutz"
       }
     ]
+  },
+  "legal": {
+    "backLabel": "Zurück zur Startseite",
+    "placeholder": "Inhalt folgt vom Kunden.",
+    "pages": {
+      "impressum": {
+        "title": "Impressum",
+        "metaTitle": "Impressum | K+",
+        "description": "Impressum der Kplus GmbH, Stuttgart."
+      },
+      "datenschutz": {
+        "title": "Datenschutzerklärung",
+        "metaTitle": "Datenschutzerklärung | K+",
+        "description": "Datenschutzerklärung der Kplus GmbH, Stuttgart."
+      }
+    }
   }
 }

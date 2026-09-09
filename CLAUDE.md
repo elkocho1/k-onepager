@@ -50,12 +50,14 @@ npm run preview
 content/de.json
 public/fonts/  public/logos/  public/og/  robots.txt  favicon.svg
 src/assets/images/            # Quellbilder für astro:assets
-src/layouts/Base.astro
-src/components/{Nav,Hero,Vision,Mission,Marquee,WarumKplus,Portfolio,Schwerpunkte,Founder,Cta,Footer,HexCursor}.astro
+src/layouts/{Base,Legal}.astro
+src/components/{Nav,Hero,Vision,Mission,Marquee,WarumKplus,Portfolio,Schwerpunkte,Founder,Cta,Footer,HexCursor,Button}.astro
 src/scripts/{animations,hex-cursor,portfolio}.ts
 src/styles/{tokens,global}.css
 src/pages/{index,impressum,datenschutz}.astro
 src/lib/content.ts             # typisierter Loader für de.json
-docs/                          # Spec + Phasen (nicht deployen)
+src/lib/images.ts              # de.json-Bildpfade → astro:assets, Logo-Maße
+scripts/{prepare-images,phase-check}.mjs   # Assets aufbereiten · Screenshots + Lighthouse je Phase
+docs/                          # Spec + Phasen (nicht deployen), docs/screens/ gitignored
 _material/                     # Rohmaterial (gitignored)
 ```

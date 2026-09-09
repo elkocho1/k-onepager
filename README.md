@@ -17,4 +17,5 @@ npm run dev              # http://localhost:4321
 npm run build            # → dist/
 npm run preview
 npm run check            # astro check (TypeScript)
+npm run check:phase -- 1 index impressum   # Screenshots (docs/screens) + Lighthouse a11y via Chrome headless
 ```

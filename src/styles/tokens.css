@@ -59,6 +59,10 @@
   --c-tile-border: rgba(255, 255, 255, 0.12);
   --c-spot-bg: rgba(126, 209, 201, 0.08);
   --c-btn-secondary-bg: rgba(126, 209, 201, 0.1);
+  --c-night-a30: rgba(42, 50, 51, 0.3);       /* hero gradient, top layer end */
+  --c-night-a40: rgba(42, 50, 51, 0.4);       /* hero gradient, bottom layer end */
+  --c-night-a85: rgba(42, 50, 51, 0.85);      /* nav background when scrolled */
+  --c-teal-a40: rgba(126, 209, 201, 0.4);     /* footer rule */
 
   /* --- Typography --------------------------------------------------------- */
   --font-brand: "KMR Apparat", "Inter", system-ui, sans-serif;
@@ -95,6 +99,11 @@
   --gutter-mobile: 24px;     /* page margin mobile (390) */
   --section-gap: 120px;      /* vertical gap between sections desktop */
   --section-gap-mobile: 72px;
+
+  --nav-top: 20px;              /* fixed header offset on the hero (desktop) */
+  --nav-height: 60px;
+  --nav-height-scrolled: 76px;  /* scrolled state and mobile */
+  --scroll-offset: 96px;        /* scroll-padding-top for anchor links */
 
   --radius-tile: 8px;
   --radius-spot: 12px;
