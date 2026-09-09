@@ -51,7 +51,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Relevante Breaking Changes geprüft: Node ≥ 22.12 (vorhanden: 24.14), Vite 8 (keine eigenen Plugins), Rust-Compiler (JSON-LD-`<script>` explizit geschlossen; keine ungeschlossenen Tags), `compressHTML: 'jsx'` als neuer Default (Inline-Elemente in Templates auf einer Zeile halten, Hinweis in CLAUDE.md), Sätteri-Markdown und `@astrojs/db` nicht betroffen, keine `experimental`-Flags in der Config.
 - Ergebnis: `npm run build` grün (1 Seite, Sitemap), `npm run check` 0 Fehler / 0 Warnungen, `npm audit` **0 Schwachstellen** (vorher 3: 1 critical, 1 high, 1 low). CLAUDE.md nennt als Stack jetzt die aktuelle Major-Version (7.x).
 
-### Phase 1 – Rahmen · 2026-09-09 · Commit `folgt`
+### Phase 1 – Rahmen · 2026-09-09 · Commit `b689449`
 
 - Neu: `Nav.astro`, `Hero.astro`, `Footer.astro`, `Button.astro` (Props `href`, `label`, `variant`; restliche Attribute werden auf das `<a>` durchgereicht), Layout `Legal.astro` mit den Seiten `/impressum` und `/datenschutz` (Platzhaltertext, `noindex` über neue Base-Prop), `src/lib/images.ts` (`resolveImage()` mappt `de.json`-Pfade `/images/*` auf `src/assets/images/` für astro:assets; `publicImageSize()` liest Logo-Maße für `width`/`height`).
 - `de.json` ergänzt: `nav.ariaLabel`, `footer.linksLabel`, `legal.*` (Titel, Meta, Platzhalter, Zurück-Link) sowie der Zeilenumbruch `\n` in `hero.text` nach dem ersten Satz (Spec Abschnitt 1, Figma).
