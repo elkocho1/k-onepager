@@ -72,8 +72,12 @@ const copies = [0, 1];
     color: var(--c-teal);
   }
 
+  /* Same treatment as .outline-text in the hero – repeated here because the
+     scoped .marquee__item selector outranks the global utility. */
   .marquee__item.outline-text {
     font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--c-teal);
   }
 
   @media (max-width: 767px) {
