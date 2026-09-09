@@ -13,9 +13,9 @@
 
 ## Definition of Done
 
-- [ ] Vision bei 1920: Bild 778×650 links, Text 702 rechts, Eyebrow magenta, H2 42 teal
-- [ ] Mission: drei Prinzipien mit lime-Linie links, Titel lime 24, Subtext teal
-- [ ] Marquee zeigt zwei Zeilen, jeder zweite Eintrag als Outline, Ränder laufen in night aus, kein horizontaler Scrollbalken (`body { overflow-x: hidden }` greift, aber die Sektion selbst hat `overflow: hidden`)
-- [ ] Mobile 390: Bild über Text, Prinzipien gestapelt, Marquee 33 px
-- [ ] Alle Texte aus `de.json`
-- [ ] Commit `feat(phase-2): vision, mission, marquee`
+- [x] Vision bei 1920: Bild 778×650 links, Text 702 rechts, Eyebrow magenta, H2 42 teal
+- [x] Mission: drei Prinzipien mit lime-Linie links, Titel lime 24, Subtext teal
+- [x] Marquee zeigt zwei Zeilen, jeder zweite Eintrag als Outline, Ränder laufen in night aus, kein horizontaler Scrollbalken (`body { overflow-x: hidden }` greift, aber die Sektion selbst hat `overflow: hidden`)
+- [x] Mobile 390: Bild über Text, Prinzipien gestapelt, Marquee 33 px
+- [x] Alle Texte aus `de.json`
+- [x] Commit `feat(phase-2): vision, mission, marquee`

@@ -1,0 +1,92 @@
+---
+/**
+ * Mission (spec section 3, Figma 144:2 / mobile 242:55): eyebrow / h2 / body
+ * left (702), three principles right (778) with a lime rule on the left.
+ * No own id – it belongs to the vision block, 80px below it.
+ */
+import { content } from '../lib/content';
+
+const { mission } = content;
+---
+
+<section class="mission">
+  <div class="container mission__grid">
+    <div class="mission__text">
+      <p class="eyebrow">{mission.eyebrow}</p>
+      <h2 class="h2">{mission.headline}</h2>
+      <p class="body">{mission.text}</p>
+    </div>
+    <ul class="principles" role="list" data-reveal-stagger>
+      {mission.principles.map((principle) => (
+        <li class="principle">
+          <strong class="principle__title">{principle.strong}</strong>
+          <span class="principle__text">{principle.weak}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .mission {
+    margin-top: 80px;
+  }
+
+  .mission__grid {
+    display: grid;
+    grid-template-columns: 702px 778px;
+    gap: 203px;
+    align-items: start;
+  }
+
+  .mission__text {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 16px;
+    border-left: 1px solid var(--c-lime);
+  }
+
+  .principle__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: var(--lh-h2);
+    color: var(--c-lime);
+  }
+
+  .principle__text {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-teal);
+  }
+
+  @media (max-width: 1439px) {
+    .mission__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .mission__grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .principles {
+      gap: 24px;
+    }
+  }
+</style>

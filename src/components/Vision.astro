@@ -1,0 +1,93 @@
+---
+/**
+ * Vision (spec section 2, Figma 139:45 / mobile 242:46): photo left
+ * (778×650), eyebrow / h2 / two paragraphs right (702), vertically centred.
+ * Mobile: photo (342×260) above the text.
+ */
+import { Picture } from 'astro:assets';
+import { content } from '../lib/content';
+import { resolveImage } from '../lib/images';
+
+const { vision } = content;
+const image = resolveImage(vision.image.src);
+---
+
+<section id={vision.id} class="vision">
+  <div class="container vision__grid">
+    <Picture
+      src={image}
+      alt={vision.image.alt}
+      widths={[342, 684, 778, 1556]}
+      sizes="(max-width: 767px) calc(100vw - 48px), 778px"
+      formats={['avif', 'webp']}
+      loading="lazy"
+      decoding="async"
+      class="vision__image"
+      pictureAttributes={{ class: 'vision__picture' }}
+    />
+    <div class="vision__text">
+      <p class="eyebrow">{vision.eyebrow}</p>
+      <h2 class="h2">{vision.headline}</h2>
+      <div class="vision__copy">
+        {vision.paragraphs.map((paragraph) => <p class="body">{paragraph}</p>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .vision {
+    margin-top: 80px; /* hero 0–936 → vision 1016 (spec) */
+  }
+
+  .vision__grid {
+    display: grid;
+    grid-template-columns: 778px 702px;
+    gap: 120px;
+    align-items: center;
+  }
+
+  .vision :global(.vision__picture) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 778 / 650;
+  }
+
+  .vision :global(.vision__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 50%; /* crop slightly to the right (spec) */
+  }
+
+  /* Eyebrow pattern: eyebrow → 24 → h2 → 24 → body */
+  .vision__text {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .vision__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  @media (max-width: 1439px) {
+    .vision__grid {
+      grid-template-columns: minmax(0, 778fr) minmax(0, 702fr);
+      gap: 64px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .vision__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .vision :global(.vision__picture) {
+      aspect-ratio: 342 / 260;
+    }
+  }
+</style>
