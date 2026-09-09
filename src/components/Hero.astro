@@ -2,6 +2,9 @@
 /**
  * Hero (spec section 1, Figma 139:14 / mobile 242:22): full-width photo that
  * fades into night at the top and bottom, text block on the left, two buttons.
+ * The headline is split into one <span> per letter at build time for the type
+ * effect (phase 7, item 1 – animations.ts); screen readers get the plain text
+ * from a visually hidden copy, the letter spans are aria-hidden.
  */
 import { Picture } from 'astro:assets';
 import Button from './Button.astro';
@@ -27,19 +30,22 @@ const textLines = nl2br(hero.text);
     pictureAttributes={{ class: 'hero__picture', 'data-parallax': '' }}
   />
   <div class="container">
-    <div class="hero__content">
-      <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
+    <div class="hero__content" data-hero-content>
+      <p class="eyebrow hero__eyebrow" data-hero-fade>{hero.eyebrow}</p>
       <h1 class="hero__title">
-        {hero.headline.map((line, index) => (
-          <span class:list={['line', { 'outline-text': index === 1 }]} data-hero-line>{line}</span>
-        ))}
+        <span class="visually-hidden">{hero.headline.join(' ')}</span>
+        <span class="hero__lines" aria-hidden="true">
+          {hero.headline.map((line, index) => (
+            <span class:list={['line', { 'outline-text': index === 1 }]} data-hero-line={index === 1 ? 'outline' : 'solid'}>{[...line].map((char) => <span class="char" data-hero-char>{char}</span>)}</span>
+          ))}
+        </span>
       </h1>
-      <p class="body hero__text">
+      <p class="body hero__text" data-hero-fade>
         {textLines.map((line, index) => (
           <Fragment>{index > 0 && <br />}{line}</Fragment>
         ))}
       </p>
-      <div class="hero__actions">
+      <div class="hero__actions" data-hero-fade>
         <Button href={hero.primaryCta.href} label={hero.primaryCta.label} variant="primary" />
         <Button href={hero.secondaryCta.href} label={hero.secondaryCta.label} variant="secondary" />
       </div>
@@ -112,8 +118,20 @@ const textLines = nl2br(hero.text);
     color: var(--c-white);
   }
 
+  .hero__lines,
   .hero__title .line {
     display: block;
+  }
+
+  /* One inline-block per letter so GSAP can move them (the inherited
+     letter-spacing and text-stroke still apply per glyph); a line must never
+     wrap between its letters */
+  .hero__title .line {
+    white-space: nowrap;
+  }
+
+  .hero__title .char {
+    display: inline-block;
   }
 
   .hero__title .line + .line {

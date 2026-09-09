@@ -4,7 +4,9 @@
  * wall as ARIA tabs (logos tinted teal via CSS mask, i-pro Kom unmasked) and
  * one spotlight panel per company – all rendered, only the selected one
  * visible. Switching happens in src/scripts/portfolio.ts; without JS the
- * first spotlight shows.
+ * first spotlight shows. The panels share one grid cell so the cross-fade
+ * (phase 7, item 10 – animations.ts) can overlap two of them without the
+ * section changing height.
  */
 import { Picture } from 'astro:assets';
 import Button from './Button.astro';
@@ -72,7 +74,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
           tabindex="0"
           hidden={index !== 0}
         >
-          <div class="spot__text">
+          <div class="spot__text" data-spot-text>
             {company.mask ? (
               <span class="spot__logo spot__logo--mask" style={logoStyle(company)} role="img" aria-label={company.name}></span>
             ) : (
@@ -112,7 +114,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
               loading="lazy"
               decoding="async"
               class="spot__image"
-              pictureAttributes={{ class: 'spot__picture' }}
+              pictureAttributes={{ class: 'spot__picture', 'data-spot-media': '' }}
             />
           </div>
         </article>
@@ -156,11 +158,13 @@ const logoStyle = (company: (typeof companies)[number]) =>
     border: 1px solid var(--c-tile-border);
     border-radius: var(--radius-tile);
     background: var(--c-tile-bg);
+    /* Hover lift lives in `translate` (200ms) so GSAP owns `transform` for
+       the stagger; frame, glow and fill switch in 300ms (phase 7, item 9) */
     transition:
-      transform var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out),
-      box-shadow var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out);
+      translate var(--dur-fast) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out);
   }
 
   .tile__logo {
@@ -185,7 +189,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
     line-height: var(--lh-h2);
     letter-spacing: var(--ls-h2);
     color: var(--c-white-a70);
-    transition: color var(--dur-fast) var(--ease-out);
+    transition: color var(--dur-base) var(--ease-out);
   }
 
   /* Active: 1.5px magenta frame (1px border + .5px inset shadow, no layout shift) + glow */
@@ -203,17 +207,22 @@ const logoStyle = (company: (typeof companies)[number]) =>
 
   @media (hover: hover) {
     .tile:hover {
-      transform: translateY(-4px);
+      translate: 0 -4px;
       border-color: var(--c-magenta-a50);
     }
   }
 
   /* --- Spotlight ---------------------------------------------------------- */
+  /* All panels sit in the same cell: during the cross-fade two are shown at
+     once and the cell keeps the taller one's height (on desktop all 480px) */
   .spotlights {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     margin-top: 56px;
   }
 
   .spot {
+    grid-area: 1 / 1;
     display: grid;
     grid-template-columns: 680px 1px 1fr;
     min-height: 480px;

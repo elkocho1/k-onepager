@@ -2,8 +2,10 @@
  * Portfolio logo wall: WAI-ARIA tabs. Clicking a tile (or using arrow keys,
  * Home, End on a focused tile) selects it and shows its spotlight panel.
  * Without JS the first panel is visible and the tiles are inert.
- * Dispatches `portfolio:change` (bubbling, detail { slug, index }) for the
- * cross-fade in phase 7.
+ * Dispatches `portfolio:change` (bubbling, cancelable, detail { slug, index })
+ * before switching the panels: the motion layer (animations.ts) cancels it to
+ * cross-fade and sets `hidden` itself after the fade; otherwise (no motion,
+ * reduced motion) the panels switch right here.
  */
 export function initPortfolio(root: ParentNode = document): void {
   const tablist = root.querySelector<HTMLElement>('[data-portfolio-tabs]');
@@ -17,16 +19,20 @@ export function initPortfolio(root: ParentNode = document): void {
       const active = i === index;
       tab.setAttribute('aria-selected', String(active));
       tab.tabIndex = active ? 0 : -1;
-      const panel = panels[i];
-      if (panel) panel.hidden = !active;
     });
     if (focus) tabs[index]?.focus({ preventScroll: true });
-    tablist.dispatchEvent(
+    const proceed = tablist.dispatchEvent(
       new CustomEvent('portfolio:change', {
         bubbles: true,
+        cancelable: true,
         detail: { slug: tabs[index]?.dataset.slug, index },
       }),
     );
+    if (proceed) {
+      panels.forEach((panel, i) => {
+        if (panel) panel.hidden = i !== index;
+      });
+    }
   };
 
   tabs.forEach((tab, index) => {

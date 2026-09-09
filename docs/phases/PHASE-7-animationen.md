@@ -30,16 +30,16 @@
 14. **Smooth Scroll** – Lenis (`lerp: 0.1`, `wheelMultiplier: 1`), auf Touch deaktiviert (`syncTouch: false`). Anker-Links, `scroll-padding` beachten.
 15. **Hex-Cursor** – `src/scripts/hex-cursor.ts` + `HexCursor.astro`: `<canvas>` fixed über der ganzen Seite, `pointer-events: none`, `z-index` unter der Nav. Hexagon-Raster (Kantenlänge 28 px, 1 px Linien magenta) wird nur im Radius 220 px um den Cursor sichtbar (radialer Alpha-Verlauf, `globalCompositeOperation`), Cursor-Position mit `lerp 0.15` nachgezogen. Nur bei `(pointer: fine)` und nicht bei reduced-motion; auf `resize` Raster neu berechnen; `requestAnimationFrame` nur laufen lassen, wenn sich die Maus in den letzten 2 s bewegt hat. Über dunklen Flächen ist das Raster sichtbar, über Bildern (Hero, Schwerpunkte) mit `mix-blend-mode: screen` dezenter.
 
-## Stand Teil A (2026-09-09, `feat(phase-7a): scroll foundations`)
+## Stand (2026-09-09)
 
-Umgesetzt: 2, 3, 4, 5, 6, 8, 11, 12, 13, 14 – Details im Status-Log (`docs/BUILD-PHASES.md`). Teil B nach Sichtung: 1, 7, 10, 15. Punkt 9 (Logo-Wall-Stagger) ist keinem Teil zugeordnet – Entscheidung offen. Abweichungen von der Liste oben: Marquee mit vier Kopien und `xPercent` ±25 (statt doppeltem Track und −50, sonst Lücke im Loop ab 1920 px); Anker ohne `offset: -96`, weil Lenis 1.3 `scroll-padding-top` selbst berücksichtigt; Nav-Zustand (3) läuft auch bei reduced motion (Zustand, keine Bewegung). Prüfskripte: `node scripts/motion-check.mjs <url>` (JS aus / reduced motion / Funktionstests), `node scripts/scroll-perf.mjs <url> --trace=docs/screens/…json` (Long Tasks, CLS, DevTools-Trace), `node scripts/page-shot.mjs <url> out.png --no-js | --reduced-motion`.
+**Teil A** (`feat(phase-7a): scroll foundations`, `2e054b4`): 2, 3, 4, 5, 6, 8, 11, 12, 13, 14. **Teil B** (`feat(phase-7b): signature animations`): 1, 7 (native Scroll-Variante mit Stagger – kein Pinning, Entscheidung nach Sichtung), 9, 10, 15. Details je Punkt im Status-Log (`docs/BUILD-PHASES.md`). Abweichungen von der Liste oben: Marquee mit vier Kopien und `xPercent` ±25 (statt doppeltem Track und −50, sonst Lücke im Loop ab 1920 px); Anker ohne `offset: -96`, weil Lenis 1.3 `scroll-padding-top` selbst berücksichtigt; Nav-Zustand (3) läuft auch bei reduced motion (Zustand, keine Bewegung); Hero-Intro (1) mit `yPercent: 60` ohne Maske (Unterlängen bei Zeilenhöhe 1,0) und Start nach `document.fonts.ready`; Fortschrittslinie (7) bekommt ihren Wert weiter vom Inline-Script (`warum:progress`), GSAP zieht nur nach; `portfolio:change` (10) ist cancelable und wird vor dem Umschalten gefeuert. Referenzvideos lagen nicht vor (`_material/referenzen/` fehlt) – Bewegung nach der Beschreibung oben, siehe Status-Log. Prüfskripte: `node scripts/motion-check.mjs <url>` (JS aus / reduced motion / 43 Funktionstests inkl. Spotlight-Wechsel per CDP und Hex-Canvas), `node scripts/scroll-perf.mjs <url> --trace=docs/screens/…json` (Long Tasks, CLS, DevTools-Trace), `node scripts/page-shot.mjs <url> out.png --no-js | --reduced-motion`.
 
 ## Definition of Done
 
-- [ ] Alle 15 Punkte umgesetzt, Verhalten je Punkt kurz in `docs/BUILD-PHASES.md` Status-Log notiert
-- [ ] `prefers-reduced-motion: reduce`: keine Bewegung, alle Inhalte sofort sichtbar, Marquee statisch, kein Canvas
-- [ ] JS deaktiviert: Seite komplett sichtbar (kein `opacity: 0` im CSS)
-- [ ] Chrome Performance-Aufnahme beim Durchscrollen: keine Long Tasks > 50 ms, keine Layout-Shifts
-- [ ] Mobile (echtes Gerät oder Emulation): Scroll flüssig, kein Lenis-Ruckeln auf Touch
-- [ ] Bundle-Größe JS gzip ≤ 90 kB (GSAP + ScrollTrigger + Lenis ≈ 45 kB)
-- [ ] Commit `feat(phase-7): animations, smooth scroll, hex cursor`
+- [x] Alle 15 Punkte umgesetzt, Verhalten je Punkt kurz in `docs/BUILD-PHASES.md` Status-Log notiert (Teil A + Teil B)
+- [x] `prefers-reduced-motion: reduce`: keine Bewegung, alle Inhalte sofort sichtbar, Marquee statisch, kein Canvas (bleibt `hidden`, das Cursor-Script wird gar nicht geladen)
+- [x] JS deaktiviert: Seite komplett sichtbar (kein `opacity: 0` im CSS)
+- [x] Chrome Performance-Aufnahme beim Durchscrollen: keine Long Tasks > 50 ms, keine Layout-Shifts (1920: 0 Long Tasks, CLS 0,0009 · 390: 0 / 0,0000)
+- [x] Mobile (Emulation 390: 0 Long Tasks, Lenis auf Touch per `syncTouch: false` aus) – Test auf einem echten Gerät steht noch aus
+- [x] Bundle-Größe JS gzip ≤ 90 kB (Hauptmodul 51,6 kB inkl. GSAP + ScrollTrigger + Lenis, Hex-Chunk 1,0 kB lazy)
+- [x] Commits `feat(phase-7a): scroll foundations` + `feat(phase-7b): signature animations` (zwei Teile statt eines Sammel-Commits)

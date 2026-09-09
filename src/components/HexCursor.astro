@@ -1,0 +1,25 @@
+---
+/**
+ * Hex cursor layer (phase 7, item 15): a fixed, click-through canvas below
+ * the nav on which src/scripts/hex-cursor.ts draws the magenta hexagon
+ * lattice around the pointer. Rendered hidden – the script (loaded lazily
+ * after `load`, only for fine pointers without reduced motion) reveals it,
+ * so without JS or with `prefers-reduced-motion: reduce` there is no canvas
+ * on screen.
+ */
+---
+
+<canvas class="hex-cursor" data-hex-cursor hidden aria-hidden="true"></canvas>
+
+<style>
+  .hex-cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 50; /* below the nav (100) */
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Full magenta on night, subdued over the photos (hero, focus areas) */
+    mix-blend-mode: screen;
+  }
+</style>

@@ -59,7 +59,8 @@ const icons = Object.fromEntries(
 </section>
 
 <script>
-  // Progress line + counter follow the native scroll position (no GSAP).
+  // Progress line + counter follow the native scroll position (no GSAP);
+  // `warum:progress` lets the motion layer ease the line (animations.ts, 7).
   const track = document.querySelector<HTMLElement>('[data-cards]');
   const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
   const count = document.querySelector<HTMLElement>('[data-progress-count]');
@@ -86,8 +87,10 @@ const icons = Object.fromEntries(
           active = index;
         }
       });
-      bar.style.setProperty('--progress', String((1 + ratio * (total - 1)) / total));
+      const fill = (1 + ratio * (total - 1)) / total;
+      bar.style.setProperty('--progress', String(fill));
       count.textContent = `${pad(active + 1)}/${pad(total)}`;
+      track.dispatchEvent(new CustomEvent('warum:progress', { bubbles: true, detail: { fill, active } }));
     };
 
     const schedule = () => {
@@ -269,9 +272,10 @@ const icons = Object.fromEntries(
     position: absolute;
     inset: 0;
     background: var(--c-magenta); /* Figma 139:188 – active state, not text */
+    /* Fill from the inline script; with motion GSAP eases an inline transform
+       over it (animations.ts) – no CSS transition, it would fight that */
     transform: scaleX(var(--progress, 0.1667));
     transform-origin: left center;
-    transition: transform var(--dur-fast) var(--ease-out);
   }
 
   .progress__count {

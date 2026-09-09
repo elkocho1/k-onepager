@@ -1,13 +1,16 @@
 /**
- * Motion layer (docs/phases/PHASE-7-animationen.md, part A): Lenis smooth
- * scroll, GSAP + ScrollTrigger reveals, parallax, marquee loop, nav scroll
- * state, card and CTA glows. Everything here is layered on top of a page that
- * is complete without JS – start states (opacity 0, offsets) are set by GSAP
- * only, never in CSS.
+ * Motion layer (docs/phases/PHASE-7-animationen.md): Lenis smooth scroll,
+ * GSAP + ScrollTrigger reveals, parallax, marquee loop, nav scroll state,
+ * card and CTA glows (part A); hero type intro and scrub, slider stagger and
+ * eased progress line, logo-wall stagger, spotlight cross-fade and the lazily
+ * loaded hex cursor (part B). Everything here is layered on top of a page
+ * that is complete without JS – start states (opacity 0, offsets) are set by
+ * GSAP only, never in CSS.
  *
  * `prefers-reduced-motion: reduce` (checked live via gsap.matchMedia): only
  * the nav state (background after 40px, active link) is wired up – no smooth
- * scroll, no tweens, the marquee stays static.
+ * scroll, no tweens, the marquee stays static, the spotlight switches
+ * instantly (portfolio.ts default) and the hex canvas stays hidden.
  */
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -20,6 +23,8 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 const EASE_OUT = 'power4.out';
 const REVEAL_DURATION = 0.8;
 const REVEAL_START = 'top 85%';
+
+type Cleanup = () => void;
 
 /* --- Nav: scroll state + active link (state, not motion – runs always) ----- */
 function initNav(): void {
@@ -53,7 +58,7 @@ function initNav(): void {
 }
 
 /* --- Smooth scroll (14) ---------------------------------------------------- */
-function initLenis(): () => void {
+function initLenis(): Cleanup {
   const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1, syncTouch: false });
   lenis.on('scroll', ScrollTrigger.update);
   const tick = (time: number): void => lenis.raf(time * 1000);
@@ -132,6 +137,38 @@ function initMarquee(): void {
   });
 }
 
+/* --- Hero type (1): letters rise on load, drift and fade on scroll --------- */
+function initHero(desktop: boolean): void {
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const content = hero?.querySelector<HTMLElement>('[data-hero-content]');
+  if (!hero || !content) return;
+  const chars = hero.querySelectorAll<HTMLElement>('[data-hero-char]');
+  const outlineChars = hero.querySelectorAll<HTMLElement>('[data-hero-line="outline"] [data-hero-char]');
+  const fades = hero.querySelectorAll<HTMLElement>('[data-hero-fade]');
+
+  // Intro: the letters of both lines rise from below one after the other
+  // (0.03 s apart); eyebrow, copy and buttons follow with the reveal move.
+  // Starts once the display weight has loaded so no glyphs swap mid-flight
+  // (and after 1 s at the latest, should a font never arrive).
+  const intro = gsap.timeline({ paused: true, defaults: { duration: REVEAL_DURATION, ease: EASE_OUT } });
+  intro
+    .from(chars, { yPercent: 60, opacity: 0, stagger: 0.03 }, 0)
+    .from(fades, { y: desktop ? 24 : 16, opacity: 0, stagger: 0.1 }, 0.35);
+  const play = (): void => {
+    intro.play();
+  };
+  document.fonts?.ready.then(play);
+  gsap.delayedCall(1, play);
+
+  // Scroll (scrub 0.6): the outline line tracks out to the right letter by
+  // letter while the whole text block lifts and fades until the hero is gone
+  const drift = desktop ? 6 : 3;
+  gsap
+    .timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } })
+    .to(outlineChars, { x: (index) => index * drift, ease: 'none' }, 0)
+    .to(content, { y: desktop ? -80 : -40, opacity: 0, ease: 'none' }, 0);
+}
+
 /* --- Reveals (4, 5, 11) ---------------------------------------------------- */
 function initReveals(desktop: boolean): void {
   const distance = desktop ? 24 : 16;
@@ -196,6 +233,117 @@ function initParallax(desktop: boolean): void {
   }
 }
 
+/* --- Why-K+ slider (7): staggered cards, eased progress line --------------- */
+function initSlider(desktop: boolean): Cleanup | undefined {
+  const track = document.querySelector<HTMLElement>('[data-cards]');
+  if (!track) return;
+  const cards = Array.from(track.children) as HTMLElement[];
+
+  // Cards rise in with a stagger. Desktop: all six share one row and enter
+  // together; mobile (stacked): each batch that scrolls into view staggers.
+  gsap.set(cards, { y: desktop ? 24 : 16, opacity: 0 });
+  ScrollTrigger.batch(cards, {
+    start: REVEAL_START,
+    once: true,
+    onEnter: (batch) =>
+      gsap.to(batch, { y: 0, opacity: 1, duration: REVEAL_DURATION, ease: EASE_OUT, stagger: 0.12 }),
+  });
+
+  // Progress line: the inline script in WarumKplus.astro derives the fill
+  // from the native scroll position and announces it as `warum:progress`;
+  // here the bar eases to that value instead of snapping (hidden on mobile)
+  const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
+  if (!bar) return;
+  const scaleTo = gsap.quickTo(bar, 'scaleX', { duration: 0.4, ease: 'power3' });
+  const onProgress = (event: Event): void => {
+    scaleTo((event as CustomEvent<{ fill: number }>).detail.fill);
+  };
+  track.addEventListener('warum:progress', onProgress);
+  return () => track.removeEventListener('warum:progress', onProgress);
+}
+
+/* --- Portfolio logo wall (9): tiles stagger in ----------------------------- */
+function initLogoWall(desktop: boolean): void {
+  const wall = document.querySelector<HTMLElement>('[data-portfolio-tabs]');
+  if (!wall) return;
+  gsap.from(Array.from(wall.children), {
+    y: desktop ? 24 : 16,
+    opacity: 0,
+    duration: REVEAL_DURATION,
+    ease: EASE_OUT,
+    stagger: 0.08,
+    scrollTrigger: { trigger: wall, start: REVEAL_START, once: true },
+  });
+}
+
+/* --- Portfolio spotlight (10): cross-fade on portfolio:change -------------- */
+function initSpotlight(): Cleanup | undefined {
+  const tablist = document.querySelector<HTMLElement>('[data-portfolio-tabs]');
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-portfolio-panels] > *'));
+  if (!tablist || !panels.length) return;
+
+  let current = Math.max(0, panels.findIndex((panel) => !panel.hidden));
+  let timeline: gsap.core.Timeline | undefined;
+  const parts = (panel: HTMLElement): Element[] => [
+    panel,
+    ...panel.querySelectorAll('[data-spot-media], [data-spot-text] > *'),
+  ];
+
+  /** Stops a running switch and hides every panel except `keep`, untouched. */
+  const settle = (keep: HTMLElement[]): void => {
+    timeline?.kill();
+    timeline = undefined;
+    panels.forEach((panel) => {
+      if (keep.includes(panel)) return;
+      panel.hidden = true;
+      gsap.set(parts(panel), { clearProps: 'transform,opacity' });
+    });
+  };
+
+  const onChange = (event: Event): void => {
+    const { index } = (event as CustomEvent<{ index: number }>).detail;
+    const next = panels[index];
+    const previous = panels[current];
+    if (!next || !previous || next === previous) return; // nothing to fade – portfolio.ts switches
+    event.preventDefault(); // `hidden` is set here, after the fade
+    settle([previous, next]);
+    current = index;
+    next.hidden = false;
+
+    const media = next.querySelector('[data-spot-media]');
+    const text = next.querySelector<HTMLElement>('[data-spot-text]');
+    timeline = gsap.timeline({
+      defaults: { duration: 0.6, ease: EASE_OUT },
+      onComplete: () => {
+        settle([next]);
+        gsap.set(parts(next), { clearProps: 'transform,opacity' });
+      },
+    });
+    timeline.to(
+      previous,
+      {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power1.out',
+        onComplete: () => {
+          previous.hidden = true;
+        },
+      },
+      0,
+    );
+    timeline.fromTo(next, { opacity: 0 }, { opacity: 1 }, 0.1);
+    if (media) timeline.fromTo(media, { scale: 1.05 }, { scale: 1 }, 0.1);
+    if (text) timeline.fromTo(Array.from(text.children), { x: 24 }, { x: 0, stagger: 0.06 }, 0.1);
+  };
+
+  tablist.addEventListener('portfolio:change', onChange);
+  return () => {
+    tablist.removeEventListener('portfolio:change', onChange);
+    const shown = panels[current];
+    settle(shown ? [shown] : []);
+  };
+}
+
 /* --- CTA glow (12): slow pulse + drift with the scroll ---------------------- */
 function initCtaGlow(): void {
   const glow = document.querySelector<HTMLElement>('[data-glow]');
@@ -239,6 +387,25 @@ function initCardGlow(): void {
   });
 }
 
+/* --- Hex cursor (15): loaded after `load`, mouse pointers only -------------- */
+function loadHexCursor(): Cleanup {
+  let destroy: Cleanup | undefined;
+  let cancelled = false;
+  const load = (): void => {
+    import('./hex-cursor').then(({ initHexCursor }) => {
+      if (cancelled) return;
+      destroy = initHexCursor();
+    });
+  };
+  if (document.readyState === 'complete') load();
+  else window.addEventListener('load', load, { once: true });
+  return () => {
+    cancelled = true;
+    window.removeEventListener('load', load);
+    destroy?.();
+  };
+}
+
 /* --- Boot ------------------------------------------------------------------- */
 initNav();
 
@@ -263,12 +430,19 @@ mm.add(
   (context) => {
     const { reduce = false, desktop = false, hover = false } = context.conditions ?? {};
     if (reduce) return;
+    initHero(desktop);
     initReveals(desktop);
     initParallax(desktop);
     initCtaGlow();
+    initLogoWall(desktop);
+    const cleanups = [initSlider(desktop), initSpotlight()];
     if (hover) initCardGlow();
+    return () => cleanups.forEach((cleanup) => cleanup?.());
   },
 );
+
+// The hex lattice needs a mouse; it loads last, after everything else
+mm.add('(pointer: fine) and (prefers-reduced-motion: no-preference)', loadHexCursor);
 
 // Web fonts change line counts – re-measure the trigger positions once loaded
 document.fonts?.ready.then(() => ScrollTrigger.refresh());

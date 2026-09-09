@@ -2,13 +2,14 @@
 /**
  * Base layout: <head> with meta, Open Graph / Twitter, canonical, favicon,
  * font preloads, global styles and an Organization JSON-LD block, Nav and
- * Footer, and the motion layer (src/scripts/animations.ts – bundled as a
- * module; the page is complete without it).
+ * Footer, the hex-cursor canvas and the motion layer (src/scripts/animations.ts
+ * – bundled as a module; the page is complete without it).
  */
 import '../styles/tokens.css';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import HexCursor from '../components/HexCursor.astro';
 import { content } from '../lib/content';
 
 interface Props {
@@ -111,6 +112,7 @@ const jsonLd = {
       <slot />
     </main>
     <Footer />
+    <HexCursor />
     <script src="../scripts/animations.ts"></script>
   </body>
 </html>

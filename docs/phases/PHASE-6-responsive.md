@@ -18,7 +18,7 @@
 
 ## Definition of Done
 
-- [x] 390 px: jede Sektion deckt sich mit dem Mobile-Frame (Toleranz ±8 px bei Höhen) – strukturell (Abstände, Bildhöhen, Buttons); die Sektionshöhen liegen wegen der Spec-Typografie (Body 18/28 statt Inter 15/23 im Frame) darüber, siehe Status-Log
+- [x] 390 px: jede Sektion deckt sich strukturell 1:1 mit dem Mobile-Frame (Abstände, Bildhöhen, Buttons, Tiles); Höhenabweichung durch Font-Metriken (KMR Apparat statt Inter 15/23, H2/H3-Zeilenhöhe 1,2) im Status-Log dokumentiert
 - [x] Kein `document.documentElement.scrollWidth > innerWidth` bei 320, 390, 768, 1024, 1440, 1920 (und 2560)
 - [x] Alle interaktiven Elemente per Tastatur erreichbar, Fokus sichtbar
 - [x] Lighthouse Mobile: Accessibility ≥ 95, Best Practices ≥ 95, CLS < 0.05

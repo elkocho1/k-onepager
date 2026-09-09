@@ -2,17 +2,23 @@
  * Motion acceptance checks (docs/phases/PHASE-7-animationen.md, DoD), run
  * against the preview server in headless Chrome:
  *
- *   nojs     page scripts disabled – every reveal/parallax/marquee target is
- *            fully visible and untransformed, Lenis is off
+ *   nojs     page scripts disabled – every motion target (reveals, parallax,
+ *            marquee, hero letters, cards, tiles) is fully visible and
+ *            untransformed, Lenis is off, the hex canvas stays hidden
  *   reduced  prefers-reduced-motion: reduce emulated – same as nojs, plus two
  *            viewport captures 1.5 s apart at the marquee are pixel-identical
+ *            and a spotlight switch happens instantly
  *   js       scripts on – Lenis runs, nav gets .is-scrolled and aria-current,
+ *            hero letters settle after the intro and drift/fade on scroll,
  *            anchor links land at --scroll-offset with hash + focus, reveals
  *            resolve, marquee moves, hero parallax scrubs, CTA glow pulses,
- *            the card track still scrolls horizontally under the wheel
+ *            the card track scrolls horizontally under the wheel with the
+ *            progress line easing, logo tiles settle, the spotlight
+ *            cross-fades to exactly one panel at a stable height (also under
+ *            rapid clicks), the hex lattice shows around the mouse
  *
  *   node scripts/motion-check.mjs <url> [--mode=all|nojs|reduced|js] [--width=1920]
- *                                 [--height=1080] [--timeout=120000]
+ *                                 [--height=1080] [--timeout=150000]
  *
  * Prints one line per check and exits 1 on any failure. Start the server
  * first, e.g. `npx astro preview --host 127.0.0.1 --port 4321`.
@@ -28,7 +34,7 @@ if (!url) {
 const options = parseOptions(rest);
 const width = Number(options.width ?? 1920);
 const height = Number(options.height ?? 1080);
-const timeout = Number(options.timeout ?? 120_000);
+const timeout = Number(options.timeout ?? 150_000);
 const mode = options.mode ?? 'all';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -41,23 +47,42 @@ function check(name, ok, detail = '') {
 /** Every element the motion layer touches must be visible and untransformed. */
 const STATIC_PROBE = `(async () => {
   await document.fonts.ready;
-  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow]')];
+  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-fade], [data-hero-char], [data-cards] > *, [data-portfolio-tabs] > *')];
   const bad = targets.filter((el) => {
     const cs = getComputedStyle(el);
     return parseFloat(cs.opacity) < 1 || cs.transform !== 'none' || cs.visibility !== 'visible';
   });
+  const hex = document.querySelector('[data-hex-cursor]');
   return {
     targets: targets.length,
     bad: bad.map((el) => el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : '')),
     lenis: document.documentElement.classList.contains('lenis'),
     scrolled: !!document.querySelector('[data-nav].is-scrolled'),
+    hexHidden: hex ? hex.hidden && getComputedStyle(hex).display === 'none' : null,
   };
 })()`;
+
+/** Spotlight state: shown panels (indices), their opacity, inner transforms, container height. */
+const PANELS = `(() => {
+  const panels = [...document.querySelectorAll('[data-portfolio-panels] > *')];
+  const shown = panels.map((p, i) => [p, i]).filter(([p]) => !p.hidden);
+  const identity = (t) => t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)';
+  return {
+    height: Math.round(document.querySelector('[data-portfolio-panels]').getBoundingClientRect().height * 10) / 10,
+    shown: shown.map(([, i]) => i),
+    opacity: shown.map(([p]) => +getComputedStyle(p).opacity),
+    settled: shown.every(([p]) => identity(getComputedStyle(p.querySelector('[data-spot-media]')).transform) && [...p.querySelector('[data-spot-text]').children].every((c) => identity(getComputedStyle(c).transform))),
+    selected: [...document.querySelectorAll('[data-portfolio-tabs] [role="tab"]')].findIndex((t) => t.getAttribute('aria-selected') === 'true'),
+  };
+})()`;
+
+const clickTab = (index) => `document.querySelectorAll('[data-portfolio-tabs] [role="tab"]')[${index}].click()`;
 
 async function staticChecks(page, label) {
   const r = await page.evaluate(STATIC_PROBE);
   check(`${label}: ${r.targets} motion targets visible and untransformed`, r.targets > 0 && r.bad.length === 0, r.bad.join(', '));
   check(`${label}: no Lenis`, !r.lenis);
+  check(`${label}: hex canvas hidden`, r.hexHidden === true, r.hexHidden === null ? 'no canvas element' : '');
   return r;
 }
 
@@ -69,6 +94,8 @@ async function runNoJs() {
   await withPage({ width, height, timeout, hideScrollbars: true, disableJs: true }, async (page) => {
     await page.navigate(url);
     await staticChecks(page, 'no-js');
+    const h1 = await page.evaluate(`document.querySelector('h1').innerText.replace(/\\s+/g, ' ').trim()`);
+    check('no-js: h1 reads as plain text (hidden copy + letters)', h1.includes('Build Beyond.'), h1);
   });
 }
 
@@ -94,6 +121,9 @@ async function runReduced() {
     await page.evaluate(`(async () => { window.scrollTo(0, 300); await new Promise((r) => setTimeout(r, 400)); })()`);
     const scrolled = await page.evaluate(`!!document.querySelector('[data-nav].is-scrolled')`);
     check('reduced: nav .is-scrolled after 300px', scrolled === true);
+    // Spotlight switches without a fade
+    const instant = await page.evaluate(`(() => { ${clickTab(1)}; return ${PANELS}; })()`);
+    check('reduced: spotlight switches instantly (one panel, no fade)', instant.shown.length === 1 && instant.shown[0] === 1 && instant.opacity[0] === 1 && instant.selected === 1, JSON.stringify(instant));
   });
 }
 
@@ -130,21 +160,42 @@ async function runJs() {
     const m2 = await page.evaluate(`getComputedStyle(document.querySelector('[data-marquee-track]')).transform`);
     check('js: marquee moving', m1 !== m2 && m1 !== 'none', `${m1} → ${m2}`);
 
+    // Hero intro (letters 0.03 s apart + 0.8 s, text block after) has settled
+    await sleep(1400);
+    const intro = await page.evaluate(`(() => {
+      const chars = [...document.querySelectorAll('[data-hero-char]')];
+      const fades = [...document.querySelectorAll('[data-hero-fade]')];
+      const settled = (el) => { const cs = getComputedStyle(el); return cs.opacity === '1' && (cs.transform === 'none' || cs.transform === 'matrix(1, 0, 0, 1, 0, 0)'); };
+      return { chars: chars.length, fades: fades.length, unsettled: [...chars, ...fades].filter((el) => !settled(el)).length };
+    })()`);
+    check('js: hero letters and text block settled after the intro', intro.chars > 0 && intro.fades === 3 && intro.unsettled === 0, JSON.stringify(intro));
+
     // Wheel 8×60 = 480px: nav scrolled, hero parallax progressed, Lenis smoothed
     for (let i = 0; i < 8; i++) {
       await wheel(width / 2, height / 2, 60);
       await sleep(30);
     }
     await sleep(1500);
-    const after = await page.evaluate(`({
-      y: Math.round(scrollY),
-      scrolled: !!document.querySelector('[data-nav].is-scrolled'),
-      heroTransform: getComputedStyle(document.querySelector('[data-hero] [data-parallax]')).transform,
-    })`);
+    const after = await page.evaluate(`(() => {
+      const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };
+      const content = document.querySelector('[data-hero-content]');
+      const outline = [...document.querySelectorAll('[data-hero-line="outline"] [data-hero-char]')];
+      return {
+        y: Math.round(scrollY),
+        scrolled: !!document.querySelector('[data-nav].is-scrolled'),
+        heroTransform: getComputedStyle(document.querySelector('[data-hero] [data-parallax]')).transform,
+        contentOpacity: +getComputedStyle(content).opacity,
+        contentY: Math.round(matrix(content).f),
+        driftFirst: Math.round(matrix(outline[0]).e * 10) / 10,
+        driftLast: Math.round(matrix(outline[outline.length - 1]).e * 10) / 10,
+      };
+    })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
     check('js: nav .is-scrolled after 40px', after.scrolled);
     const scale = parseFloat(after.heroTransform.replace('matrix(', ''));
     check('js: hero parallax scrubbed (scale between 1 and 1.1)', scale > 1 && scale < 1.1, after.heroTransform);
+    check('js: hero text block lifts and fades with the scroll', after.contentOpacity > 0 && after.contentOpacity < 1 && after.contentY < 0, `opacity ${after.contentOpacity}, y ${after.contentY}`);
+    check('js: outline line tracks out letter by letter', after.driftFirst === 0 && after.driftLast > 0, `first ${after.driftFirst}, last ${after.driftLast}`);
 
     // Reveal resolves once its section is in view (founder text, well below)
     await page.evaluate(`(async () => {
@@ -166,6 +217,35 @@ async function runJs() {
     const current = await page.evaluate(`[...document.querySelectorAll('[data-nav] a[aria-current="true"]')].map((a) => a.hash)`);
     check('js: aria-current on the portfolio link', current.length === 1 && current[0] === '#portfolio', current.join(','));
 
+    // Logo wall settled after its stagger (6 × 0.08 s + 0.8 s)
+    await sleep(1200);
+    const wall = await page.evaluate(`(() => {
+      const tiles = [...document.querySelectorAll('[data-portfolio-tabs] > *')];
+      return { tiles: tiles.length, unsettled: tiles.filter((t) => { const cs = getComputedStyle(t); return cs.opacity !== '1' || !(cs.transform === 'none' || cs.transform === 'matrix(1, 0, 0, 1, 0, 0)'); }).length };
+    })()`);
+    check('js: logo-wall tiles settled after the stagger', wall.tiles === 6 && wall.unsettled === 0, JSON.stringify(wall));
+
+    // Spotlight cross-fade: two panels overlap briefly, then exactly one is
+    // left, at the same container height as before
+    const before = await page.evaluate(PANELS);
+    check('js: one spotlight panel before the switch', before.shown.length === 1 && before.shown[0] === 0, JSON.stringify(before));
+    await page.evaluate(clickTab(2));
+    await sleep(120);
+    const mid = await page.evaluate(PANELS);
+    check('js: spotlight cross-fade in progress (two panels, partial opacity)', mid.shown.length === 2 && mid.opacity.some((o) => o > 0 && o < 1), JSON.stringify(mid));
+    check('js: spotlight height stable during the fade', Math.abs(mid.height - before.height) < 1, `${before.height} → ${mid.height}`);
+    await sleep(1000);
+    const done = await page.evaluate(PANELS);
+    check('js: exactly one panel visible after the cross-fade', done.shown.length === 1 && done.shown[0] === 2 && done.opacity[0] === 1 && done.settled && done.selected === 2, JSON.stringify(done));
+    check('js: spotlight height stable after the switch', Math.abs(done.height - before.height) < 1, `${before.height} → ${done.height}`);
+    // Rapid switching: two clicks 80 ms apart still end with one settled panel
+    await page.evaluate(clickTab(3));
+    await sleep(80);
+    await page.evaluate(clickTab(4));
+    await sleep(1200);
+    const rapid = await page.evaluate(PANELS);
+    check('js: rapid switches settle on the last panel', rapid.shown.length === 1 && rapid.shown[0] === 4 && rapid.opacity[0] === 1 && rapid.settled && rapid.selected === 4 && Math.abs(rapid.height - before.height) < 1, JSON.stringify(rapid));
+
     // Anchor link: hash, focus and --scroll-offset landing
     await page.evaluate(`(async () => {
       window.scrollTo(0, 0);
@@ -184,15 +264,29 @@ async function runJs() {
 
     // Card track: horizontal wheel scrolls the track natively (two 400px
     // deltas – a single small delta snaps back to card 1 with scroll-snap
-    // mandatory), vertical wheel scrolls the page
+    // mandatory) and the progress line eases along, vertical wheel scrolls
+    // the page
     const rect = await page.evaluate(`(() => { const r = document.querySelector('[data-cards]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
     for (let i = 0; i < 2; i++) {
       await wheel(Math.round(rect.x), Math.round(rect.y), 0, 400);
       await sleep(400);
     }
     await sleep(600);
-    const track = await page.evaluate(`({ left: document.querySelector('[data-cards]').scrollLeft, y: Math.round(scrollY) })`);
+    const track = await page.evaluate(`(() => {
+      const bar = document.querySelector('[data-progress-bar]');
+      const t = getComputedStyle(bar).transform;
+      const m = t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t);
+      return {
+        left: document.querySelector('[data-cards]').scrollLeft,
+        y: Math.round(scrollY),
+        cardsHidden: [...document.querySelectorAll('[data-cards] > *')].filter((c) => getComputedStyle(c).opacity !== '1').length,
+        scaleX: Math.round(m.a * 1000) / 1000,
+        counter: document.querySelector('[data-progress-count]').textContent,
+      };
+    })()`);
     check('js: horizontal wheel scrolls the card track', track.left > 0, `scrollLeft ${track.left}`);
+    check('js: slider cards revealed', track.cardsHidden === 0, `${track.cardsHidden} still hidden`);
+    check('js: progress line eased past its start (scaleX > 1/6)', track.scaleX > 0.17 && track.scaleX <= 1, `scaleX ${track.scaleX}, counter ${track.counter}`);
     await wheel(Math.round(rect.x), Math.round(rect.y), 200);
     await sleep(1200);
     const page2 = await page.evaluate(`Math.round(scrollY)`);
@@ -209,6 +303,28 @@ async function runJs() {
       check('js: card glow moved toward the pointer', glow !== 'none' && !/matrix\\(1, 0, 0, 1, 0, 0\\)/.test(glow), glow);
     } else {
       console.log('skip  js: card glow (no hover media)');
+    }
+
+    // Hex cursor (pointer: fine): canvas shown, lattice drawn around the
+    // mouse and nowhere else, layer under the nav and click-through
+    const fine = await page.evaluate(`matchMedia('(pointer: fine)').matches`);
+    if (fine) {
+      const at = { x: Math.round(width / 2), y: Math.round(height / 2) };
+      await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: at.x, y: at.y });
+      await sleep(400);
+      const hex = await page.evaluate(`(() => {
+        const c = document.querySelector('[data-hex-cursor]');
+        if (!c) return { missing: true };
+        const cs = getComputedStyle(c);
+        const dpr = c.width / innerWidth;
+        const ctx = c.getContext('2d');
+        const lit = (x, y, size) => { const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), size, size).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; };
+        return { hidden: c.hidden, near: lit(${at.x} - 30, ${at.y} - 30, 60), far: lit(${at.x} + 400, ${at.y} - 20, 40), z: +cs.zIndex, navZ: +getComputedStyle(document.querySelector('[data-nav]')).zIndex, pointer: cs.pointerEvents, blend: cs.mixBlendMode };
+      })()`);
+      check('js: hex canvas shown for a fine pointer, lattice drawn at the mouse', !hex.missing && !hex.hidden && hex.near > 0, JSON.stringify(hex));
+      check('js: hex lattice limited to the radius, under the nav, click-through, screen blend', !hex.missing && hex.far === 0 && hex.z < hex.navZ && hex.pointer === 'none' && hex.blend === 'screen', JSON.stringify(hex));
+    } else {
+      console.log('skip  js: hex cursor (no fine pointer)');
     }
   });
 }
