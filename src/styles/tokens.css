@@ -1,0 +1,127 @@
+/* ==========================================================================
+   K+ Onepager – design tokens
+   Source: docs/DESIGN-SPEC.md ("Tokens", "Typo-Skala", "Buttons", "Breakpoints"),
+   extracted from Figma "K+ Design" (desktop frame 139:2, mobile frame 242:21).
+   ========================================================================== */
+
+/* --- Fonts: KMR Apparat, self-hosted (docs/ASSETS.md) --------------------- */
+@font-face {
+  font-family: "KMR Apparat";
+  src: url("/fonts/KMR-Apparat-Book.woff2") format("woff2");
+  font-weight: 350;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMR Apparat";
+  src: url("/fonts/KMR-Apparat-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMR Apparat";
+  src: url("/fonts/KMR-Apparat-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMR Apparat";
+  src: url("/fonts/KMR-Apparat-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMR Apparat";
+  src: url("/fonts/KMR-Apparat-Heavy.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* --- Colors (Pantone references from the brand manual) ------------------ */
+  --c-night: #2a3233;   /* background – 446 C */
+  --c-teal: #7ed1c9;    /* headlines, body accent – 630 C */
+  --c-lime: #ccff00;    /* principle titles, outline headlines – 396 C */
+  --c-magenta: #ff00ff; /* eyebrows, primary buttons, active border – 807 C */
+  --c-white: #ffffff;
+  --c-muted: #8aada9;   /* slider label and counter */
+  --c-line: rgba(126, 209, 201, 0.16);        /* footer divider */
+  --c-card-bg: rgba(255, 255, 255, 0.05);
+  --c-tile-bg: rgba(255, 255, 255, 0.04);
+  --c-tile-border: rgba(255, 255, 255, 0.12);
+  --c-spot-bg: rgba(126, 209, 201, 0.08);
+  --c-btn-secondary-bg: rgba(126, 209, 201, 0.1);
+
+  /* --- Typography --------------------------------------------------------- */
+  --font-brand: "KMR Apparat", "Inter", system-ui, sans-serif;
+
+  /* Fluid type scale: clamp(mobile 390px -> desktop 1920px). Sizes that are
+     identical on both frames in the spec stay fixed. */
+  --fs-display: clamp(78px, 67.294px + 2.7451vw, 120px);      /* hero */
+  --fs-display-cta: clamp(46.8px, 28.141px + 4.7843vw, 120px); /* CTA */
+  --fs-h2: clamp(34px, 31.961px + 0.5229vw, 42px);
+  --fs-h3: clamp(22px, 21.49px + 0.1307vw, 24px);              /* principle / focus title */
+  --fs-h3-card: clamp(30px, 26.941px + 0.7843vw, 42px);        /* why-K+ card title */
+  --fs-body: 18px;
+  --fs-eyebrow: 14px;
+  --fs-button: 16px;
+  --fs-nav: 16px;
+  --fs-chip: 14px;
+  --fs-marquee: clamp(33px, 30.706px + 0.5882vw, 42px);
+  --fs-statement: clamp(24px, 21.961px + 0.5229vw, 32px);
+  --fs-tile-name: clamp(15.5px, 13.333px + 0.5556vw, 24px);
+  --fs-footer-city: 24px;
+
+  --lh-display: 1;
+  --lh-h2: 1.2;
+  --lh-body: 1.5556; /* 28 / 18 */
+  --lh-statement: 1.25;
+
+  --ls-h2: 0.96px;
+  --ls-button: 1px;
+  --ls-outline-hero: 10px;
+
+  /* --- Layout ------------------------------------------------------------- */
+  --container: 1600px;       /* content width desktop */
+  --gutter: 160px;           /* page margin desktop (1920) */
+  --gutter-mobile: 24px;     /* page margin mobile (390) */
+  --section-gap: 120px;      /* vertical gap between sections desktop */
+  --section-gap-mobile: 72px;
+
+  --radius-tile: 8px;
+  --radius-spot: 12px;
+  --radius-pill: 999px;
+
+  /* --- Motion ------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 200ms;
+  --dur-base: 300ms;
+}
+
+/* --- Breakpoint overrides (docs/DESIGN-SPEC.md "Breakpoints") ------------- */
+@media (max-width: 1439px) {
+  :root {
+    --gutter: 64px;
+  }
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: var(--gutter-mobile);
+    --section-gap: var(--section-gap-mobile);
+  }
+}

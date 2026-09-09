@@ -1,0 +1,16 @@
+# build output
+dist/
+# generated types
+.astro/
+# dependencies
+node_modules/
+# raw material (not part of the repo, see docs/ASSETS.md)
+_material/
+# phase screenshots
+docs/screens/
+# environment variables
+.env*
+# logs / OS / IDE
+npm-debug.log*
+.DS_Store
+.idea/

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- TODO: replace with the K+ mark as SVG. Figma node 139:34 only holds a raster
+       (see public/logos/kplus.png); vector version requested from the client. -->
+  <rect width="64" height="64" rx="8" fill="#7ED1C9"/>
+</svg>

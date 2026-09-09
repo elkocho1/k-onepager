@@ -1,0 +1,107 @@
+---
+/**
+ * Base layout: <head> with meta, Open Graph / Twitter, canonical, favicon,
+ * font preloads, global styles and an Organization JSON-LD block.
+ * Nav and Footer are added in phase 1.
+ */
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { content } from '../lib/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Path or absolute URL; defaults to the current page path. */
+  canonical?: string;
+  /** Path or absolute URL of the Open Graph image (1200×630). */
+  ogImage?: string;
+}
+
+const { meta, nav } = content;
+const {
+  title = meta.title,
+  description = meta.description,
+  canonical = Astro.url.pathname,
+  ogImage = meta.ogImage,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(meta.siteUrl);
+const canonicalUrl = new URL(canonical, site).href;
+const ogImageUrl = new URL(ogImage, site).href;
+const locale = `${meta.lang}_${meta.lang.toUpperCase()}`;
+
+const org = meta.organization;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: org.name,
+  legalName: org.legalName,
+  url: site.href,
+  logo: new URL(nav.logo, site).href,
+  founder: {
+    '@type': 'Person',
+    name: org.founder,
+  },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: org.street,
+    postalCode: org.postalCode,
+    addressLocality: org.city,
+    addressCountry: org.country,
+  },
+};
+---
+
+<!doctype html>
+<html lang={meta.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- --c-night from tokens.css; meta tags cannot read CSS variables -->
+    <meta name="theme-color" content="#2A3233" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale} />
+    <meta property="og:site_name" content={org.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Preload only Regular + Medium; the other weights load on demand -->
+    <link
+      rel="preload"
+      href="/fonts/KMR-Apparat-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/KMR-Apparat-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <slot name="head" />
+  </head>
+  <body>
+    <main id="main">
+      <slot />
+    </main>
+  </body>
+</html>

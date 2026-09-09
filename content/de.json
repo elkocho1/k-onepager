@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "lang": "de",
+    "title": "K+ | Build beyond – Innovations- und Beteiligungsplattform für die Zukunft des Bauens",
+    "description": "K+ investiert in Unternehmen, Technologien und Ideen, die das Bauen digitaler, effizienter und nachhaltiger machen. Mit Kapital, unternehmerischer Erfahrung und echter Branchenkompetenz.",
+    "siteUrl": "https://www.kplus.de",
+    "ogImage": "/og/kplus-build-beyond.jpg",
+    "organization": {
+      "name": "Kplus GmbH",
+      "legalName": "Kplus GmbH",
+      "street": "Ramsbachstr. 3",
+      "postalCode": "70597",
+      "city": "Stuttgart",
+      "country": "DE",
+      "founder": "Dr. Alexander Kappes"
+    }
+  },
+  "nav": {
+    "logo": "/logos/kplus.png",
+    "logoAlt": "K+ – Build beyond",
+    "items": [
+      {
+        "label": "Warum K+",
+        "anchor": "#warum-kplus"
+      },
+      {
+        "label": "Unsere Beteiligungen",
+        "anchor": "#portfolio"
+      },
+      {
+        "label": "Unsere Schwerpunkte",
+        "anchor": "#schwerpunkte"
+      }
+    ],
+    "cta": {
+      "label": "Kontakt aufnehmen",
+      "href": "#kontakt"
+    }
+  },
+  "hero": {
+    "eyebrow": "Venture & Innovation Platform",
+    "headline": [
+      "Build",
+      "Beyond."
+    ],
+    "text": "Wir investieren in die Zukunft des Bauens. K+ investiert in Unternehmen, Technologien und Ideen, die das Bauen digitaler, effizienter und nachhaltiger machen. Mit Kapital, unternehmerischer Erfahrung und echter Branchenkompetenz.",
+    "primaryCta": {
+      "label": "Pitch einreichen",
+      "href": "#kontakt"
+    },
+    "secondaryCta": {
+      "label": "Beteiligungen entdecken",
+      "href": "#portfolio"
+    },
+    "image": {
+      "src": "/images/hero.jpg",
+      "alt": "Skyline mit Baukränen in der Abenddämmerung"
+    }
+  },
+  "vision": {
+    "id": "vision",
+    "eyebrow": "Build beyond. Vision",
+    "headline": "Ein Bauwesen, das digital, systemisch und intelligent funktioniert.",
+    "paragraphs": [
+      "Wir glauben an eine Zukunft, in der künstliche Intelligenz Planungs- und Entscheidungsprozesse beschleunigt, Lean-Methoden Zusammenarbeit verbessern, modulare Bauweisen Ressourcen schonen und Daten bessere Entscheidungen ermöglichen.",
+      "K+ entwickelt und investiert in Unternehmen, die diesen Wandel möglich machen."
+    ],
+    "image": {
+      "src": "/images/vision.jpg",
+      "alt": "Rohbau eines Bürogebäudes mit Baukränen"
+    }
+  },
+  "mission": {
+    "eyebrow": "Build beyond. Mission",
+    "headline": "Wir investieren in Unternehmen, die die Bauwirtschaft besser machen.",
+    "text": "Unsere Mission ist es, Innovation im Bauwesen nicht nur zu finanzieren, sondern aktiv voranzubringen. Dafür arbeiten wir mit Gründern, Unternehmern und Experten, die reale Probleme lösen und bestehende Strukturen neu denken.",
+    "principles": [
+      {
+        "strong": "Echte Problemlösung",
+        "weak": "statt Buzzwords."
+      },
+      {
+        "strong": "Nachhaltige Wertschöpfung",
+        "weak": "statt kurzfristiger Effekte."
+      },
+      {
+        "strong": "Unternehmerische Partnerschaft",
+        "weak": "statt bloßer Kapitalvergabe."
+      }
+    ]
+  },
+  "marquee": {
+    "rows": [
+      [
+        "Build beyond. Strategy.",
+        "Build beyond. Architecture.",
+        "Build beyond. Process.",
+        "Build beyond. Value."
+      ],
+      [
+        "Build beyond. Expertise.",
+        "Build beyond. Execution.",
+        "Build beyond. Value.",
+        "Build beyond. Strategy."
+      ]
+    ]
+  },
+  "warumKplus": {
+    "id": "warum-kplus",
+    "eyebrow": "Echte Baukompetenz",
+    "headline": "Wir investieren nicht nur – wir bauen mit.",
+    "sliderLabel": "Fünf Überzeugungen",
+    "cards": [
+      {
+        "icon": "partnership",
+        "title": "Strategische Partnerschaft",
+        "text": "Unternehmerisches Sparring bei Strategie, Wachstum und Unternehmensentwicklung – mit kurzen Wegen und Entscheidungen auf Augenhöhe."
+      },
+      {
+        "icon": "building",
+        "title": "Baukompetenz",
+        "text": "Erfahrung aus Planung, Projektmanagement, Gebäudetechnik und Digitalisierung."
+      },
+      {
+        "icon": "project",
+        "title": "Reale Projekte",
+        "text": "Zugang zu Anwendungsfällen, Pilotprojekten und echtem Marktfeedback."
+      },
+      {
+        "icon": "network",
+        "title": "Netzwerk",
+        "text": "Zugang zu Entscheidern, Unternehmen, Experten und potenziellen Kunden."
+      },
+      {
+        "icon": "capital",
+        "title": "Kapital",
+        "text": "Unternehmerisches Kapital mit langfristiger Perspektive."
+      }
+    ],
+    "statement": "Wir investieren nicht nur Kapital. Wir bringen Erfahrung, Netzwerk und Umsetzungskraft ein."
+  },
+  "portfolio": {
+    "id": "portfolio",
+    "eyebrow": "Build beyond. Portfolio",
+    "headline": "Unternehmen, die Veränderung möglich machen.",
+    "intro": "Unser Portfolio verbindet unterschiedliche Perspektiven auf die Zukunft des Bauens – von Technologie und Planung über Prozesse und Projektmanagement bis zu Gebäudetechnik, Immobilienentwicklung und Recht.",
+    "websiteLabel": "Webseite",
+    "companies": [
+      {
+        "slug": "kappes-group",
+        "name": "Kappes Group",
+        "logo": "/logos/kappes-group.svg",
+        "mask": true,
+        "image": "/images/portfolio/kappes-group.jpg",
+        "text": "Die Kappes Group verbindet Bauprojektmanagement und Gebäudetechnik für anspruchsvolle Bauvorhaben. Von der Projektsteuerung und BIM-basierten Projektabwicklung bis zur technischen Gebäudeausrüstung verbindet sie Steuerung und Umsetzungskompetenz.",
+        "tags": [
+          "Bauprojektmanagement",
+          "Gebäudetechnik",
+          "BIM-basierte Projektabwicklung"
+        ],
+        "url": "https://kappes.group"
+      },
+      {
+        "slug": "place-strategy",
+        "name": "Place Strategy",
+        "logo": "/logos/place-strategy.png",
+        "mask": true,
+        "image": "/images/portfolio/place-strategy.jpg",
+        "text": "Beratung für Lean Construction und moderne Projektabwicklung. Place Strategy unterstützt Bauherren und Projektteams dabei, Projekte effizienter, transparenter und produktiver umzusetzen.",
+        "tags": [
+          "Lean Construction",
+          "Projektabwicklung",
+          "Beratung"
+        ],
+        "url": ""
+      },
+      {
+        "slug": "vyncitech",
+        "name": "VynciTech",
+        "logo": "/logos/vyncitech.png",
+        "mask": true,
+        "image": "/images/portfolio/vyncitech.jpg",
+        "text": "KI-gestützte Planung und modulare Baukonzepte. VynciTech verbindet künstliche Intelligenz, Digitalisierung und industrielle Bauprozesse zu einer neuen Generation der Projektentwicklung.",
+        "tags": [
+          "Künstliche Intelligenz",
+          "Modulares Bauen",
+          "Projektentwicklung"
+        ],
+        "url": ""
+      },
+      {
+        "slug": "welean",
+        "name": "WeLean",
+        "logo": "/logos/welean.png",
+        "mask": true,
+        "image": "/images/portfolio/welean.jpg",
+        "text": "Digitale Lösungen für Lean Management. WeLean unterstützt Unternehmen dabei, Prozesse auf Baustellen nachhaltig zu verbessern und operative Exzellenz messbar zu machen.",
+        "tags": [
+          "Lean Management",
+          "Digitale Prozesse",
+          "Operative Exzellenz"
+        ],
+        "url": ""
+      },
+      {
+        "slug": "i-pro-kom",
+        "name": "i-pro Kom",
+        "logo": "/logos/i-pro-kom.jpg",
+        "mask": false,
+        "image": "/images/portfolio/i-pro-kom.jpg",
+        "text": "Eigene Projektentwicklungen als strategische Ergänzung zur operativen Baukompetenz. Die Projekte schaffen Marktverständnis, Praxisbezug und zusätzliche Wertschöpfung innerhalb des Netzwerks.",
+        "tags": [
+          "Projektentwicklung",
+          "Immobilien",
+          "Wertschöpfung"
+        ],
+        "url": ""
+      },
+      {
+        "slug": "kappes-kemper",
+        "name": "Kappes + Kemper",
+        "logo": "/logos/kappes-kemper.png",
+        "mask": true,
+        "image": "/images/portfolio/kappes-kemper.jpg",
+        "text": "Verbindung aus Baupraxis und baurechtlicher Kompetenz. Gemeinsam begleiten wir komplexe Projekt- und Krisensituationen mit technischem und juristischem Know-how.",
+        "tags": [
+          "Baurecht",
+          "Baupraxis",
+          "Krisenmanagement"
+        ],
+        "url": ""
+      }
+    ]
+  },
+  "schwerpunkte": {
+    "id": "schwerpunkte",
+    "eyebrow": "Unsere Schwerpunkte",
+    "headline": "Wo wir investieren.",
+    "image": {
+      "src": "/images/schwerpunkte.jpg",
+      "alt": "Moderne Architektur, Fassade mit Glas und Beton"
+    },
+    "items": [
+      {
+        "title": "Construction Tech & Bautechnologie",
+        "text": "Digitale Technologien für Planung, Bau, Betrieb und Projektmanagement."
+      },
+      {
+        "title": "Künstliche Intelligenz",
+        "text": "KI-Anwendungen für Planung, Automatisierung, Projektsteuerung und Entscheidungsprozesse."
+      },
+      {
+        "title": "Lean Construction",
+        "text": "Methoden und Technologien für produktivere und transparentere Bauprozesse."
+      },
+      {
+        "title": "BIM & digitale Bauprozesse",
+        "text": "BIM, Datenplattformen, Kollaboration und digitale Workflows."
+      },
+      {
+        "title": "Nachhaltiges Bauen",
+        "text": "Technologien und Geschäftsmodelle für ressourcen- und energieeffizientes Bauen."
+      },
+      {
+        "title": "Modulares & industrielles Bauen",
+        "text": "Neue Systeme für Standardisierung, Skalierbarkeit und Produktivität."
+      }
+    ]
+  },
+  "founder": {
+    "id": "founder",
+    "eyebrow": "Build beyond. Founder",
+    "name": "Dr. Alexander Kappes, M.Sc.",
+    "role": "Gründer und Geschäftsführer von K+",
+    "image": {
+      "src": "/images/founder-alexander-kappes.jpg",
+      "alt": "Dr. Alexander Kappes, Gründer und Geschäftsführer von K+"
+    },
+    "paragraphs": [
+      "Dr. Alexander Kappes verbindet unternehmerische Erfahrung mit einem fundierten Verständnis der Bau- und Immobilienwirtschaft. Er studierte Rechtswissenschaften in Bayreuth und Tübingen, promovierte im Wirtschaftsrecht und absolvierte einen Master of Science in Real Estate Management in Wuppertal und Aberdeen.",
+      "2018 übernahm er Verantwortung im Familienunternehmen und begann, dieses konsequent weiterzuentwickeln. Digitalisierung, BIM, Lean Management, neue Organisationsstrukturen und die Entwicklung spezialisierter Geschäftsfelder wurden dabei zu wesentlichen Bausteinen der Transformation.",
+      "Die Erfahrung aus diesem Veränderungsprozess prägt auch seine Sicht auf die Bauwirtschaft: Viele Herausforderungen der Branche lassen sich nicht allein durch die Optimierung bestehender Strukturen lösen. Sie brauchen neue Technologien, neue Geschäftsmodelle und Unternehmer, die bereit sind, Dinge anders zu machen.",
+      "Aus dieser Überzeugung entstand K+. Als Beteiligungs- und Innovationsplattform verbindet K+ Kapital mit Branchenkenntnis, unternehmerischer Erfahrung und dem Zugang zu realen Projekten – mit dem Ziel, gute Ideen gemeinsam zu erfolgreichen Unternehmen weiterzuentwickeln."
+    ]
+  },
+  "cta": {
+    "id": "kontakt",
+    "eyebrow": "Für Gründer. Für Innovatoren.",
+    "headline": [
+      "Let's build beyond.",
+      "Together."
+    ],
+    "text": "Du entwickelst eine Technologie, ein Geschäftsmodell oder eine Idee, die das Bauen verändern kann?\nDann wollen wir sie kennenlernen.",
+    "primaryCta": {
+      "label": "Pitch einreichen",
+      "href": "mailto:pitch@kplus.de"
+    },
+    "secondaryCta": {
+      "label": "Kontakt aufnehmen",
+      "href": "mailto:info@kplus.de"
+    }
+  },
+  "footer": {
+    "claim": "Kplus GmbH — Innovations- und Beteiligungsplattform für die Zukunft des Bauens.",
+    "location": {
+      "city": "Stuttgart",
+      "address": "Ramsbachstr. 3, 70597 Stuttgart"
+    },
+    "copyright": "© 2026 Kplus GmbH · Build beyond.",
+    "links": [
+      {
+        "label": "Impressum",
+        "href": "/impressum"
+      },
+      {
+        "label": "Datenschutz",
+        "href": "/datenschutz"
+      }
+    ]
+  }
+}
