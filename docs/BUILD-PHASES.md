@@ -81,7 +81,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Nachtrag `fix(phase-3)`: Karten-Track startet oberhalb von 1920 px bündig mit dem zentrierten Container (`--track-start: max(gutter, (100% − container) / 2)` für Padding und `scroll-padding`); geprüft bei 2560 px (Kopf und erste Karte bei 473 px).
 - Nachtrag `feat(phase-3)`: `partnership.svg` (zwei verschränkte Ringe) und `capital.svg` (Münze mit Euro-Zeichen) als selbst gezeichnete Stroke-Icons (`stroke-width` 1,4 = Linienbreite der Figma-Icons, 1,37 Einheiten), Strichstärke per 4×-Render und 2×-Screenshot neben `building.svg` verglichen. Damit keine Platzhalter mehr; Details in ASSETS.md.
 
-### Phase 4 – Portfolio · 2026-09-09 · Commit `folgt`
+### Phase 4 – Portfolio · 2026-09-09 · Commit `ab998f7`
 
 - Neu: `Portfolio.astro` (Kopf max. 974 px, Logo-Wall `role="tablist"` 3×2 mit `<button role="tab">`-Tiles 240 px hoch, Spotlight-Panels `role="tabpanel"` – alle sechs gerendert, nur das aktive ohne `hidden`) und `src/scripts/portfolio.ts` (WAI-ARIA-Tabs: Klick, Pfeil links/rechts, Home, End mit Wrap, Roving-Tabindex, `focus({ preventScroll })`, `CustomEvent('portfolio:change')` für Phase 7). Ohne JS: erstes Spotlight sichtbar, Tiles inert.
 - Logos: Teal-Maske per `mask: var(--logo) center/contain` mit `aspect-ratio` aus den Bildmaßen (`publicImageSize()` zur Buildzeit, keine Maße in `de.json`). `prepare-images.mjs` trimmt jetzt transparente Ränder (PLACE 554×106, VynciTech 692×167), sonst zählt die Maskenbox den Rand mit und die Marken wirken zu klein. **Kappes + Kemper** ist als Maske unbrauchbar (die K-Buchstaben sitzen im opaken Kasten → „▇ APPES EMPER") → wie im Figma unmaskiert (`mask: false`), SVG nachfordern; i-pro Kom ebenfalls unmaskiert.
