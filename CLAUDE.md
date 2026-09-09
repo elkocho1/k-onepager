@@ -14,7 +14,7 @@ Der Build läuft in **Phasen** – siehe `docs/BUILD-PHASES.md`. Immer nur die a
 
 ## Stack (fest)
 
-- Astro (neueste 5.x), `output: 'static'`, TypeScript strict
+- Astro (aktuelle Major-Version, derzeit 7.x – nicht 5.x), `output: 'static'`, TypeScript strict
 - CSS: eigene Stylesheets (`src/styles/tokens.css`, `global.css`) + scoped `<style>` in Komponenten. **Kein Tailwind, kein CSS-Framework.**
 - Animationen: `gsap` + `ScrollTrigger`, `lenis` (Smooth Scroll). Erst ab Phase 7 einbauen.
 - Bilder: `astro:assets` (`<Image>` / `<Picture>`), Quelle in `src/assets/images/`, Ausgabe WebP/AVIF

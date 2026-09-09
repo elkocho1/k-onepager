@@ -1,6 +1,6 @@
 # K+ Onepager
 
-Statischer Onepager für die Kplus GmbH (Stuttgart, Claim „Build beyond."). Astro 5, kein CMS, Hosting IONOS.
+Statischer Onepager für die Kplus GmbH (Stuttgart, Claim „Build beyond."). Astro 7, kein CMS, Hosting IONOS.
 
 - Regeln und Stack: `CLAUDE.md`
 - Build-Phasen und Status: `docs/BUILD-PHASES.md`, Details je Phase in `docs/phases/`
