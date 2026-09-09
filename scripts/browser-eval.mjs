@@ -3,20 +3,23 @@
  * running preview server and prints the JSON result – a functional check for
  * the few interactive parts (card slider progress, portfolio switch).
  *
- *   node scripts/browser-eval.mjs <url> "<expression>" [--width=1920] [--height=1080]
+ *   node scripts/browser-eval.mjs <url> "<expression>" [--width=1920] [--height=1080] [--screenshot=file.png]
+ *
+ * --screenshot stores a full-page PNG taken after the expression ran (so the
+ * expression can switch state first, e.g. click a portfolio tile).
  *
  * Talks to Chrome over the DevTools Protocol with Node's built-in WebSocket,
  * so it needs no extra dependency. Start the server first, e.g.
  * `npx astro preview --host 127.0.0.1 --port 4321`.
  */
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 const [url, expression, ...rest] = process.argv.slice(2);
 if (!url || !expression) {
-  console.error('usage: node scripts/browser-eval.mjs <url> "<expression>" [--width=N] [--height=N]');
+  console.error('usage: node scripts/browser-eval.mjs <url> "<expression>" [--width=N] [--height=N] [--screenshot=file]');
   process.exit(2);
 }
 const options = Object.fromEntries(rest.map((a) => a.replace(/^--/, '').split('=')));
@@ -116,6 +119,11 @@ try {
   const { result } = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
   const failed = Boolean(result.exceptionDetails);
   console.log(JSON.stringify(failed ? result.exceptionDetails : result.result?.value, null, 2));
+  if (options.screenshot && !failed) {
+    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+    writeFileSync(options.screenshot, Buffer.from(shot.result.data, 'base64'));
+    console.error('screenshot: ' + options.screenshot);
+  }
   ws.close();
   await cleanup();
   process.exit(failed ? 1 : 0);

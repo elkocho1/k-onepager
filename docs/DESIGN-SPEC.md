@@ -11,7 +11,7 @@ Alle Angaben in px bei 1920 bzw. 390. Farben/Schriften über Tokens (siehe unten
   --c-teal:     #7ED1C9;  /* Headlines, Fließtext-Akzent, 630 C */
   --c-lime:     #CCFF00;  /* Prinzip-Titel, Outline-Headlines, 396 C */
   --c-magenta:  #FF00FF;  /* Rahmen, Glow, Aktiv-Zustände, 807 C */
-  --c-magenta-text: #FF4DFF; /* Magenta-Text auf Night: Eyebrows, Button-/Nav-CTA-Text – siehe Abweichung 8 */
+  --c-magenta-text: #FF66FF; /* Magenta-Text auf Night und Spotlight-Tönung: Eyebrows, Button-/Nav-CTA-Text – siehe Abweichung 8 */
   --c-white:    #FFFFFF;
   --c-muted:    #8AADA9;  /* Slider-Label und Zähler */
   --c-line:     rgba(126,209,201,.16);   /* Footer-Trennlinie */
@@ -184,4 +184,4 @@ Fluid Type für Display/H2 mit `clamp()` zwischen Mobile- und Desktop-Wert.
 5. Slider-Label „Fünf Überzeugungen" aus `de.json` (Figma: „Fünf Verurteilungen" – Kundenbestätigung offen).
 6. „Webseite"-Button nur bei vorhandener URL.
 7. Mobile ohne Burger-Menü wie im Figma – **offen**: ob ein minimales Menü (Anker-Links) gewünscht ist. Bis dahin: nur Logo.
-8. Magenta-**Text** auf Night-Hintergrund (Eyebrows, Text der Primär-Buttons, Nav-CTA-Text) nutzt `--c-magenta-text: #FF4DFF` statt `#FF00FF`: Kontrast 4,84:1 statt 4,17:1, damit WCAG AA (4,5:1 für 16-px-Text) erfüllt ist – Lighthouse hatte den Nav-Button auf den Rechtsseiten beanstandet. Rahmen, Glow und Aktiv-Zustände (Portfolio-Tile, Trennlinie, Hover-Füllung) bleiben `--c-magenta`. Footer-Stadt „Stuttgart" bleibt `--c-magenta` (24 px Medium = großer Text, 3:1 genügt).
+8. Magenta-**Text** (Eyebrows, Text der Primär-Buttons, Nav-CTA-Text) nutzt `--c-magenta-text: #FF66FF` statt `#FF00FF`, damit WCAG AA (4,5:1 für 16-px-Text) auf allen Hintergründen erfüllt ist: auf Night 5,36:1 (statt 4,18:1), auf der Spotlight-Tönung `--c-spot-bg` 4,51:1 (statt 3,51:1) – Lighthouse hatte den Nav-Button auf den Rechtsseiten und den „Webseite"-Button im Portfolio-Spotlight beanstandet. Der Zwischenwert `#FF4DFF` (Phase 1) reichte nur auf Night (4,84:1), nicht auf der Tönung (4,07:1). Rahmen, Glow und Aktiv-Zustände (Portfolio-Tile, Trennlinie, Hover-Füllung) bleiben `--c-magenta`. Footer-Stadt „Stuttgart" bleibt `--c-magenta` (24 px Medium = großer Text, 3:1 genügt).

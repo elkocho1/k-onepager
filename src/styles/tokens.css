@@ -51,7 +51,7 @@
   --c-teal: #7ed1c9;    /* headlines, body accent – 630 C */
   --c-lime: #ccff00;    /* principle titles, outline headlines – 396 C */
   --c-magenta: #ff00ff; /* borders, glow, active states – 807 C */
-  --c-magenta-text: #ff4dff; /* magenta text on night: eyebrows, button/nav CTA text (spec deviation 8, 4.84:1) */
+  --c-magenta-text: #ff66ff; /* magenta text on night and on the spotlight tint: eyebrows, button/nav CTA text (spec deviation 8) */
   --c-white: #ffffff;
   --c-muted: #8aada9;   /* slider label and counter */
   --c-line: rgba(126, 209, 201, 0.16);        /* footer divider */

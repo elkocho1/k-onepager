@@ -304,14 +304,17 @@ const logoStyle = (company: (typeof companies)[number]) =>
       grid-template-columns: repeat(2, 1fr);
     }
 
+    /* Stacked: photo, accent line, text. No fixed height and no fixed row
+       track – every panel is as tall as its content. (A 1px row track had
+       caught the reordered text column and overflow: hidden clipped it.) */
     .spot {
       grid-template-columns: 1fr;
-      grid-template-rows: auto 1px auto;
+      height: auto;
       min-height: 0;
     }
 
     .spot__media {
-      order: -1;
+      order: -2;
       height: 280px;
       min-height: 0;
     }
@@ -321,6 +324,8 @@ const logoStyle = (company: (typeof companies)[number]) =>
     }
 
     .spot__line {
+      order: -1;
+      height: 1px;
       background: linear-gradient(90deg, transparent, var(--c-magenta-a90) 50%, transparent);
     }
 
