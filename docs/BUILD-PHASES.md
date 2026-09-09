@@ -45,7 +45,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Fonts: 5 WOFF2 in `public/fonts/`, Preload Regular + Medium. Prüfung ohne Playwright (nicht installiert): Preview-Server per Astro-API gestartet, alle Font-URLs mit HTTP 200 / `font/woff2` bestätigt. Kein Screenshot in `docs/screens/`.
 - Scaffold-Hinweis: `npm create astro .` legte trotz `.` einen Unterordner an; Dateien wurden in den Root verschoben.
 
-### Phase 0 – Upgrade auf Astro 7 · 2026-09-09 · Commit `folgt`
+### Phase 0 – Upgrade auf Astro 7 · 2026-09-09 · Commit `b54cf28`
 
 - Astro 5.18.2 → **7.3.2** nach den offiziellen Guides „Upgrade to v6" und „Upgrade to v7" (`npx @astrojs/upgrade` bricht nicht-interaktiv an der Rückfrage ab → `npm install astro@7.3.2`). @astrojs/sitemap 3.7.4 und @astrojs/check 0.9.10 waren bereits die zu 7.x passenden Versionen; sharp 0.35.4 entspricht Astros optionaler Abhängigkeit.
 - Relevante Breaking Changes geprüft: Node ≥ 22.12 (vorhanden: 24.14), Vite 8 (keine eigenen Plugins), Rust-Compiler (JSON-LD-`<script>` explizit geschlossen; keine ungeschlossenen Tags), `compressHTML: 'jsx'` als neuer Default (Inline-Elemente in Templates auf einer Zeile halten, Hinweis in CLAUDE.md), Sätteri-Markdown und `@astrojs/db` nicht betroffen, keine `experimental`-Flags in der Config.
