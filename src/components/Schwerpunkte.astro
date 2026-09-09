@@ -121,7 +121,7 @@ const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: var(--gap-head);
     width: min(850px, 100% - 2 * var(--gutter));
     margin-inline: auto;
     text-align: center;
@@ -168,6 +168,13 @@ const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     color: var(--c-teal);
+  }
+
+  /* --- 1024–1439: columns 40 % / 40 % (phase 6) --------------------------- */
+  @media (max-width: 1439px) {
+    .focus__columns {
+      grid-template-columns: repeat(2, minmax(0, 40%));
+    }
   }
 
   /* --- Tablet and mobile: one left-aligned list over the covering photo --- */

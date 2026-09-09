@@ -128,15 +128,22 @@ const textLines = nl2br(hero.text);
   }
 
   @media (max-width: 767px) {
+    /* Mobile frame 242:22: 780 tall, text block bottom-aligned, gaps 20 –
+       capped at the viewport height so short screens never hide the buttons */
     .hero {
       align-items: end;
-      min-height: 780px;
+      min-height: min(780px, 100svh);
       padding-top: var(--scroll-offset);
       padding-bottom: 56px;
     }
 
-    /* Mobile frame 242:22 shows the outline line without extra tracking */
+    .hero__content {
+      gap: 20px;
+    }
+
+    /* Mobile frame 242:22: lines overlap by 6px, outline without tracking */
     .hero__title .line + .line {
+      margin-top: -6px;
       letter-spacing: normal;
     }
 

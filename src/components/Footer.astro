@@ -107,7 +107,11 @@ const logo = await publicImageSize(nav.logo);
     gap: 25.6px;
   }
 
+  /* 44px touch target without changing the layout (8px padding, -8px margin) */
   .site-footer__links a {
+    display: inline-block;
+    padding-block: 8px;
+    margin-block: -8px;
     text-decoration: none;
     transition: color var(--dur-fast) var(--ease-out);
   }
@@ -116,6 +120,9 @@ const logo = await publicImageSize(nav.logo);
     color: var(--c-white);
   }
 
+  /* Mobile frame 242:260: left-aligned, logo 40 → 16 → claim → 32 → full-width
+     rule → 32 → address → 32 → legal links → 12 → copyright, 40 below, no
+     second rule above the bar */
   @media (max-width: 767px) {
     .site-footer__brand {
       align-items: flex-start;
@@ -124,16 +131,25 @@ const logo = await publicImageSize(nav.logo);
 
     .site-footer__brand img {
       height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .site-footer__claim {
+      margin-bottom: 32px;
     }
 
     .site-footer__rule {
       width: 100%;
+      margin-bottom: 32px;
     }
 
     .site-footer__bar {
       flex-direction: column-reverse;
       align-items: flex-start;
       gap: 12px;
+      margin-top: 32px;
+      padding: 0 0 40px;
+      border-top: 0;
     }
   }
 </style>

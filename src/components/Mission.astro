@@ -42,7 +42,7 @@ const { mission } = content;
   .mission__text {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--gap-head);
   }
 
   .principles {
@@ -72,14 +72,21 @@ const { mission } = content;
     color: var(--c-teal);
   }
 
+  /* Below 1920 the container is narrower than 1600 – proportional columns */
+  @media (max-width: 1919px) {
+    .mission__grid {
+      grid-template-columns: minmax(0, 702fr) minmax(0, 778fr);
+    }
+  }
+
   @media (max-width: 1439px) {
     .mission__grid {
-      grid-template-columns: 1fr 1fr;
       gap: 64px;
     }
   }
 
-  @media (max-width: 767px) {
+  /* Tablet and mobile (frame 242:55): stacked, principles 32 below, gap 24 */
+  @media (max-width: 1023px) {
     .mission__grid {
       grid-template-columns: 1fr;
       gap: 32px;
@@ -87,6 +94,12 @@ const { mission } = content;
 
     .principles {
       gap: 24px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .mission {
+      margin-top: var(--section-gap);
     }
   }
 </style>

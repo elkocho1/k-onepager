@@ -107,7 +107,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
               src={company.photo}
               alt=""
               widths={[640, 920, 1840]}
-              sizes="(max-width: 1023px) 100vw, 920px"
+              sizes="(min-width: 1024px) 920px, 100vw"
               formats={['avif', 'webp']}
               loading="lazy"
               decoding="async"
@@ -131,14 +131,16 @@ const logoStyle = (company: (typeof companies)[number]) =>
   .portfolio__head {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--gap-head);
     max-width: 974px;
   }
 
   /* --- Logo wall ---------------------------------------------------------- */
+  /* minmax(0, 1fr): the columns must not grow to the logos' intrinsic width
+     (up to 314px + padding), which overflowed the container at 1024px */
   .wall {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
     margin-top: 56px;
   }
@@ -165,7 +167,8 @@ const logoStyle = (company: (typeof companies)[number]) =>
     display: block;
     height: 64px;
     width: auto;
-    max-width: 314px;
+    max-width: min(314px, 100%); /* never wider than the tile's content box */
+    object-fit: contain;
   }
 
   .tile__logo--mask,
@@ -298,10 +301,28 @@ const logoStyle = (company: (typeof companies)[number]) =>
     object-fit: cover;
   }
 
+  /* Below 1920 the container is narrower than 1600 – proportional columns */
+  @media (max-width: 1919px) {
+    .spot {
+      grid-template-columns: minmax(0, 680fr) 1px minmax(0, 919fr);
+    }
+  }
+
+  /* --- 1024–1439: spotlight text column 45 % (phase 6) -------------------- */
+  @media (max-width: 1439px) {
+    .spot {
+      grid-template-columns: minmax(0, 45fr) 1px minmax(0, 55fr);
+    }
+
+    .spot__text {
+      padding-inline: 40px;
+    }
+  }
+
   /* --- Tablet: 2-column wall, stacked spotlight --------------------------- */
   @media (max-width: 1023px) {
     .wall {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     /* Stacked: photo, accent line, text. No fixed height and no fixed row
@@ -334,11 +355,26 @@ const logoStyle = (company: (typeof companies)[number]) =>
     }
   }
 
+  /* Mobile frame 242:149: wall 32 below the head, spotlight 32 below the
+     wall, spotlight content gap 20, logo 45 tall */
+  @media (max-width: 767px) {
+    .wall {
+      margin-top: 32px;
+    }
+
+    .spotlights {
+      margin-top: 32px;
+    }
+
+    .spot__text {
+      gap: 20px;
+    }
+  }
+
   /* --- Mobile: 2×3 wall, small tiles -------------------------------------- */
   @media (max-width: 767px) {
     .wall {
       gap: 12px;
-      margin-top: 40px;
     }
 
     .tile {
@@ -352,16 +388,12 @@ const logoStyle = (company: (typeof companies)[number]) =>
       max-width: 118px;
     }
 
-    .spotlights {
-      margin-top: 40px;
-    }
-
     .spot__media {
       height: 200px;
     }
 
     .spot__logo {
-      height: 48px;
+      height: 45px;
     }
   }
 </style>

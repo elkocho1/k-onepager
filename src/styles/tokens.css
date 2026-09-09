@@ -114,6 +114,7 @@
   --gutter-mobile: 24px;     /* page margin mobile (390) */
   --section-gap: 120px;      /* vertical gap between sections desktop */
   --section-gap-mobile: 72px;
+  --gap-head: 24px;          /* eyebrow → h2 → body (mobile frame 242:21: 16) */
 
   --nav-top: 20px;              /* fixed header offset on the hero (desktop) */
   --nav-height: 60px;
@@ -147,5 +148,18 @@
   :root {
     --gutter: var(--gutter-mobile);
     --section-gap: var(--section-gap-mobile);
+    --gap-head: 16px;
+  }
+}
+
+/* Very narrow phones (docs/phases/PHASE-6-responsive.md): body 16/26; the
+   display lines shrink so "Beyond." (307px at 78px) and "Let's build beyond."
+   (325px at 36px) fit the 272px content width at 320px */
+@media (max-width: 359px) {
+  :root {
+    --fs-body: 16px;
+    --lh-body: 1.625; /* 26 / 16 */
+    --fs-display: 68px;
+    --fs-display-cta: 30px;
   }
 }

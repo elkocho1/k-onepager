@@ -118,7 +118,7 @@ const icons = Object.fromEntries(
   .warum__heading {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--gap-head);
   }
 
   .warum__eyebrow {
@@ -246,10 +246,14 @@ const icons = Object.fromEntries(
   }
 
   /* --- Progress line + counter -------------------------------------------- */
+  /* Figma 139:185 is an 11px row with the counter overflowing it; the
+     28px line box of the counter would otherwise push the following sections
+     down by 17px. */
   .warum__progress {
     display: flex;
     align-items: center;
     gap: 14px;
+    height: 11px;
     margin-top: 40px;
   }
 
@@ -275,6 +279,13 @@ const icons = Object.fromEntries(
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     color: var(--c-muted);
+  }
+
+  /* --- 1024–1439: narrower cards (phase 6) -------------------------------- */
+  @media (max-width: 1439px) {
+    .cards {
+      --card-width: 560px;
+    }
   }
 
   /* --- Tablet: scrollable, narrower cards --------------------------------- */

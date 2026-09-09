@@ -64,7 +64,10 @@ const logo = await publicImageSize(nav.logo);
     gap: 30px;
   }
 
+  /* 44px target height inside the 60px bar */
   .site-header__nav a {
+    display: inline-block;
+    padding-block: 12.5px;
     font-size: var(--fs-nav);
     font-weight: 400;
     color: var(--c-teal);
@@ -99,6 +102,13 @@ const logo = await publicImageSize(nav.logo);
     height: var(--nav-height-scrolled);
   }
 
+  /* Tablet: links hidden like on mobile (burger menu still undecided), CTA stays */
+  @media (max-width: 1023px) {
+    .site-header__nav {
+      display: none;
+    }
+  }
+
   @media (max-width: 767px) {
     .site-header {
       top: 0;
@@ -107,6 +117,11 @@ const logo = await publicImageSize(nav.logo);
     .site-header__inner {
       height: var(--nav-height-scrolled);
       justify-content: flex-start;
+    }
+
+    /* 36px logo + 4px padding each side = 44px target */
+    .site-header__logo {
+      padding-block: 4px;
     }
 
     .site-header__logo img {

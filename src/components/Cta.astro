@@ -73,7 +73,11 @@ const textLines = nl2br(cta.text);
     gap: 24px;
   }
 
+  /* Figma sets the display at line-height "normal" (≈ 1.3); the spec keeps
+     1.0, so the missing 0.3 em per line (2 lines = 0.6 em, split top/bottom)
+     is added as padding – section heights match the frames (516 / 587.6). */
   .cta__title {
+    padding-block: calc(var(--fs-display-cta) * 0.3);
     font-size: var(--fs-display-cta);
     font-weight: 800;
     line-height: var(--lh-display);
@@ -116,6 +120,15 @@ const textLines = nl2br(cta.text);
   }
 
   @media (max-width: 767px) {
+    /* Mobile frame 242:247: 96px inside the section, subline → 24 → buttons */
+    .cta {
+      padding-block: 96px;
+    }
+
+    .cta__content {
+      gap: 24px;
+    }
+
     /* Mobile frame 242:248: 426px glow, 40px above, blur 17.6 */
     .cta__glow {
       top: -40px;

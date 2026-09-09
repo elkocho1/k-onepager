@@ -18,7 +18,7 @@ const image = resolveImage(vision.image.src);
       src={image}
       alt={vision.image.alt}
       widths={[342, 684, 778, 1556]}
-      sizes="(max-width: 767px) calc(100vw - 48px), 778px"
+      sizes="(min-width: 1024px) 778px, 100vw"
       formats={['avif', 'webp']}
       loading="lazy"
       decoding="async"
@@ -64,7 +64,7 @@ const image = resolveImage(vision.image.src);
   .vision__text {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--gap-head);
   }
 
   .vision__copy {
@@ -73,17 +73,35 @@ const image = resolveImage(vision.image.src);
     gap: 16px;
   }
 
-  @media (max-width: 1439px) {
+  /* Below 1920 the container is narrower than 1600 – proportional columns */
+  @media (max-width: 1919px) {
     .vision__grid {
       grid-template-columns: minmax(0, 778fr) minmax(0, 702fr);
+    }
+  }
+
+  @media (max-width: 1439px) {
+    .vision__grid {
       gap: 64px;
     }
   }
 
-  @media (max-width: 767px) {
+  /* Tablet: stacked (spec breakpoints), photo keeps the desktop crop */
+  @media (max-width: 1023px) {
     .vision__grid {
       grid-template-columns: 1fr;
       gap: 40px;
+    }
+  }
+
+  /* Mobile frame 242:46: photo 342×260 at 72, text 28 below */
+  @media (max-width: 767px) {
+    .vision {
+      margin-top: var(--section-gap);
+    }
+
+    .vision__grid {
+      gap: 28px;
     }
 
     .vision :global(.vision__picture) {
