@@ -135,15 +135,18 @@ const icons = Object.fromEntries(
 
   /* --- Card track --------------------------------------------------------- */
   .cards {
+    /* Start edge = container edge (gutter, or centred container above 1920) */
+    --track-start: max(var(--gutter), calc((100% - var(--container)) / 2));
+    --card-width: 636px;
     display: flex;
     gap: 32px;
     margin-top: 40px;
     /* Trailing space lets the last card snap to the same start edge */
-    padding-inline: var(--gutter) calc(100% - var(--gutter) - 636px);
+    padding-inline: var(--track-start) calc(100% - var(--track-start) - var(--card-width));
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline-start: var(--gutter);
+    scroll-padding-inline-start: var(--track-start);
     scrollbar-width: none;
   }
 
@@ -161,7 +164,7 @@ const icons = Object.fromEntries(
     flex: 0 0 auto;
     flex-direction: column;
     gap: 100px;
-    width: 636px;
+    width: var(--card-width);
     padding: 50px;
     overflow: hidden;
     border: 1px solid var(--c-night);
@@ -277,11 +280,10 @@ const icons = Object.fromEntries(
   /* --- Tablet: scrollable, narrower cards --------------------------------- */
   @media (max-width: 1023px) {
     .cards {
-      padding-inline: var(--gutter) calc(100% - var(--gutter) - 480px);
+      --card-width: 480px;
     }
 
     .card {
-      width: 480px;
       padding: 40px;
     }
   }
