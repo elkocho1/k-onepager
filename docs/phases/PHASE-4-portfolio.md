@@ -17,9 +17,9 @@
 
 ## Definition of Done
 
-- [ ] 3×2 Wall, Tiles 522×240 bei 1920, Logos teal einfarbig (i-pro Kom farbig, dokumentiert), Kappes Group initial aktiv mit Magenta-Rahmen und Glow
-- [ ] Spotlight zeigt Logo, Text, Chips, Button nur bei URL (aktuell nur Kappes Group)
-- [ ] Klick/Enter/Pfeiltasten wechseln Tile + Spotlight, `aria-selected` und `hidden` korrekt
-- [ ] Ohne JS: erstes Spotlight sichtbar, Tiles ohne Funktion, aber kein Fehler
-- [ ] Mobile 390: 2×3 Wall, Spotlight gestapelt mit Bild oben
-- [ ] Commit `feat(phase-4): portfolio wall + spotlight`
+- [x] 3×2 Wall, Tiles 522×240 bei 1920, Logos teal einfarbig (i-pro Kom farbig, dokumentiert), Kappes Group initial aktiv mit Magenta-Rahmen und Glow
+- [x] Spotlight zeigt Logo, Text, Chips, Button nur bei URL (aktuell nur Kappes Group)
+- [x] Klick/Enter/Pfeiltasten wechseln Tile + Spotlight, `aria-selected` und `hidden` korrekt
+- [x] Ohne JS: erstes Spotlight sichtbar, Tiles ohne Funktion, aber kein Fehler
+- [x] Mobile 390: 2×3 Wall, Spotlight gestapelt mit Bild oben
+- [x] Commit `feat(phase-4): portfolio wall + spotlight`

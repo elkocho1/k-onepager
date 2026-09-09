@@ -66,6 +66,13 @@
   --c-teal-a40: rgba(126, 209, 201, 0.4);     /* footer rule */
   --c-teal-a30: rgba(126, 209, 201, 0.3);     /* progress base line, card hover border */
   --c-lime-a10: rgba(204, 255, 0, 0.1);       /* card glow gradient (shown at 50 % opacity = .05) */
+  --c-magenta-a90: rgba(255, 0, 255, 0.9);    /* spotlight accent line */
+  --c-magenta-a50: rgba(255, 0, 255, 0.5);    /* tile hover border */
+  --c-magenta-a35: rgba(255, 0, 255, 0.35);   /* active tile glow */
+  --c-tile-bg-active: rgba(255, 255, 255, 0.07);
+  --c-white-a70: rgba(255, 255, 255, 0.7);    /* inactive tile name */
+  --c-night-a95: rgba(42, 50, 51, 0.95);      /* spotlight image overlay start */
+  --c-night-a20: rgba(42, 50, 51, 0.2);       /* spotlight image overlay middle */
 
   /* --- Typography --------------------------------------------------------- */
   --font-brand: "KMR Apparat", "Inter", system-ui, sans-serif;

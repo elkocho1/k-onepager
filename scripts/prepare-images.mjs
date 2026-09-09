@@ -70,10 +70,11 @@ const LOGOS = [
   // Interim until the SVG mark arrives; Figma export has transparent padding → trim
   { src: 'figma-export/kplus-logo-139-34.png', out: 'kplus.png', trim: true },
   { src: 'Logos/einzeilig-logo_kappes (neu).svg', out: 'kappes-group.svg' },
+  // Transparent margins are trimmed so the CSS mask box equals the mark itself
   { src: 'Logos/Place.png', out: 'place-strategy.png', knockOutWhite: true },
   { src: 'Logos/vynci.png', out: 'vyncitech.png', knockOutWhite: true },
-  { src: 'Logos/yolean.png', out: 'welean.png' },
-  { src: 'Logos/Kappes-und-Kemper-Logo-2 (1).png', out: 'kappes-kemper.png' },
+  { src: 'Logos/yolean.png', out: 'welean.png', trim: true },
+  { src: 'Logos/Kappes-und-Kemper-Logo-2 (1).png', out: 'kappes-kemper.png', trim: true },
   // JPEG without transparency – shown unmasked (mask: false in de.json)
   { src: 'Logos/i-pro.jpeg', out: 'i-pro-kom.jpg' },
 ];
@@ -81,7 +82,8 @@ const LOGOS = [
 /**
  * Turns a logo on a solid white background into a transparent PNG. Alpha is
  * derived from the darkest channel, so dark and coloured pixels stay opaque
- * while white becomes transparent; RGB is kept for unmasked display.
+ * while white becomes transparent; RGB is kept for unmasked display. The
+ * now-transparent margins are trimmed afterwards.
  */
 async function knockOutWhite(input, output) {
   const { data, info } = await sharp(input)
@@ -92,9 +94,10 @@ async function knockOutWhite(input, output) {
     const darkest = Math.min(data[i], data[i + 1], data[i + 2]);
     data[i + 3] = Math.min(255, (255 - darkest) * 2);
   }
-  return sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } })
+  const transparent = await sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } })
     .png()
-    .toFile(output);
+    .toBuffer();
+  return sharp(transparent).trim().png().toFile(output);
 }
 
 await mkdir(LOGO_OUT, { recursive: true });

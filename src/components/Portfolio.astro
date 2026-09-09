@@ -1,0 +1,362 @@
+---
+/**
+ * Portfolio (spec section 6, Figma 227:2 / mobile 242:149): header, 3×2 logo
+ * wall as ARIA tabs (logos tinted teal via CSS mask, i-pro Kom unmasked) and
+ * one spotlight panel per company – all rendered, only the selected one
+ * visible. Switching happens in src/scripts/portfolio.ts; without JS the
+ * first spotlight shows.
+ */
+import { Picture } from 'astro:assets';
+import Button from './Button.astro';
+import { content } from '../lib/content';
+import { publicImageSize, resolveImage } from '../lib/images';
+
+const { portfolio } = content;
+const companies = await Promise.all(
+  portfolio.companies.map(async (company) => ({
+    ...company,
+    logoSize: await publicImageSize(company.logo),
+    photo: resolveImage(company.image),
+  })),
+);
+
+const logoStyle = (company: (typeof companies)[number]) =>
+  `--logo: url('${company.logo}'); --logo-ratio: ${company.logoSize.width} / ${company.logoSize.height}`;
+---
+
+<section id={portfolio.id} class="portfolio">
+  <div class="container">
+    <div class="portfolio__head">
+      <p class="eyebrow">{portfolio.eyebrow}</p>
+      <h2 class="h2">{portfolio.headline}</h2>
+      <p class="body">{portfolio.intro}</p>
+    </div>
+
+    <div class="wall" role="tablist" aria-label={portfolio.wallLabel} data-portfolio-tabs>
+      {companies.map((company, index) => (
+        <button
+          class="tile"
+          type="button"
+          role="tab"
+          id={`tab-${company.slug}`}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          aria-controls={`spot-${company.slug}`}
+          tabindex={index === 0 ? 0 : -1}
+          data-slug={company.slug}
+        >
+          {company.mask ? (
+            <span class="tile__logo tile__logo--mask" style={logoStyle(company)} aria-hidden="true"></span>
+          ) : (
+            <img
+              class="tile__logo"
+              src={company.logo}
+              alt=""
+              width={company.logoSize.width}
+              height={company.logoSize.height}
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+          <span class="tile__name">{company.name}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="spotlights" data-portfolio-panels>
+      {companies.map((company, index) => (
+        <article
+          class="spot"
+          id={`spot-${company.slug}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${company.slug}`}
+          tabindex="0"
+          hidden={index !== 0}
+        >
+          <div class="spot__text">
+            {company.mask ? (
+              <span class="spot__logo spot__logo--mask" style={logoStyle(company)} role="img" aria-label={company.name}></span>
+            ) : (
+              <img
+                class="spot__logo"
+                src={company.logo}
+                alt={company.name}
+                width={company.logoSize.width}
+                height={company.logoSize.height}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+            <p class="spot__copy">{company.text}</p>
+            <ul class="chips" role="list">
+              {company.tags.map((tag) => <li class="chip">{tag}</li>)}
+            </ul>
+            {company.url && (
+              <Button
+                href={company.url}
+                label={portfolio.websiteLabel}
+                variant="primary"
+                class="spot__cta"
+                target="_blank"
+                rel="noopener"
+              />
+            )}
+          </div>
+          <span class="spot__line" aria-hidden="true"></span>
+          <div class="spot__media">
+            <Picture
+              src={company.photo}
+              alt=""
+              widths={[640, 920, 1840]}
+              sizes="(max-width: 1023px) 100vw, 920px"
+              formats={['avif', 'webp']}
+              loading="lazy"
+              decoding="async"
+              class="spot__image"
+              pictureAttributes={{ class: 'spot__picture' }}
+            />
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script src="../scripts/portfolio.ts"></script>
+
+<style>
+  .portfolio {
+    margin-top: var(--section-gap);
+  }
+
+  .portfolio__head {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 974px;
+  }
+
+  /* --- Logo wall ---------------------------------------------------------- */
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 56px;
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    height: 240px;
+    padding: 24px;
+    border: 1px solid var(--c-tile-border);
+    border-radius: var(--radius-tile);
+    background: var(--c-tile-bg);
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .tile__logo {
+    display: block;
+    height: 64px;
+    width: auto;
+    max-width: 314px;
+  }
+
+  .tile__logo--mask,
+  .spot__logo--mask {
+    aspect-ratio: var(--logo-ratio);
+    background: var(--c-teal);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+
+  .tile__name {
+    font-size: var(--fs-tile-name);
+    font-weight: 500;
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-h2);
+    color: var(--c-white-a70);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  /* Active: 1.5px magenta frame (1px border + .5px inset shadow, no layout shift) + glow */
+  .tile[aria-selected='true'] {
+    border-color: var(--c-magenta);
+    background: var(--c-tile-bg-active);
+    box-shadow:
+      inset 0 0 0 0.5px var(--c-magenta),
+      0 0 32px var(--c-magenta-a35);
+  }
+
+  .tile[aria-selected='true'] .tile__name {
+    color: var(--c-white);
+  }
+
+  @media (hover: hover) {
+    .tile:hover {
+      transform: translateY(-4px);
+      border-color: var(--c-magenta-a50);
+    }
+  }
+
+  /* --- Spotlight ---------------------------------------------------------- */
+  .spotlights {
+    margin-top: 56px;
+  }
+
+  .spot {
+    display: grid;
+    grid-template-columns: 680px 1px 1fr;
+    min-height: 480px;
+    overflow: hidden;
+    border: 1px solid var(--c-tile-border);
+    border-radius: var(--radius-spot);
+    background: var(--c-spot-bg);
+  }
+
+  .spot[hidden] {
+    display: none;
+  }
+
+  /* Vertical padding 32 (Figma shows the logo ~30px below the panel edge) and
+     gap 24 keep the longest text column inside the 480px panel – all
+     spotlights end up the same height, so switching never shifts the page. */
+  .spot__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    padding: 31px 56px; /* 31 + 1px panel border = 32 */
+  }
+
+  .spot__logo {
+    display: block;
+    height: 64px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .spot__copy {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-white);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 8px;
+  }
+
+  .chip {
+    padding: 8px 16px;
+    border: 1px solid var(--c-teal-a40);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-chip);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--c-teal);
+  }
+
+  .spot__cta {
+    padding-inline: 24px;
+  }
+
+  .spot__line {
+    background: linear-gradient(180deg, transparent, var(--c-magenta-a90) 50%, transparent);
+  }
+
+  .spot__media {
+    position: relative;
+    min-height: 100%;
+  }
+
+  .spot__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--c-night-a95) 0%, var(--c-night-a20) 55%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .spot :global(.spot__picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .spot :global(.spot__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* --- Tablet: 2-column wall, stacked spotlight --------------------------- */
+  @media (max-width: 1023px) {
+    .wall {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spot {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1px auto;
+      min-height: 0;
+    }
+
+    .spot__media {
+      order: -1;
+      height: 280px;
+      min-height: 0;
+    }
+
+    .spot__media::after {
+      background: linear-gradient(180deg, transparent 40%, var(--c-night-a95) 100%);
+    }
+
+    .spot__line {
+      background: linear-gradient(90deg, transparent, var(--c-magenta-a90) 50%, transparent);
+    }
+
+    .spot__text {
+      padding: 28px 24px;
+    }
+  }
+
+  /* --- Mobile: 2×3 wall, small tiles -------------------------------------- */
+  @media (max-width: 767px) {
+    .wall {
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .tile {
+      gap: 10px;
+      height: 128px;
+      padding: 16px;
+    }
+
+    .tile__logo {
+      height: 36px;
+      max-width: 118px;
+    }
+
+    .spotlights {
+      margin-top: 40px;
+    }
+
+    .spot__media {
+      height: 200px;
+    }
+
+    .spot__logo {
+      height: 48px;
+    }
+  }
+</style>

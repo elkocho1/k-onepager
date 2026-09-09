@@ -147,6 +147,7 @@
     "headline": "Unternehmen, die Veränderung möglich machen.",
     "intro": "Unser Portfolio verbindet unterschiedliche Perspektiven auf die Zukunft des Bauens – von Technologie und Planung über Prozesse und Projektmanagement bis zu Gebäudetechnik, Immobilienentwicklung und Recht.",
     "websiteLabel": "Webseite",
+    "wallLabel": "Beteiligungen",
     "companies": [
       {
         "slug": "kappes-group",
@@ -222,7 +223,7 @@
         "slug": "kappes-kemper",
         "name": "Kappes + Kemper",
         "logo": "/logos/kappes-kemper.png",
-        "mask": true,
+        "mask": false,
         "image": "/images/portfolio/kappes-kemper.jpg",
         "text": "Verbindung aus Baupraxis und baurechtlicher Kompetenz. Gemeinsam begleiten wir komplexe Projekt- und Krisensituationen mit technischem und juristischem Know-how.",
         "tags": [

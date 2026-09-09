@@ -40,7 +40,7 @@ Die Logo-Wall färbt Logos per `mask-image` teal ein – dafür braucht jede Dat
 | `place-strategy.png` | `Logos/Place.png` 738×288, **ohne Alphakanal** (weißer Hintergrund) | Weiß wird in `scripts/prepare-images.mjs` freigestellt (Alpha aus dunkelstem Kanal); SVG nachfordern |
 | `vyncitech.png` | `Logos/vynci.png` 738×228, **ohne Alphakanal** (weißer Hintergrund) | Weiß wird in `scripts/prepare-images.mjs` freigestellt; SVG nachfordern |
 | `welean.png` | `Logos/yolean.png` 500×170 | knapp (Höhe 64 → 2× = 128 px ok); SVG nachfordern |
-| `kappes-kemper.png` | `Logos/Kappes-und-Kemper-Logo-2 (1).png` 1323×454 RGBA | ok für Maske |
+| `kappes-kemper.png` | `Logos/Kappes-und-Kemper-Logo-2 (1).png` 1323×454 RGBA, getrimmt 855×349 | **nicht** für die Maske geeignet: die K-Buchstaben stehen im opaken Kasten und verschwinden (Ergebnis „▇ APPES EMPER") → wie im Figma unmaskiert farbig (`mask: false`), SVG nachfordern |
 | `i-pro-kom.jpg` | `Logos/i-pro.jpeg` 354×165, **keine Transparenz** | unbrauchbar für Maske → im Figma wird das Logo unmaskiert farbig gezeigt. Interim: Bild ohne Maske, eigener Fall in der Komponente (`mask: false` in de.json gesetzt) |
 
 Alle Logos werden von `scripts/prepare-images.mjs` aus `_material/` nach `public/logos/` kopiert bzw. freigestellt. `de.json` verweist seit Phase 0 auf die realen Endungen (`.svg`/`.png`/`.jpg`) und trägt je Firma `mask: true|false`; sobald SVGs vom Kunden kommen, Pfade zurück auf `.svg`.
