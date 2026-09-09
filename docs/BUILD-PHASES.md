@@ -105,7 +105,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Tooling: `browser-eval` mit `--timeout` (Watchdog) und `--screenshot-mode=viewport`. Full-Page-Captures hingen in Chrome, sobald große dekodierte AVIF-Fotos sichtbar waren (nach `scrollIntoView` oder mit Viewport in Seitenhöhe); Viewport-Captures nach `scrollTo` + `img.decode()` laufen zuverlässig.
 - Nachtrag `fix(phase-5)` (2026-09-09): `--c-magenta-text` auf `#FF67FF` – kleinster Wert, der auch mit axe-Rundung des getönten Spotlight-Hintergrunds (`#313F3F`) 4,5:1 erreicht (4,51:1; Night 5,39:1, Tönung rechnerisch 4,53:1). Abweichung 8 in DESIGN-SPEC.md aktualisiert.
 
-### Phase 6 – Responsive · 2026-09-09 · Commit `PHASE6_HASH`
+### Phase 6 – Responsive · 2026-09-09 · Commit `4365e10`
 
 - Grids: alle festen Pixel-Spalten (Vision 778/702, Mission 702/778, Founder 713/827, Spotlight 680/919) laufen unterhalb 1920 proportional (`minmax(0, Xfr)`), weil der Container schon ab 1919 px schmaler als 1600 ist – bei 1440 lief die Seite vorher 403 px über (Vision). 1024–1439: Gutter 64, Warum-Karten 560, Spotlight-Textspalte 45 %, Schwerpunkte-Spalten 40 % / 40 %. 768–1023: Vision, Mission, Founder und Spotlight gestapelt, Wall 2 Spalten, Schwerpunkte einspaltig, Nav-Links ausgeblendet (CTA-Button bleibt; Burger-Menü weiter offen).
 - Portfolio-Wall bei 1024 (Auftrag 1): `repeat(3, minmax(0, 1fr))`, Logos `max-width: min(314px, 100%)` + `object-fit: contain` – vorher zog die Min-Content-Breite der Logos (bis 314 px + Padding) die `1fr`-Spalten auf 1118 px.
