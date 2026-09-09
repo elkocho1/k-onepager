@@ -3,10 +3,18 @@
  * running preview server and prints the JSON result – a functional check for
  * the few interactive parts (card slider progress, portfolio switch).
  *
- *   node scripts/browser-eval.mjs <url> "<expression>" [--width=1920] [--height=1080] [--screenshot=file.png]
+ *   node scripts/browser-eval.mjs <url> "<expression>" [--width=1920] [--height=1080]
+ *                                 [--screenshot=file.png] [--screenshot-mode=page|viewport]
+ *                                 [--timeout=60000]
  *
- * --screenshot stores a full-page PNG taken after the expression ran (so the
- * expression can switch state first, e.g. click a portfolio tile).
+ * --screenshot stores a PNG taken after the expression ran (so the expression
+ * can switch state first, e.g. click a portfolio tile): the whole page
+ * (default) or, with --screenshot-mode=viewport, the current viewport – let
+ * the expression scrollTo() the region first. Chrome has hung on full-page
+ * captures once large decoded photos were on screen; viewport captures are
+ * the safe choice for sections with photos (which only load lazily inside the
+ * viewport – wait for img.decode() in the expression). --timeout (ms) kills
+ * Chrome and exits 1 when exceeded.
  *
  * Talks to Chrome over the DevTools Protocol with Node's built-in WebSocket,
  * so it needs no extra dependency. Start the server first, e.g.
@@ -25,6 +33,7 @@ if (!url || !expression) {
 const options = Object.fromEntries(rest.map((a) => a.replace(/^--/, '').split('=')));
 const width = Number(options.width ?? 1920);
 const height = Number(options.height ?? 1080);
+const timeoutMs = Number(options.timeout ?? 60_000);
 
 const chrome = [
   process.env.CHROME_PATH,
@@ -83,6 +92,12 @@ async function pageTarget() {
   throw new Error('DevTools target not found');
 }
 
+const watchdog = setTimeout(async () => {
+  console.error(`timeout after ${timeoutMs} ms`);
+  await cleanup();
+  process.exit(1);
+}, timeoutMs);
+
 try {
   const ws = new WebSocket(await pageTarget());
   await new Promise((resolve, reject) => {
@@ -120,11 +135,13 @@ try {
   const failed = Boolean(result.exceptionDetails);
   console.log(JSON.stringify(failed ? result.exceptionDetails : result.result?.value, null, 2));
   if (options.screenshot && !failed) {
-    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+    const viewportOnly = options['screenshot-mode'] === 'viewport';
+    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: !viewportOnly });
     writeFileSync(options.screenshot, Buffer.from(shot.result.data, 'base64'));
     console.error('screenshot: ' + options.screenshot);
   }
   ws.close();
+  clearTimeout(watchdog);
   await cleanup();
   process.exit(failed ? 1 : 0);
 } catch (error) {

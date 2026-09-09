@@ -34,7 +34,7 @@ Alle Angaben in px bei 1920 bzw. 390. Farben/Schriften über Tokens (siehe unten
 
 | Rolle | Schnitt | Desktop | Mobile | Farbe |
 |---|---|---|---|---|
-| Display (Hero, CTA) | KMR Apparat Heavy | 120 / 1.0, Zeilen überlappen −20 px | 78 / 1.0 (Hero), 46.8 (CTA) | weiß + Outline-Zeile |
+| Display (Hero, CTA) | KMR Apparat Heavy | 120 / 1.0, Zeilen überlappen −20 px | 78 / 1.0 (Hero), 36 (CTA, Zeilen überlappen −6 px) | weiß + Outline-Zeile |
 | H2 Sektion | KMR Apparat Regular | 42 / 1.2, tracking 0.96 | 34 / 1.2 | teal |
 | H3 Karte / Prinzip | Inter Bold bzw. KMR Regular | 24 (Prinzip, Schwerpunkt) · 42 (Warum-K+-Karte) | 22 · 30 | lime (Prinzip/Schwerpunkt), teal (Karte) |
 | Eyebrow | KMR Apparat Bold | 14, uppercase, tracking normal | 14 | magenta |
@@ -151,7 +151,7 @@ Eyebrow (14, Bold, uppercase, magenta, 8 px vertical padding) → 24 px → H2 (
 - Zentriert, flex-column gap 40. Hintergrund-Glow: Kreis 775 px, zentriert, top −130, `blur(32px)`, radialer Verlauf lime 10 % → transparent.
 - Eyebrow „Für Gründer. Für Innovatoren." → Display zwei Zeilen: „Let's build beyond." weiß, „Together." Outline lime, 120 Heavy, −20 px Überlappung, zentriert → Subline 18/28 teal, zentriert, Breite 1006, zwei Zeilen (`\n`).
 - Buttons gap 16: Primär „Pitch einreichen" (mailto), Sekundär „Kontakt aufnehmen" (mailto, ohne Teal-Füllung: transparent).
-- Mobile (`242:247`): Display 46.8 px, Buttons volle Breite untereinander.
+- Mobile (`242:247`): Display 36 px (Zeilenhöhe 46,8 – frühere Angabe „46.8 px" war die Zeilenhöhe; bei 46,8 px Schrift bricht die erste Zeile um), Überlappung −6 px, Outline-Tracking 3 px, Buttons volle Breite untereinander (gap 12), Glow 426 px bei −40.
 
 ### 10 Footer – Node `139:469` (1918×392)
 

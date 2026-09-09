@@ -1,0 +1,121 @@
+---
+/**
+ * Founder (spec section 8, Figma 139:411 / mobile 242:234): portrait left
+ * (713×515, focus near the top), eyebrow / name / role / four paragraphs
+ * right (827), vertically centred. Below 1024px the portrait (342×247 on the
+ * mobile frame, rounded) sits above the text.
+ */
+import { Picture } from 'astro:assets';
+import { content } from '../lib/content';
+import { resolveImage } from '../lib/images';
+
+const { founder } = content;
+const image = resolveImage(founder.image.src);
+---
+
+<section id={founder.id} class="founder">
+  <div class="container founder__grid">
+    <Picture
+      src={image}
+      alt={founder.image.alt}
+      widths={[342, 684, 713, 1426]}
+      sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1023px) calc(100vw - 80px), 713px"
+      formats={['avif', 'webp']}
+      loading="lazy"
+      decoding="async"
+      class="founder__image"
+      pictureAttributes={{ class: 'founder__picture' }}
+    />
+    <div class="founder__text">
+      <p class="eyebrow">{founder.eyebrow}</p>
+      <div class="founder__intro">
+        <h2 class="h2">{founder.name}</h2>
+        <p class="founder__role">{founder.role}</p>
+      </div>
+      <div class="founder__copy">
+        {founder.paragraphs.map((paragraph) => <p class="body">{paragraph}</p>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .founder {
+    margin-top: var(--section-gap);
+  }
+
+  .founder__grid {
+    display: grid;
+    grid-template-columns: 713px 827px;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .founder :global(.founder__picture) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 713 / 515;
+  }
+
+  .founder :global(.founder__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 15%; /* keep the face in frame */
+  }
+
+  /* Eyebrow → 24 → name → 10 → role → 24 → paragraphs (gap 16) */
+  .founder__text {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .founder__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .founder__role {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-lime);
+  }
+
+  .founder__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  @media (max-width: 1439px) {
+    .founder__grid {
+      grid-template-columns: minmax(0, 713fr) minmax(0, 827fr);
+      gap: 64px;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .founder__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .founder :global(.founder__picture) {
+      aspect-ratio: 342 / 247;
+      overflow: hidden;
+      border-radius: var(--radius-tile); /* mobile frame 242:235 */
+    }
+
+    .founder :global(.founder__image) {
+      object-position: 50% 20%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .founder__grid {
+      gap: 28px;
+    }
+  }
+</style>

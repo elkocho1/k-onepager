@@ -73,6 +73,8 @@
   --c-white-a70: rgba(255, 255, 255, 0.7);    /* inactive tile name */
   --c-night-a95: rgba(42, 50, 51, 0.95);      /* spotlight image overlay start */
   --c-night-a20: rgba(42, 50, 51, 0.2);       /* spotlight image overlay middle */
+  --c-night-a60: rgba(42, 50, 51, 0.6);       /* schwerpunkte overlay (spec section 7) */
+  --c-night-a70: rgba(42, 50, 51, 0.7);       /* schwerpunkte overlay below 1024px */
 
   /* --- Typography --------------------------------------------------------- */
   --font-brand: "KMR Apparat", "Inter", system-ui, sans-serif;
@@ -80,7 +82,7 @@
   /* Fluid type scale: clamp(mobile 390px -> desktop 1920px). Sizes that are
      identical on both frames in the spec stay fixed. */
   --fs-display: clamp(78px, 67.294px + 2.7451vw, 120px);      /* hero */
-  --fs-display-cta: clamp(46.8px, 28.141px + 4.7843vw, 120px); /* CTA */
+  --fs-display-cta: clamp(36px, 14.588px + 5.4902vw, 120px);   /* CTA (mobile frame 242:252: 36px) */
   --fs-h2: clamp(34px, 31.961px + 0.5229vw, 42px);
   --fs-h3: clamp(22px, 21.49px + 0.1307vw, 24px);              /* principle / focus title */
   --fs-h3-card: clamp(30px, 26.941px + 0.7843vw, 42px);        /* why-K+ card title */
@@ -103,7 +105,8 @@
 
   --ls-h2: 0.96px;
   --ls-button: 1px;
-  --ls-outline-hero: 10px;
+  --ls-outline: 10px;        /* outline display line (hero, CTA) */
+  --ls-outline-mobile: 3px;  /* CTA outline line on the mobile frame (242:253) */
 
   /* --- Layout ------------------------------------------------------------- */
   --container: 1600px;       /* content width desktop */

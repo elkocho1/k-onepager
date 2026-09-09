@@ -6,16 +6,12 @@ import Mission from '../components/Mission.astro';
 import Marquee from '../components/Marquee.astro';
 import WarumKplus from '../components/WarumKplus.astro';
 import Portfolio from '../components/Portfolio.astro';
+import Schwerpunkte from '../components/Schwerpunkte.astro';
+import Founder from '../components/Founder.astro';
+import Cta from '../components/Cta.astro';
 import { content } from '../lib/content';
 
-const { meta, schwerpunkte, founder, cta } = content;
-
-/** Empty anchor targets until each section is built in the phase noted. */
-const placeholders = [
-  { id: schwerpunkte.id, phase: 5 },
-  { id: founder.id, phase: 5 },
-  { id: cta.id, phase: 5 },
-];
+const { meta } = content;
 ---
 
 <Base title={meta.title} description={meta.description}>
@@ -25,13 +21,7 @@ const placeholders = [
   <Marquee />
   <WarumKplus />
   <Portfolio />
-  {placeholders.map(({ id, phase }) => <section id={id} class="placeholder" data-phase={phase}></section>)}
+  <Schwerpunkte />
+  <Founder />
+  <Cta />
 </Base>
-
-<style>
-  /* Placeholders – replaced by the real sections (see data-phase) */
-  .placeholder {
-    min-height: 400px;
-    margin-top: var(--section-gap);
-  }
-</style>

@@ -26,9 +26,9 @@
 
 ## Definition of Done
 
-- [ ] Schwerpunkte: Bild nur in der Mitte sichtbar, sechs Items 3 links / 3 rechts mit lime-Linien, Text lesbar (Kontrast ≥ 4.5:1 auf dem gedimmten Bild)
-- [ ] Founder: Porträt 713×515 links, vier Absätze rechts, Name 42 teal, Rolle lime
-- [ ] CTA: Display zweizeilig mit Outline „Together.", Glow, zwei mailto-Buttons
-- [ ] Gesamtseite bei 1920 entspricht dem Figma-Frame in Reihenfolge und Abständen (Screenshot-Vergleich `docs/screens/phase-5-desktop.png` gegen Figma)
-- [ ] Keine Platzhalter-Sektionen mehr in `index.astro`
-- [ ] Commit `feat(phase-5): schwerpunkte, founder, cta`
+- [x] Schwerpunkte: Bild nur in der Mitte sichtbar, sechs Items 3 links / 3 rechts mit lime-Linien, Text lesbar (Kontrast ≥ 4.5:1 auf dem gedimmten Bild)
+- [x] Founder: Porträt 713×515 links, vier Absätze rechts, Name 42 teal, Rolle lime
+- [x] CTA: Display zweizeilig mit Outline „Together.", Glow, zwei mailto-Buttons
+- [x] Gesamtseite bei 1920 entspricht dem Figma-Frame in Reihenfolge und Abständen (Screenshot-Vergleich `docs/screens/phase-5-desktop.png` gegen Figma)
+- [x] Keine Platzhalter-Sektionen mehr in `index.astro`
+- [x] Commit `feat(phase-5): schwerpunkte, founder, cta`

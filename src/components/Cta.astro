@@ -1,0 +1,142 @@
+---
+/**
+ * CTA (spec section 9, Figma 139:457 / mobile 242:247): centred eyebrow,
+ * two-line display headline (second line outlined lime), teal subline and
+ * two mailto buttons over a soft lime glow. Mobile: buttons full width.
+ */
+import Button from './Button.astro';
+import { content, nl2br } from '../lib/content';
+
+const { cta } = content;
+const textLines = nl2br(cta.text);
+---
+
+<section id={cta.id} class="cta">
+  <span class="cta__glow" aria-hidden="true" data-glow></span>
+  <div class="container cta__content">
+    <div class="cta__text">
+      <p class="eyebrow">{cta.eyebrow}</p>
+      <h2 class="cta__title">
+        {cta.headline.map((line, index) => (
+          <span class:list={['line', { 'outline-text': index === 1 }]} data-cta-line>{line}</span>
+        ))}
+      </h2>
+      <p class="cta__subline">
+        {textLines.map((line, index) => (
+          <Fragment>{index > 0 && <br />}{line}</Fragment>
+        ))}
+      </p>
+    </div>
+    <div class="cta__actions">
+      <Button href={cta.primaryCta.href} label={cta.primaryCta.label} variant="primary" />
+      <Button href={cta.secondaryCta.href} label={cta.secondaryCta.label} variant="secondary" class="cta__secondary" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-top: var(--section-gap);
+    text-align: center;
+  }
+
+  /* Glow: 775px circle, centred, 130px above the section, blurred 32px */
+  .cta__glow {
+    position: absolute;
+    top: -130px;
+    left: 50%;
+    z-index: -1;
+    width: 775px;
+    height: 775px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--c-lime-a10), transparent 70%);
+    filter: blur(32px);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .cta__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  /* Eyebrow → 24 → display → 24 → subline */
+  .cta__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .cta__title {
+    font-size: var(--fs-display-cta);
+    font-weight: 800;
+    line-height: var(--lh-display);
+    color: var(--c-white);
+  }
+
+  .cta__title .line {
+    display: block;
+  }
+
+  /* Lines overlap by 20px at 120px (spec) – scaled with the fluid size, the
+     mobile frame shows −6 at 36px. Outline line tracked like the hero's. */
+  .cta__title .line + .line {
+    margin-top: calc(var(--fs-display-cta) / -6);
+    letter-spacing: var(--ls-outline);
+  }
+
+  .cta__subline {
+    max-width: 1006px;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-teal);
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  /* Secondary button without the teal fill here (spec section 9) */
+  .cta__actions :global(.cta__secondary) {
+    background: transparent;
+  }
+
+  .cta__actions :global(.cta__secondary:hover),
+  .cta__actions :global(.cta__secondary:focus-visible) {
+    background: var(--c-white);
+  }
+
+  @media (max-width: 767px) {
+    /* Mobile frame 242:248: 426px glow, 40px above, blur 17.6 */
+    .cta__glow {
+      top: -40px;
+      width: 426px;
+      height: 426px;
+      filter: blur(17.6px);
+    }
+
+    .cta__title .line + .line {
+      letter-spacing: var(--ls-outline-mobile);
+    }
+
+    .cta__actions {
+      flex-direction: column;
+      align-self: stretch;
+      gap: 12px;
+    }
+
+    .cta__actions :global(.btn) {
+      width: 100%;
+      height: 46px;
+    }
+  }
+</style>

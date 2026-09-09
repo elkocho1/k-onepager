@@ -1,0 +1,229 @@
+---
+/**
+ * Schwerpunkte (spec section 7, Figma 139:379 / mobile 242:203): background
+ * photo (1373 wide, centred) faded into night on all four sides plus a night
+ * overlay, centred eyebrow / h2 and six items – three on the left with a lime
+ * rule on the left, three on the right, right-aligned with the rule on the
+ * right. Below 1024px all six stack left-aligned over the covering photo.
+ */
+import { Picture } from 'astro:assets';
+import { content } from '../lib/content';
+import { resolveImage } from '../lib/images';
+
+const { schwerpunkte } = content;
+const image = resolveImage(schwerpunkte.image.src);
+const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
+---
+
+<section id={schwerpunkte.id} class="focus">
+  <div class="focus__bg" data-parallax>
+    <Picture
+      src={image}
+      alt={schwerpunkte.image.alt}
+      widths={[768, 1373, 2000]}
+      sizes="(max-width: 1023px) 100vw, 1373px"
+      formats={['avif', 'webp']}
+      loading="lazy"
+      decoding="async"
+      class="focus__image"
+      pictureAttributes={{ class: 'focus__picture' }}
+    />
+    <span class="focus__fade" aria-hidden="true"></span>
+    <span class="focus__dim" aria-hidden="true"></span>
+  </div>
+
+  <div class="focus__head">
+    <p class="eyebrow">{schwerpunkte.eyebrow}</p>
+    <h2 class="h2">{schwerpunkte.headline}</h2>
+  </div>
+
+  <div class="container focus__columns">
+    {columns.map((items, column) => (
+      <ul class:list={['focus__list', { 'focus__list--right': column === 1 }]} role="list" data-reveal-stagger>
+        {items.map((item) => (
+          <li class="focus__item">
+            <h3 class="focus__title">{item.title}</h3>
+            <p class="focus__text">{item.text}</p>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</section>
+
+<style>
+  .focus {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 832px; /* Figma frame height */
+    margin-top: var(--section-gap);
+    padding-top: 63px; /* head at 63 (Figma) */
+    padding-bottom: 64px;
+  }
+
+  /* --- Background: photo, four fades to night, dim overlay ---------------- */
+  .focus__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .focus :global(.focus__picture) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1373px;
+    transform: translateX(-50%);
+  }
+
+  .focus :global(.focus__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .focus__fade,
+  .focus__dim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Top 445px, bottom 395px, left and right 960×538px at the bottom corners
+     (Figma 139:382–385): night → transparent */
+  .focus__fade {
+    background-image:
+      linear-gradient(180deg, var(--c-night) 3.84%, transparent 100%),
+      linear-gradient(0deg, var(--c-night) 3.84%, transparent 100%),
+      linear-gradient(90deg, var(--c-night) 13.45%, transparent 100%),
+      linear-gradient(270deg, var(--c-night) 13.45%, transparent 100%);
+    background-size:
+      100% 445px,
+      100% 395px,
+      960px 538px,
+      960px 538px;
+    background-position:
+      top,
+      bottom,
+      left bottom,
+      right bottom;
+    background-repeat: no-repeat;
+  }
+
+  .focus__dim {
+    background: var(--c-night-a60);
+  }
+
+  /* --- Head (centred, 850 wide) ------------------------------------------- */
+  .focus__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: min(850px, 100% - 2 * var(--gutter));
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  /* --- Items: 460px columns at both container edges ----------------------- */
+  .focus__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 460px));
+    justify-content: space-between;
+    margin-top: 52px; /* head ends at 177, items start at 229 (Figma) */
+  }
+
+  .focus__list {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+  }
+
+  .focus__item {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 16px;
+    border-left: 1px solid var(--c-lime);
+  }
+
+  .focus__list--right .focus__item {
+    padding-left: 0;
+    padding-right: 16px;
+    border-left: 0;
+    border-right: 1px solid var(--c-lime);
+    text-align: right;
+  }
+
+  .focus__title {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    line-height: var(--lh-h2);
+    color: var(--c-lime);
+  }
+
+  .focus__text {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-teal);
+  }
+
+  /* --- Tablet and mobile: one left-aligned list over the covering photo --- */
+  @media (max-width: 1023px) {
+    .focus {
+      min-height: 0;
+      padding-block: var(--section-gap-mobile); /* Figma mobile frame: 72 inside */
+    }
+
+    .focus :global(.focus__picture) {
+      left: 0;
+      width: 100%;
+      transform: none;
+    }
+
+    /* No side fades – at 390px two 960px gradients would cover the photo */
+    .focus__fade {
+      background-image:
+        linear-gradient(180deg, var(--c-night) 3.84%, transparent 100%),
+        linear-gradient(0deg, var(--c-night) 3.84%, transparent 100%);
+      background-size:
+        100% 445px,
+        100% 395px;
+      background-position:
+        top,
+        bottom;
+    }
+
+    .focus__dim {
+      background: var(--c-night-a70);
+    }
+
+    .focus__columns {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .focus__list {
+      gap: 24px;
+    }
+
+    .focus__list--right .focus__item {
+      padding-left: 16px;
+      padding-right: 0;
+      border-left: 1px solid var(--c-lime);
+      border-right: 0;
+      text-align: left;
+    }
+  }
+
+  /* Mobile frame 242:203: head left-aligned */
+  @media (max-width: 767px) {
+    .focus__head {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>
