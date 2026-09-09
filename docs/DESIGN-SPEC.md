@@ -38,14 +38,14 @@ Alle Angaben in px bei 1920 bzw. 390. Farben/Schriften über Tokens (siehe unten
 | H2 Sektion | KMR Apparat Regular | 42 / 1.2, tracking 0.96 | 34 / 1.2 | teal |
 | H3 Karte / Prinzip | Inter Bold bzw. KMR Regular | 24 (Prinzip, Schwerpunkt) · 42 (Warum-K+-Karte) | 22 · 30 | lime (Prinzip/Schwerpunkt), teal (Karte) |
 | Eyebrow | KMR Apparat Bold | 14, uppercase, tracking normal | 14 | magenta |
-| Body | KMR Apparat Regular / Inter Regular | 18 / 28 | 18 / 28 (Mobile ggf. 16/26) | weiß, teal für Subline |
+| Body | KMR Apparat Regular / Inter Regular | 18 / 28 | 16 / 26 (Token `--fs-body`/`--lh-body` unter 768 px – gilt für alle Body-Ableitungen: Karten-, Prinzip-, Schwerpunkt-, Spotlight-Text, Subline, Rolle, Footer) | weiß, teal für Subline |
 | Button | KMR Apparat Medium | 16, uppercase, tracking 1 px | 16 | siehe Buttons |
 | Nav | KMR Apparat Regular / Book (aktiv) | 16 | – | teal, aktiv weiß |
 | Marquee | KMR Apparat Regular + Bold-Outline | 42, tracking 0.96 | 33 | teal / Outline teal |
 | Statement-Karte | Inter Regular | 32 / 1.25, zentriert | 24 | teal |
 | Portfolio-Tile-Name | KMR Apparat Medium | 24, tracking 0.96 | 15.5 | weiß (aktiv 100 %, sonst 70 %) |
 | Chip | Inter Medium | 14 | 14 | teal |
-| Footer-Text | KMR Apparat Regular | 18 / 28 | 18 | teal |
+| Footer-Text | KMR Apparat Regular | 18 / 28 | 16 / 26 (Body-Token) | teal |
 | Footer-Stadt | KMR Apparat Medium | 24, tracking 0.96 | 24 | magenta |
 
 **Hinweis Schriften:** Figma nutzt KMR Apparat in Heavy, Bold, Medium, Regular, Book – und an neueren Stellen Inter (Mission, Portfolio, Founder, Schwerpunkte, CTA-Subline), weil KMR im Figma-Konto nicht ladbar war. **Im Code überall KMR Apparat verwenden**, Inter nur als Fallback. Schnitte laut Designmanual eigentlich nur Regular + Medium – Heavy (Display) und Bold (Eyebrow) sind Figma-Entscheidungen; alle Schnitte liegen als WOFF2 vor. Fallback-Zuordnung: Inter Bold → KMR Medium, Inter Regular → KMR Regular.
@@ -114,7 +114,7 @@ Eyebrow (14, Bold, uppercase, magenta, 8 px vertical padding) → 24 px → H2 (
   - Glow: absolut positionierter Kreis 384×384 bei left −1 / top −170, `filter: blur(32px)`, `linear-gradient(142deg, rgba(204,255,0,.05) 43%, rgba(204,255,0,0) 96%)`, `overflow: hidden` an der Karte.
 - Statement-Karte (`166:2`): gleiche Hülle, Inhalt 536×243 zentriert, Text 32/1.25 Inter → KMR Regular, teal, zentriert.
 - Fortschrittslinie (`139:185`): unter den Karten (gap 40), Linie 1540 px breit, 1 px `rgba(126,209,201,.3)`, gefüllter Anteil **magenta** (`--c-magenta`, Figma-Linie `139:188` = #FF00FF – frühere Angabe „teal" war ein Extraktionsfehler); rechts daneben Zähler „01/06" (18, muted).
-- Mobile (`242:81`): Karten gestapelt, Breite 342, gap 12, padding 28, Icon 40×40, Titel 30, Text 18/28 (16 falls zu lang), Glow-Kreis 230 px bei −40/−120. Keine Fortschrittslinie.
+- Mobile (`242:81`): Karten gestapelt, Breite 342, gap 12, padding 28, Icon 40×40, Titel 30, Text 16/26 (Body-Token), Glow-Kreis 230 px bei −40/−120. Keine Fortschrittslinie.
 - Icons: 5 Stück aus Figma exportieren (Knoten `139:87` partnership-Maske, `139:97` building, `75:503` project, `75:516` network, `75:530` capital-Maske) → `public/icons/warum/*.svg`, einfarbig, viewBox 0 0 50 50.
 
 ### 6 Portfolio – Node `227:2` (1920×1280) – `id="portfolio"`
@@ -183,5 +183,5 @@ Fluid Type für Display/H2 mit `clamp()` zwischen Mobile- und Desktop-Wert.
 4. Schwerpunkte: Eyebrow 14 px wie überall (Figma 16).
 5. Slider-Label „Fünf Überzeugungen" aus `de.json` (Figma: „Fünf Verurteilungen" – Kundenbestätigung offen).
 6. „Webseite"-Button nur bei vorhandener URL.
-7. Mobile ohne Burger-Menü wie im Figma – **offen**: ob ein minimales Menü (Anker-Links) gewünscht ist. Bis dahin: nur Logo.
+7. Mobile ohne Burger-Menü wie im Figma – **entschieden (2026-09-09)**: nur das Logo, keine Anker-Links; Kontakt über die Hero- und CTA-Buttons. 768–1023: Nav-Links ebenfalls ausgeblendet, der Kontakt-Button bleibt.
 8. Magenta-**Text** (Eyebrows, Text der Primär-Buttons, Nav-CTA-Text) nutzt `--c-magenta-text: #FF67FF` statt `#FF00FF`, damit WCAG AA (4,5:1 für 16-px-Text) auf allen Hintergründen erfüllt ist: auf Night 5,39:1 (statt 4,18:1), auf der Spotlight-Tönung `--c-spot-bg` 4,53:1 (statt 3,51:1) – Lighthouse hatte den Nav-Button auf den Rechtsseiten und den „Webseite"-Button im Portfolio-Spotlight beanstandet. Die Zwischenwerte reichten nicht: `#FF4DFF` (Phase 1) nur auf Night (4,84:1), nicht auf der Tönung (4,07:1); `#FF66FF` (Phase 4/5) rechnerisch 4,51:1 auf der Tönung, aber axe/Lighthouse rundet den gemischten Hintergrund auf `#313F3F` und kommt auf 4,49:1 – `#FF67FF` ist der kleinste Wert, der auch so 4,5:1 erreicht (4,51:1). Rahmen, Glow und Aktiv-Zustände (Portfolio-Tile, Trennlinie, Hover-Füllung) bleiben `--c-magenta`. Footer-Stadt „Stuttgart" bleibt `--c-magenta` (24 px Medium = großer Text, 3:1 genügt).

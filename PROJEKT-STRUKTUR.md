@@ -137,7 +137,7 @@ Vom Kunden:
 7. Bestätigung Webfont-Lizenz KMR Apparat
 8. Bestätigung „Fünf Überzeugungen" (im Figma steht „Fünf Verurteilungen")
 9. K+-Bildmarke als SVG (fehlt im Material – Nav, Footer, Favicon)
-10. Entscheidung Mobile-Navigation: Figma zeigt nur das Logo (kein Burger-Menü) – so lassen oder minimales Anker-Menü?
+10. Mobile-Navigation – **entschieden (2026-09-09): bleibt ohne Burger-Menü**, wie im Figma nur das Logo (kein Anker-Menü); Kontakt über die Hero-/CTA-Buttons, 768–1023 bleibt der Kontakt-Button in der Leiste. Umgesetzt (DESIGN-SPEC.md Abweichung 7).
 
 Intern:
 - Icons der Warum-K+-Karten aus Figma als SVG exportieren
