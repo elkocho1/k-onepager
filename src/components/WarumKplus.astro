@@ -25,7 +25,7 @@ const icons = Object.fromEntries(
 ---
 
 <section id={warumKplus.id} class="warum">
-  <div class="container warum__head">
+  <div class="container warum__head" data-reveal>
     <div class="warum__heading">
       <p class="eyebrow warum__eyebrow">{warumKplus.eyebrow}</p>
       <h2 class="h2">{warumKplus.headline}</h2>
@@ -33,10 +33,10 @@ const icons = Object.fromEntries(
     <p class="warum__label">{warumKplus.sliderLabel}</p>
   </div>
 
-  <ul class="cards" role="list" tabindex="0" aria-label={warumKplus.trackLabel} data-cards>
+  <ul class="cards" role="list" tabindex="0" aria-label={warumKplus.trackLabel} data-cards data-lenis-prevent-horizontal>
     {warumKplus.cards.map((card) => (
       <li class="card">
-        <span class="card__glow" aria-hidden="true"></span>
+        <span class="card__glow" aria-hidden="true" data-card-glow></span>
         <span class="card__icon" set:html={icons[card.icon]} />
         <div class="card__body">
           <h3 class="card__title">{card.title}</h3>
@@ -45,7 +45,7 @@ const icons = Object.fromEntries(
       </li>
     ))}
     <li class="card card--statement">
-      <span class="card__glow" aria-hidden="true"></span>
+      <span class="card__glow" aria-hidden="true" data-card-glow></span>
       <p class="card__statement">{warumKplus.statement}</p>
     </li>
   </ul>

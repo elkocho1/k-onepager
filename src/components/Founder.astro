@@ -24,9 +24,9 @@ const image = resolveImage(founder.image.src);
       loading="lazy"
       decoding="async"
       class="founder__image"
-      pictureAttributes={{ class: 'founder__picture' }}
+      pictureAttributes={{ class: 'founder__picture', 'data-reveal': '' }}
     />
-    <div class="founder__text">
+    <div class="founder__text" data-reveal>
       <p class="eyebrow">{founder.eyebrow}</p>
       <div class="founder__intro">
         <h2 class="h2">{founder.name}</h2>

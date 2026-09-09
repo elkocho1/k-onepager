@@ -13,7 +13,7 @@ const image = resolveImage(hero.image.src);
 const textLines = nl2br(hero.text);
 ---
 
-<section class="hero">
+<section class="hero" data-hero>
   <Picture
     src={image}
     alt={hero.image.alt}
@@ -24,7 +24,7 @@ const textLines = nl2br(hero.text);
     fetchpriority="high"
     decoding="async"
     class="hero__image"
-    pictureAttributes={{ class: 'hero__picture' }}
+    pictureAttributes={{ class: 'hero__picture', 'data-parallax': '' }}
   />
   <div class="container">
     <div class="hero__content">

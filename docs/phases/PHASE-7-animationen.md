@@ -30,6 +30,10 @@
 14. **Smooth Scroll** – Lenis (`lerp: 0.1`, `wheelMultiplier: 1`), auf Touch deaktiviert (`syncTouch: false`). Anker-Links, `scroll-padding` beachten.
 15. **Hex-Cursor** – `src/scripts/hex-cursor.ts` + `HexCursor.astro`: `<canvas>` fixed über der ganzen Seite, `pointer-events: none`, `z-index` unter der Nav. Hexagon-Raster (Kantenlänge 28 px, 1 px Linien magenta) wird nur im Radius 220 px um den Cursor sichtbar (radialer Alpha-Verlauf, `globalCompositeOperation`), Cursor-Position mit `lerp 0.15` nachgezogen. Nur bei `(pointer: fine)` und nicht bei reduced-motion; auf `resize` Raster neu berechnen; `requestAnimationFrame` nur laufen lassen, wenn sich die Maus in den letzten 2 s bewegt hat. Über dunklen Flächen ist das Raster sichtbar, über Bildern (Hero, Schwerpunkte) mit `mix-blend-mode: screen` dezenter.
 
+## Stand Teil A (2026-09-09, `feat(phase-7a): scroll foundations`)
+
+Umgesetzt: 2, 3, 4, 5, 6, 8, 11, 12, 13, 14 – Details im Status-Log (`docs/BUILD-PHASES.md`). Teil B nach Sichtung: 1, 7, 10, 15. Punkt 9 (Logo-Wall-Stagger) ist keinem Teil zugeordnet – Entscheidung offen. Abweichungen von der Liste oben: Marquee mit vier Kopien und `xPercent` ±25 (statt doppeltem Track und −50, sonst Lücke im Loop ab 1920 px); Anker ohne `offset: -96`, weil Lenis 1.3 `scroll-padding-top` selbst berücksichtigt; Nav-Zustand (3) läuft auch bei reduced motion (Zustand, keine Bewegung). Prüfskripte: `node scripts/motion-check.mjs <url>` (JS aus / reduced motion / Funktionstests), `node scripts/scroll-perf.mjs <url> --trace=docs/screens/…json` (Long Tasks, CLS, DevTools-Trace), `node scripts/page-shot.mjs <url> out.png --no-js | --reduced-motion`.
+
 ## Definition of Done
 
 - [ ] Alle 15 Punkte umgesetzt, Verhalten je Punkt kurz in `docs/BUILD-PHASES.md` Status-Log notiert

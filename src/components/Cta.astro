@@ -13,7 +13,7 @@ const textLines = nl2br(cta.text);
 
 <section id={cta.id} class="cta">
   <span class="cta__glow" aria-hidden="true" data-glow></span>
-  <div class="container cta__content">
+  <div class="container cta__content" data-reveal>
     <div class="cta__text">
       <p class="eyebrow">{cta.eyebrow}</p>
       <h2 class="cta__title">
@@ -54,7 +54,7 @@ const textLines = nl2br(cta.text);
     border-radius: 50%;
     background: radial-gradient(circle, var(--c-lime-a10), transparent 70%);
     filter: blur(32px);
-    transform: translateX(-50%);
+    translate: -50%; /* centring via `translate`, so GSAP owns `transform` (pulse, drift) */
     pointer-events: none;
   }
 

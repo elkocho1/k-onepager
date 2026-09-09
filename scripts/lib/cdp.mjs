@@ -58,9 +58,15 @@ async function pageTarget(port) {
 }
 
 /**
- * @param {{ width?: number, height?: number, timeout?: number, hideScrollbars?: boolean }} options
+ * `disableJs` turns page scripts off (Emulation.setScriptExecutionDisabled –
+ * Runtime.evaluate keeps working), `reducedMotion` emulates
+ * `prefers-reduced-motion: reduce`.
+ *
+ * @param {{ width?: number, height?: number, timeout?: number, hideScrollbars?: boolean, disableJs?: boolean, reducedMotion?: boolean }} options
  * @param {(page: {
  *   send: (method: string, params?: object) => Promise<any>,
+ *   on: (method: string, handler: (params: any) => void) => void,
+ *   once: (method: string) => Promise<any>,
  *   navigate: (url: string) => Promise<void>,
  *   evaluate: (expression: string) => Promise<any>,
  *   screenshot: (options?: { viewportOnly?: boolean }) => Promise<Buffer>,
@@ -68,7 +74,10 @@ async function pageTarget(port) {
  * @returns {Promise<T>}
  * @template T
  */
-export async function withPage({ width = 1920, height = 1080, timeout = 60_000, hideScrollbars = false }, run) {
+export async function withPage(
+  { width = 1920, height = 1080, timeout = 60_000, hideScrollbars = false, disableJs = false, reducedMotion = false },
+  run,
+) {
   const chrome = findChrome();
   if (!chrome) throw new Error('No Chrome/Edge found – set CHROME_PATH.');
 
@@ -140,9 +149,18 @@ export async function withPage({ width = 1920, height = 1080, timeout = 60_000, 
 
     await send('Page.enable');
     await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 768 });
+    if (disableJs) await send('Emulation.setScriptExecutionDisabled', { value: true });
+    if (reducedMotion) {
+      await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    }
 
     const page = {
       send,
+      /** Subscribes to a protocol event (one handler per method). */
+      on(method, handler) {
+        listeners.set(method, handler);
+      },
+      once,
       async navigate(url) {
         const loaded = once('Page.loadEventFired');
         await send('Page.navigate', { url });

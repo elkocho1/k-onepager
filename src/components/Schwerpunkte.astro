@@ -32,14 +32,14 @@ const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
     <span class="focus__dim" aria-hidden="true"></span>
   </div>
 
-  <div class="focus__head">
+  <div class="focus__head" data-reveal>
     <p class="eyebrow">{schwerpunkte.eyebrow}</p>
     <h2 class="h2">{schwerpunkte.headline}</h2>
   </div>
 
   <div class="container focus__columns">
     {columns.map((items, column) => (
-      <ul class:list={['focus__list', { 'focus__list--right': column === 1 }]} role="list" data-reveal-stagger>
+      <ul class:list={['focus__list', { 'focus__list--right': column === 1 }]} role="list" data-reveal-stagger={column === 1 ? 'right' : 'left'}>
         {items.map((item) => (
           <li class="focus__item">
             <h3 class="focus__title">{item.title}</h3>

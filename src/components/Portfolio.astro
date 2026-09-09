@@ -26,7 +26,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
 
 <section id={portfolio.id} class="portfolio">
   <div class="container">
-    <div class="portfolio__head">
+    <div class="portfolio__head" data-reveal>
       <p class="eyebrow">{portfolio.eyebrow}</p>
       <h2 class="h2">{portfolio.headline}</h2>
       <p class="body">{portfolio.intro}</p>
@@ -62,7 +62,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
       ))}
     </div>
 
-    <div class="spotlights" data-portfolio-panels>
+    <div class="spotlights" data-portfolio-panels data-reveal>
       {companies.map((company, index) => (
         <article
           class="spot"

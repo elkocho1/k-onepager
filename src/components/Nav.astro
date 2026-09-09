@@ -1,8 +1,10 @@
 ---
 /**
  * Fixed site header (spec section 0, Figma 139:32 / mobile 242:27).
- * Transparent on the hero; `.is-scrolled` (toggled by JS in phase 7) adds the
- * night background and blur. Mobile shows only the logo (spec deviation 7).
+ * Transparent on the hero; `.is-scrolled` (toggled from 40px scroll by
+ * src/scripts/animations.ts) adds the night background and blur, the current
+ * section's link carries aria-current. Mobile shows only the logo (spec
+ * deviation 7).
  */
 import Button from './Button.astro';
 import { content } from '../lib/content';
@@ -77,11 +79,11 @@ const logo = await publicImageSize(nav.logo);
   }
 
   .site-header__nav a:hover,
-  .site-header__nav a.is-active {
+  .site-header__nav a[aria-current='true'] {
     color: var(--c-white);
   }
 
-  .site-header__nav a.is-active {
+  .site-header__nav a[aria-current='true'] {
     font-weight: 350;
   }
 
@@ -90,7 +92,7 @@ const logo = await publicImageSize(nav.logo);
     flex: none;
   }
 
-  /* Scroll state – class toggled in phase 7 */
+  /* Scroll state – class toggled by animations.ts, transition above */
   .site-header.is-scrolled {
     top: 0;
     background: var(--c-night-a85);

@@ -87,6 +87,27 @@ button {
   outline-offset: 3px;
 }
 
+/* --- Smooth scroll (Lenis, src/scripts/animations.ts) --------------------- */
+/* Lenis sets these classes on <html>; it drives window.scrollTo itself, so
+   native smooth scrolling must not animate on top of it */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Anchor targets receive focus after a smooth scroll – no ring on a section */
+main > section:focus {
+  outline: none;
+}
+
 /* --- Layout --------------------------------------------------------------- */
 .container {
   width: min(var(--container), 100% - 2 * var(--gutter));
@@ -144,7 +165,13 @@ button {
   transition:
     background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+/* Press feedback (phase 7, item 13) */
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn--primary {

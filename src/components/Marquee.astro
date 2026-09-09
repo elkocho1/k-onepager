@@ -3,13 +3,14 @@
  * Marquee (spec section 4, Figma 139:59 / mobile 242:70): two full-bleed
  * rows of "Build beyond." claims, every second entry as teal outline, edges
  * fading into night. Decorative (aria-hidden). Each row renders its entries
- * twice so phase 7 can loop it seamlessly; static state: row 1 aligned to
- * the end, row 2 to the start.
+ * four times so the loop in src/scripts/animations.ts can shift the track by
+ * one copy (a quarter of its width) on every viewport up to 2560px; static
+ * state (no JS, reduced motion): row 1 aligned to the end, row 2 to the start.
  */
 import { content } from '../lib/content';
 
 const { marquee } = content;
-const copies = [0, 1];
+const copies = [0, 1, 2, 3];
 ---
 
 <div class="marquee" aria-hidden="true" data-marquee>
@@ -18,7 +19,7 @@ const copies = [0, 1];
       class:list={['marquee__row', rowIndex === 0 ? 'marquee__row--end' : 'marquee__row--start']}
       data-marquee-direction={rowIndex === 0 ? 'left' : 'right'}
     >
-      <div class="marquee__track">
+      <div class="marquee__track" data-marquee-track={copies.length}>
         {copies.map(() =>
           row.map((item, index) => (
             <span class:list={['marquee__item', { 'outline-text': (index + rowIndex) % 2 === 0 }]}>{item}</span>
@@ -60,6 +61,7 @@ const copies = [0, 1];
     display: flex;
     flex: none;
     gap: 50px;
+    padding-right: 50px; /* = gap: one copy is exactly 1/4 of the track width */
     width: max-content;
     white-space: nowrap;
   }

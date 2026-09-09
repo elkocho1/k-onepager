@@ -1,8 +1,9 @@
 ---
 /**
  * Base layout: <head> with meta, Open Graph / Twitter, canonical, favicon,
- * font preloads, global styles and an Organization JSON-LD block.
- * Nav and Footer are added in phase 1.
+ * font preloads, global styles and an Organization JSON-LD block, Nav and
+ * Footer, and the motion layer (src/scripts/animations.ts – bundled as a
+ * module; the page is complete without it).
  */
 import '../styles/tokens.css';
 import '../styles/global.css';
@@ -110,5 +111,6 @@ const jsonLd = {
       <slot />
     </main>
     <Footer />
+    <script src="../scripts/animations.ts"></script>
   </body>
 </html>

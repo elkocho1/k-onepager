@@ -23,9 +23,9 @@ const image = resolveImage(vision.image.src);
       loading="lazy"
       decoding="async"
       class="vision__image"
-      pictureAttributes={{ class: 'vision__picture' }}
+      pictureAttributes={{ class: 'vision__picture', 'data-reveal': '' }}
     />
-    <div class="vision__text">
+    <div class="vision__text" data-reveal>
       <p class="eyebrow">{vision.eyebrow}</p>
       <h2 class="h2">{vision.headline}</h2>
       <div class="vision__copy">
