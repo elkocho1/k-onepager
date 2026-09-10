@@ -3,7 +3,8 @@
  * GSAP + ScrollTrigger reveals, parallax, marquee loop, nav scroll state,
  * card and CTA glows (part A); hero type intro and pinned push-through,
  * slider stagger and eased progress line, logo-wall stagger, spotlight
- * cross-fade and the lazily loaded hex cursor (part B). Everything here is
+ * cross-fade and the lazily loaded hex cursor (part B); nav bar and logo
+ * shrink on leaving the hero (part B/5). Everything here is
  * layered on top of a page
  * that is complete without JS – start states (opacity 0, offsets) are set by
  * GSAP only, never in CSS.
@@ -163,6 +164,11 @@ const PUSH_IMAGE_SCALE = 1.12;  // photo and video widen slightly with it
 const PUSH_EASE = 'power2.in';
 const PUSH_THROUGH = 0.72;      // share of the timeline before the reveal
 const PUSH_DISTANCE = 1.5;      // pin length in viewport heights
+/* Lenis already smooths the scroll (lerp 0.1). A second smoothing pass here
+   made the reveal creep in sub-pixel steps for about a second after the wheel
+   stopped (measured, docs/BUILD-PHASES.md) – the timeline follows the
+   smoothed scroll position directly instead. */
+const PUSH_SCRUB = true;
 
 function initHero(pinned: boolean, desktop: boolean): void {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
@@ -210,7 +216,7 @@ function initHero(pinned: boolean, desktop: boolean): void {
       end: pinned ? () => `+=${window.innerHeight * PUSH_DISTANCE}` : 'bottom top',
       pin: pinned,
       anticipatePin: pinned ? 1 : 0,
-      scrub: 0.6,
+      scrub: PUSH_SCRUB,
       invalidateOnRefresh: true,
       // The pin stretches the page by PUSH_DISTANCE viewports. Everything
       // below the hero has to be measured afterwards – including the nav's
@@ -233,30 +239,27 @@ function initHero(pinned: boolean, desktop: boolean): void {
 
   // Out of the dark, one block after the other: eyebrow, then the copy line
   // by line, then the buttons. Each group takes `enter`, they start `gap`
-  // apart, so the buttons land exactly at the end of the timeline. Only the
-  // copy grows – how much lives in CSS (--hero-reveal-scale), which also caps
-  // the block's width so the scaled lines still fit the container.
+  // apart, so the buttons land exactly at the end of the timeline. The copy
+  // already sits at its final size (CSS, --hero-copy-scale) – no block is
+  // left on a fractional scale, so the type stays crisp at rest.
   if (!pinned) return;
   const span = 1 - through;
   const enter = span * 0.4;
   const gap = (span - enter) / 2;
   const rise = desktop ? 40 : 28;
 
-  const scale = parseFloat(getComputedStyle(hero).getPropertyValue('--hero-reveal-scale')) || 1;
+  // Only used to keep the line travel at the same distance on screen as
+  // before the copy moved from transform to font-size (90 * 1.5)
+  const copyScale = parseFloat(getComputedStyle(hero).getPropertyValue('--hero-copy-scale')) || 1;
 
   // The headline keeps its box once it has dissolved, so at its own place the
   // eyebrow would float a headline-height above the copy. It comes to rest one
-  // gap above the copy instead – above its *scaled* top edge: the copy grows
-  // from its bottom edge, so it rises by its full height difference.
-  // Measured, and re-measured on every refresh.
+  // gap above the copy's top edge instead – which is its layout edge now that
+  // the copy carries its size in font-size. Measured, and re-measured on every
+  // refresh.
   const gapPx = parseFloat(getComputedStyle(content).rowGap) || 0;
   const drop = (): number =>
-    eyebrow && text
-      ? text.offsetTop -
-        text.offsetHeight * (scale - 1) -
-        gapPx -
-        (eyebrow.offsetTop + eyebrow.offsetHeight)
-      : 0;
+    eyebrow && text ? text.offsetTop - gapPx - (eyebrow.offsetTop + eyebrow.offsetHeight) : 0;
 
   if (eyebrow) {
     timeline.fromTo(
@@ -270,10 +273,10 @@ function initHero(pinned: boolean, desktop: boolean): void {
   if (text && lines.length) {
     const stagger = (enter * 0.3) / Math.max(1, lines.length - 1);
     timeline
-      .to(text, { duration: 0, scale, opacity: 1, immediateRender: false }, `through+=${gap}`)
+      .to(text, { duration: 0, opacity: 1, immediateRender: false }, `through+=${gap}`)
       .fromTo(
         lines,
-        { y: 90, opacity: 0 },
+        { y: 90 * copyScale, opacity: 0 },
         { y: 0, opacity: 1, duration: enter * 0.7, stagger, ease: EASE_OUT, immediateRender: false },
         `through+=${gap}`,
       );
@@ -287,6 +290,54 @@ function initHero(pinned: boolean, desktop: boolean): void {
       `through+=${gap * 2}`,
     );
   }
+}
+
+/* --- Nav: bar and logo shrink out of the hero (3) --------------------------
+ * Leaving the hero banner, the bar takes its scrolled height while the logo
+ * shrinks to its minimum – both on ONE scrubbed trigger, so nothing switches
+ * while the other glides. It starts where the hero pin releases and is done
+ * NAV_SHRINK px later. Sizes come from the tokens, so the CSS stays the single
+ * source; `.is-scrolled` (background, docking) remains a state class and keeps
+ * working without JS and at reduced motion, where this never runs.
+ */
+const NAV_SHRINK = 300; // scroll distance of the transition
+
+function initNavShrink(pinned: boolean): void {
+  if (!pinned) return; // below 768px the bar is at its scrolled size anyway
+  const header = document.querySelector<HTMLElement>('[data-nav]');
+  const inner = header?.querySelector<HTMLElement>('[data-nav-inner]');
+  const logo = header?.querySelector<HTMLElement>('[data-nav-logo]');
+  if (!header || !inner || !logo) return;
+
+  const token = (name: string): number =>
+    parseFloat(getComputedStyle(header).getPropertyValue(name)) || 0;
+  // The pin's own end, so the two never drift apart if the pin length changes
+  const start = (): number =>
+    ScrollTrigger.getById('hero-push')?.end ?? window.innerHeight * PUSH_DISTANCE;
+
+  gsap
+    .timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        id: 'nav-shrink',
+        start,
+        end: () => start() + NAV_SHRINK,
+        scrub: true,
+        invalidateOnRefresh: true,
+      },
+    })
+    .fromTo(
+      inner,
+      { height: () => token('--nav-height') },
+      { height: () => token('--nav-height-scrolled') },
+      0,
+    )
+    .fromTo(
+      logo,
+      { width: () => token('--nav-logo-width') },
+      { width: () => token('--nav-logo-width-min') },
+      0,
+    );
 }
 
 /* --- Reveals (4, 5, 11) ---------------------------------------------------- */
@@ -537,6 +588,7 @@ mm.add(
     const { reduce = false, desktop = false, pinned = false, hover = false } = context.conditions ?? {};
     if (reduce) return;
     initHero(pinned, desktop);
+    initNavShrink(pinned);
     initReveals(desktop);
     initParallax(desktop);
     initCtaGlow();

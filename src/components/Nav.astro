@@ -2,9 +2,17 @@
 /**
  * Fixed site header (spec section 0, Figma 139:32 / mobile 242:27).
  * Transparent on the hero; `.is-scrolled` (toggled from 40px scroll by
- * src/scripts/animations.ts) adds the night background and blur, the current
- * section's link carries aria-current. Mobile shows only the logo (spec
- * deviation 7).
+ * src/scripts/animations.ts) docks the bar and adds the night background and
+ * blur, the current section's link carries aria-current. Mobile shows only the
+ * logo (spec deviation 7).
+ *
+ * Bar height and logo width are scroll-coupled while the hero is left
+ * (animations.ts, initNavShrink): both glide on one scrubbed trigger from
+ * --nav-height / --nav-logo-width to --nav-height-scrolled /
+ * --nav-logo-width-min. The class rules below are the resting state that
+ * holds without JS and at reduced motion; with motion, GSAP's inline values
+ * take over. Nothing here transitions height or width – a CSS transition on
+ * a property GSAP tweens fights the scrub.
  */
 import Button from './Button.astro';
 import { content } from '../lib/content';
@@ -15,9 +23,16 @@ const logo = await publicImageSize(nav.logo);
 ---
 
 <header class="site-header" data-nav>
-  <div class="site-header__inner container">
+  <div class="site-header__inner container" data-nav-inner>
     <a href="/" class="site-header__logo">
-      <img src={nav.logo} alt={nav.logoAlt} width={logo.width} height={logo.height} decoding="async" />
+      <img
+        src={nav.logo}
+        alt={nav.logoAlt}
+        width={logo.width}
+        height={logo.height}
+        decoding="async"
+        data-nav-logo
+      />
     </a>
     <nav class="site-header__nav" aria-label={nav.ariaLabel}>
       <ul role="list">
@@ -48,7 +63,6 @@ const logo = await publicImageSize(nav.logo);
     justify-content: space-between;
     gap: 30px;
     height: var(--nav-height);
-    transition: height var(--dur-base) var(--ease-out);
   }
 
   .site-header__logo {
@@ -56,9 +70,11 @@ const logo = await publicImageSize(nav.logo);
     flex: none;
   }
 
+  /* Width-driven so the scrub can glide it; the intrinsic 481x165 keeps the
+     ratio (174 -> 59.7 high, 120 -> 41.2) */
   .site-header__logo img {
-    height: 60px;
-    width: auto;
+    width: var(--nav-logo-width);
+    height: auto;
   }
 
   .site-header__nav ul {
@@ -104,6 +120,10 @@ const logo = await publicImageSize(nav.logo);
     height: var(--nav-height-scrolled);
   }
 
+  .site-header.is-scrolled .site-header__logo img {
+    width: var(--nav-logo-width-min);
+  }
+
   /* Tablet: links hidden like on mobile (no burger menu – decided, spec deviation 7), CTA stays */
   @media (max-width: 1023px) {
     .site-header__nav {
@@ -126,7 +146,10 @@ const logo = await publicImageSize(nav.logo);
       padding-block: 4px;
     }
 
-    .site-header__logo img {
+    /* Mobile frame 242:27: height-driven 36px logo, no scroll coupling */
+    .site-header__logo img,
+    .site-header.is-scrolled .site-header__logo img {
+      width: auto;
       height: 36px;
     }
 

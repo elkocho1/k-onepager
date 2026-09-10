@@ -33,7 +33,8 @@
  *   [data-hero-hint]    scroll hint, fades out over the first 15 % of the scroll
  *   [data-hero-eyebrow] · [data-hero-text] (+ [data-hero-text-line]) ·
  *   [data-hero-actions] the three blocks that appear after the fly-through, in
- *                       that order. Only the copy scales up (--hero-reveal-scale).
+ *                       that order. The copy rests at its final size
+ *                       (--hero-copy-scale on font-size, no transform).
  */
 import { Picture } from 'astro:assets';
 import Button from './Button.astro';
@@ -113,15 +114,20 @@ const textLines = nl2br(hero.text);
        2.90:1, under the 3:1 bar for display type). The push-through animates
        from here to 1 (animations.ts). */
     --hero-overlay-rest: 0.45;
-    /* Size the copy grows to after the fly-through; also caps its width so the
-       scaled block still fits the container. 1 below 768px (no reveal there). */
-    --hero-reveal-scale: 1.5;
+    /* How much larger the hero copy is than body text after the fly-through.
+       It drives font-size and max-width – NOT a transform: a block resting on
+       scale(1.5) is permanently resampled and the text looks soft. 1 below
+       768px (no reveal there). */
+    --hero-copy-scale: 1.5;
     /* Width of a space in KMR Apparat Heavy, measured – the words are spaced
        with a margin instead of a text node so they can stack on mobile */
     --hero-word-gap: 0.215em;
 
     position: relative;
     isolation: isolate;
+    /* Ground under every layer: should a rounding gap ever open at an edge it
+       shows night, not video (see .hero__overlay) */
+    background-color: var(--c-night);
     display: grid;
     align-items: center;
     /* The pinned push-through needs the whole viewport (spec deviation 9);
@@ -171,10 +177,20 @@ const textLines = nl2br(hero.text);
      value is CSS, so without JS and at reduced motion the banner looks the
      same as at timeline position 0 – a decorative layer, no content hides
      here. */
+  /* Two lines here fix one measured artefact: after the pin the hero box lands
+     on a fractional CSS pixel (measured: bottom 933.001 at DPR 1), and one
+     device row of the scaled video showed below the overlay.
+       – `inset: -1px 0` puts the overlay's box past that fractional edge; the
+         overhang is clipped away, so nothing changes visually.
+       – `will-change: opacity` puts it on its own compositor layer, which the
+         hero's overflow clips with the same rounding as the video's layer
+         (the overlay animates opacity anyway).
+     Each alone leaves the row uncovered – verified in both directions. */
   .hero__overlay {
     position: absolute;
-    inset: 0;
+    inset: -1px 0;
     z-index: 0;
+    will-change: opacity;
     background: var(--c-night);
     opacity: var(--hero-overlay-rest);
     pointer-events: none;
@@ -232,12 +248,13 @@ const textLines = nl2br(hero.text);
     display: inline-block;
   }
 
-  /* Capped so the block still fits the container once it scales up. It grows
-     from its bottom edge into the space the headline vacates, so the 40px to
-     the buttons hold at every width and copy length. */
+  /* The copy rests at its final size: font-size and max-width carry the factor
+     (--lh-body is a ratio, so the line height follows), and the reveal leaves
+     no transform behind. Same rendered result as the former scale(1.5), but
+     rasterised at its real size instead of resampled. */
   .hero__text {
-    max-width: min(809px, calc(100cqw / var(--hero-reveal-scale)));
-    transform-origin: 50% 100%;
+    font-size: calc(var(--fs-body) * var(--hero-copy-scale));
+    max-width: min(calc(809px * var(--hero-copy-scale)), 100cqw);
   }
 
   .hero__text-line {
@@ -282,7 +299,7 @@ const textLines = nl2br(hero.text);
        20, headline stacked – capped at the viewport height so short screens
        never hide the buttons. No pin here, only scale and fade (phase 7). */
     .hero {
-      --hero-reveal-scale: 1;
+      --hero-copy-scale: 1;
       align-items: end;
       min-height: min(780px, 100svh);
       padding-top: var(--scroll-offset);

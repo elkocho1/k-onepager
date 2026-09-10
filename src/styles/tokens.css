@@ -124,6 +124,8 @@
   --nav-top: 20px;              /* fixed header offset on the hero (desktop) */
   --nav-height: 60px;
   --nav-height-scrolled: 76px;  /* scrolled state and mobile */
+  --nav-logo-width: 174px;      /* logo on the hero (481x165 source -> 59.7 high) */
+  --nav-logo-width-min: 120px;  /* logo once the hero is left (41.2 high) */
   --scroll-offset: 96px;        /* scroll-padding-top for anchor links */
 
   --radius-tile: 8px;

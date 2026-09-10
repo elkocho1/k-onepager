@@ -57,7 +57,7 @@ src/styles/{tokens,global}.css
 src/pages/{index,impressum,datenschutz}.astro
 src/lib/content.ts             # typisierter Loader für de.json
 src/lib/images.ts              # de.json-Bildpfade → astro:assets, Logo-Maße
-scripts/{prepare-images,phase-check,browser-eval,page-shot,motion-check,scroll-perf}.mjs   # Assets aufbereiten · Lighthouse je Phase · JS-Ausdruck in Headless Chrome · Full-Page-Screenshot (auch --no-js/--reduced-motion) · Motion-Abnahme · Scroll-Performance
+scripts/{prepare-images,phase-check,browser-eval,page-shot,motion-check,scroll-perf,scroll-smoothness}.mjs   # Assets aufbereiten · Lighthouse je Phase · JS-Ausdruck in Headless Chrome · Full-Page-Screenshot (auch --no-js/--reduced-motion) · Motion-Abnahme · Scroll-Performance · Nachlaufen nach dem Scroll (Screencast-Frame-Diff)
 docs/                          # Spec + Phasen (nicht deployen), docs/screens/ gitignored
 _material/                     # Rohmaterial (gitignored)
 ```

@@ -89,6 +89,23 @@ const STATIC_PROBE = `(async () => {
       ? { src: video.getAttribute('src'), currentSrc: video.currentSrc, network: video.networkState, opacity: getComputedStyle(video).opacity }
       : null,
     heroPinned: !!pinSpacer,
+    // Bar and logo rest at their full size; the scroll coupling is JS only
+    nav: (() => {
+      const inner = document.querySelector('[data-nav-inner]');
+      const logo = document.querySelector('[data-nav-logo]');
+      const root = getComputedStyle(document.querySelector('[data-nav]'));
+      return inner && logo
+        ? {
+            height: Math.round(inner.getBoundingClientRect().height * 10) / 10,
+            logo: Math.round(logo.getBoundingClientRect().width * 10) / 10,
+            logoHeight: Math.round(logo.getBoundingClientRect().height * 10) / 10,
+            wantHeight: parseFloat(root.getPropertyValue('--nav-height')),
+            wantHeightMobile: parseFloat(root.getPropertyValue('--nav-height-scrolled')),
+            wantLogo: parseFloat(root.getPropertyValue('--nav-logo-width')),
+            inline: logo.style.width || inner.style.height || '',
+          }
+        : null;
+    })(),
   };
 })()`;
 
@@ -134,6 +151,17 @@ async function staticChecks(page, label, urls) {
   );
   if (urls) checkNoVideoRequest(label, urls);
   check(`${label}: hero not pinned`, r.heroPinned === false);
+  // Below 768px the bar is at its scrolled height and the 36px logo is
+  // height-driven (mobile frame 242:27) – there is no scroll coupling there
+  check(
+    `${label}: nav bar and logo at their resting size, no inline sizes`,
+    r.nav !== null &&
+      r.nav.inline === '' &&
+      (width >= 768
+        ? r.nav.height === r.nav.wantHeight && r.nav.logo === r.nav.wantLogo
+        : r.nav.height === r.nav.wantHeightMobile && r.nav.logoHeight === 36),
+    JSON.stringify(r.nav),
+  );
   return r;
 }
 
@@ -303,7 +331,11 @@ async function runJs() {
       const box = (el) => el.getBoundingClientRect();
       return {
         textScale: Math.round(matrix(text).a * 100) / 100,
-        want: +getComputedStyle(document.querySelector('[data-hero]')).getPropertyValue('--hero-reveal-scale'),
+        textTransform: getComputedStyle(text).transform,
+        // The copy carries its size in font-size now, not in a transform
+        want: +getComputedStyle(document.querySelector('[data-hero]')).getPropertyValue('--hero-copy-scale'),
+        fontSize: parseFloat(getComputedStyle(text).fontSize),
+        bodyFontSize: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs-body')),
         opacity: [eyebrow, text, actions].map((el) => +getComputedStyle(el).opacity),
         linesOpacity: Math.min(...lines.map((line) => +getComputedStyle(line).opacity)),
         linesY: lines.map((line) => Math.round(matrix(line).f)),
@@ -316,12 +348,64 @@ async function runJs() {
     })()`);
     check('js: all three blocks visible after the fly-through', landed.opacity.every((o) => o === 1), JSON.stringify(landed.opacity));
     check(
-      'js: copy returns larger, eyebrow and buttons in normal size',
-      landed.textScale === landed.want && landed.eyebrowScale === 1 && landed.actionsScale === 1,
-      `copy ${landed.textScale}/${landed.want}, eyebrow ${landed.eyebrowScale}, buttons ${landed.actionsScale}`,
+      'js: copy at its final size through font-size, nothing left on a transform',
+      landed.fontSize === landed.bodyFontSize * landed.want && landed.textTransform === 'none' && landed.eyebrowScale === 1 && landed.actionsScale === 1,
+      `font ${landed.fontSize}px = ${landed.bodyFontSize} x ${landed.want}, transform ${landed.textTransform}, eyebrow ${landed.eyebrowScale}, buttons ${landed.actionsScale}`,
     );
     check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0) && landed.linesOpacity > 0.99, JSON.stringify(landed.linesY));
     check('js: type has dissolved at the end of the push', landed.typeOpacity === 0, `opacity ${landed.typeOpacity}`);
+    // Nav: bar height and logo width glide together out of the hero – sampled
+    // at the pin end, halfway through the transition and after it
+    const NAV_PROBE = `(() => {
+      const inner = document.querySelector('[data-nav-inner]');
+      const logo = document.querySelector('[data-nav-logo]');
+      const root = getComputedStyle(document.querySelector('[data-nav]'));
+      return {
+        y: Math.round(scrollY),
+        height: Math.round(inner.getBoundingClientRect().height * 10) / 10,
+        logo: Math.round(logo.getBoundingClientRect().width * 10) / 10,
+        full: parseFloat(root.getPropertyValue('--nav-height')),
+        tall: parseFloat(root.getPropertyValue('--nav-height-scrolled')),
+        logoFull: parseFloat(root.getPropertyValue('--nav-logo-width')),
+        logoMin: parseFloat(root.getPropertyValue('--nav-logo-width-min')),
+      };
+    })()`;
+    const navAt = async (y) => {
+      await page.evaluate(`(async () => { window.scrollTo(0, ${y}); await new Promise((r) => setTimeout(r, 1200)); })()`);
+      return page.evaluate(NAV_PROBE);
+    };
+    const pinEnd = await page.evaluate(`Math.round(innerHeight * 1.5)`);
+    if (width >= 768) {
+      const navStart = await navAt(pinEnd);
+      const navMid = await navAt(pinEnd + 150);
+      const navEnd = await navAt(pinEnd + 300);
+      check(
+        'js: nav bar and logo still full size at the pin end',
+        Math.abs(navStart.height - navStart.full) < 1 && Math.abs(navStart.logo - navStart.logoFull) < 1,
+        JSON.stringify(navStart),
+      );
+      check(
+        'js: both glide together halfway through the transition',
+        navMid.height > navMid.full && navMid.height < navMid.tall && navMid.logo < navMid.logoFull && navMid.logo > navMid.logoMin,
+        JSON.stringify(navMid),
+      );
+      check(
+        'js: bar at its scrolled height and logo at its minimum after 300px',
+        Math.abs(navEnd.height - navEnd.tall) < 1 && Math.abs(navEnd.logo - navEnd.logoMin) < 1,
+        JSON.stringify(navEnd),
+      );
+    } else {
+      const mobile = await page.evaluate(`(() => {
+        const inner = document.querySelector('[data-nav-inner]');
+        const logo = document.querySelector('[data-nav-logo]');
+        return { inline: logo.style.width || inner.style.height || '', logoHeight: Math.round(logo.getBoundingClientRect().height * 10) / 10 };
+      })()`);
+      check(
+        'js: no nav scroll coupling below 768px (mobile bar keeps its size)',
+        mobile.inline === '' && mobile.logoHeight === 36,
+        JSON.stringify(mobile),
+      );
+    }
     check(
       'js: eyebrow sits one gap above the copy, block reads top to bottom',
       landed.order && landed.gapToCopy > 24 && landed.gapToCopy < 56,
