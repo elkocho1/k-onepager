@@ -192,7 +192,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - Bei 390 fallen im `js`-Modus sieben Checks – dieselben sieben wie **vor** dieser Änderung (per `git stash` gegengeprüft): sie prüfen den gepinnten Desktop-Hero (Pin, verstecktes Copy, Eyebrow-Abstand) sowie Spotlight-Höhe und Karten-Track, die unter 768 px anders funktionieren. Kein neuer Befund; die Video- und Overlay-Checks sind dort grün.
 - **Load-Task:** 74–75 ms (vorher ≈ 54–68 ms) – die Videoebene kostet beim ersten Layout etwas. Für Phase 8 (TBT) im Blick behalten, wie schon notiert.
 - **Offen:** lizenzierte Fassung des Videos (Zielformat in `docs/ASSETS.md`: 1920 breit, ohne Tonspur, H.264-MP4 + WebM, < 3 MB); Entscheidung, ob die finale Datei ins Repo oder außerhalb ausgerollt wird; Nav-Kontrast am Seitenanfang (siehe oben); unverändert Masken-/Portal-Ebene und Test auf einem echten Mobilgerät.
-### Phase 7 – Animationen, Teil B/5 (Hero-Feinschliff: Scrub, Schärfe, Kante, Logo) · 2026-09-10 · Commit `TBD`
+### Phase 7 – Animationen, Teil B/5 (Hero-Feinschliff: Scrub, Schärfe, Kante, Logo) · 2026-09-10 · Commit `b81039d`
 
 - Auftrag: vier Punkte am Hero – (1) ruckelndes Nachlaufen der Copy-Reveal, (2) dauerhaft unscharfe Copy auf `scale(1.5)`, (3) Videostreifen an der Hero-Unterkante, (4) Logo soll beim Verlassen des Hero scroll-gekoppelt schrumpfen.
 
