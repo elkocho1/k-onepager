@@ -9,9 +9,10 @@
  *            viewport captures 1.5 s apart at the marquee are pixel-identical
  *            and a spotlight switch happens instantly
  *   js       scripts on – Lenis runs, nav gets .is-scrolled and aria-current,
- *            hero letters settle after the intro, the pinned push-through
- *            scales the type out of its centre while photo and night overlay
- *            follow and the buttons stay put, and the copy returns larger,
+ *            hero letters settle after the intro while eyebrow, copy and
+ *            buttons wait hidden behind the scroll hint, the pinned
+ *            push-through scales the type out of its centre while photo and
+ *            night overlay follow, and the three blocks rise in afterwards,
  *            anchor links land at --scroll-offset with hash + focus, reveals
  *            resolve, marquee moves, CTA glow pulses,
  *            the card track scrolls horizontally under the wheel with the
@@ -49,7 +50,7 @@ function check(name, ok, detail = '') {
 /** Every element the motion layer touches must be visible and untransformed. */
 const STATIC_PROBE = `(async () => {
   await document.fonts.ready;
-  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-fade], [data-hero-char], [data-hero-push], [data-hero-text-line], [data-cards] > *, [data-portfolio-tabs] > *')];
+  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-char], [data-hero-push], [data-hero-eyebrow], [data-hero-text], [data-hero-text-line], [data-hero-actions], [data-hero-hint], [data-cards] > *, [data-portfolio-tabs] > *')];
   const bad = targets.filter((el) => {
     const cs = getComputedStyle(el);
     return parseFloat(cs.opacity) < 1 || cs.transform !== 'none' || cs.visibility !== 'visible';
@@ -170,15 +171,24 @@ async function runJs() {
     const m2 = await page.evaluate(`getComputedStyle(document.querySelector('[data-marquee-track]')).transform`);
     check('js: marquee moving', m1 !== m2 && m1 !== 'none', `${m1} → ${m2}`);
 
-    // Hero intro (letters 0.03 s apart + 0.8 s, text block after) has settled
+    // Hero intro (letters 0.03 s apart + 0.8 s) has settled – and it is the
+    // only thing on screen: eyebrow, copy and buttons wait for the reveal,
+    // the scroll hint says so
     await sleep(1400);
     const intro = await page.evaluate(`(() => {
       const chars = [...document.querySelectorAll('[data-hero-char]')];
-      const fades = [...document.querySelectorAll('[data-hero-fade]')];
       const settled = (el) => { const cs = getComputedStyle(el); return cs.opacity === '1' && (cs.transform === 'none' || cs.transform === 'matrix(1, 0, 0, 1, 0, 0)'); };
-      return { chars: chars.length, fades: fades.length, unsettled: [...chars, ...fades].filter((el) => !settled(el)).length };
+      const late = ['[data-hero-eyebrow]', '[data-hero-text]', '[data-hero-actions]'].map((s) => +getComputedStyle(document.querySelector(s)).opacity);
+      return {
+        chars: chars.length,
+        unsettled: chars.filter((el) => !settled(el)).length,
+        late,
+        hint: +getComputedStyle(document.querySelector('[data-hero-hint]')).opacity,
+      };
     })()`);
-    check('js: hero letters and text block settled after the intro', intro.chars > 0 && intro.fades === 3 && intro.unsettled === 0, JSON.stringify(intro));
+    check('js: hero letters settled after the intro', intro.chars > 0 && intro.unsettled === 0, JSON.stringify(intro));
+    check('js: eyebrow, copy and buttons hidden on load', intro.late.every((o) => o === 0), JSON.stringify(intro.late));
+    check('js: scroll hint visible on load', intro.hint === 1, `opacity ${intro.hint}`);
 
     // Wheel 8×60 = 480px into the pinned hero: nav scrolled, the type flies
     // through, photo and overlay follow, the buttons stay put, Lenis smoothed
@@ -189,9 +199,6 @@ async function runJs() {
     await sleep(1500);
     const after = await page.evaluate(`(() => {
       const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };
-      const eyebrow = document.querySelector('[data-hero-out]');
-      const actions = document.querySelector('[data-hero-actions]');
-      const lines = [...document.querySelectorAll('[data-hero-text-line]')];
       return {
         y: Math.round(scrollY),
         scrolled: !!document.querySelector('[data-nav].is-scrolled'),
@@ -199,11 +206,8 @@ async function runJs() {
         typeScale: Math.round(matrix(document.querySelector('[data-hero-type]')).a * 100) / 100,
         pictureScale: Math.round(matrix(document.querySelector('[data-hero] [data-parallax]')).a * 1000) / 1000,
         overlay: +getComputedStyle(document.querySelector('[data-hero-overlay]')).opacity,
-        eyebrowOpacity: +getComputedStyle(eyebrow).opacity,
-        eyebrowY: Math.round(matrix(eyebrow).f),
-        linesOpacity: Math.max(...lines.map((line) => +getComputedStyle(line).opacity)),
-        actionsTransform: getComputedStyle(actions).transform,
-        actionsOpacity: +getComputedStyle(actions).opacity,
+        hint: +getComputedStyle(document.querySelector('[data-hero-hint]')).opacity,
+        late: ['[data-hero-eyebrow]', '[data-hero-text]', '[data-hero-actions]'].map((s) => +getComputedStyle(document.querySelector(s)).opacity),
       };
     })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
@@ -212,14 +216,11 @@ async function runJs() {
     check('js: hero type scales up out of its centre', after.typeScale > 1 && after.typeScale < 8, `scale ${after.typeScale}`);
     check('js: hero photo widens slightly with it', after.pictureScale > 1 && after.pictureScale < 1.12, `scale ${after.pictureScale}`);
     check('js: night overlay darkens the frame', after.overlay > 0 && after.overlay < 1, `opacity ${after.overlay}`);
-    check(
-      'js: eyebrow and copy leave upwards early',
-      after.eyebrowOpacity < 1 && after.eyebrowY < 0 && after.linesOpacity < 1,
-      `eyebrow ${after.eyebrowOpacity} @ ${after.eyebrowY}, lines ${after.linesOpacity}`,
-    );
-    check('js: buttons stay visible and unscaled', identity(after.actionsTransform) && after.actionsOpacity === 1, `${after.actionsTransform}, opacity ${after.actionsOpacity}`);
+    check('js: scroll hint gone once the page moves', after.hint === 0, `opacity ${after.hint}`);
+    check('js: eyebrow, copy and buttons still hidden mid-flight', after.late.every((o) => o === 0), JSON.stringify(after.late));
 
-    // End of the pin: the copy is back, larger and settled, the type is gone
+    // End of the pin: the type is gone and the three blocks are in, in order –
+    // eyebrow (dropped onto the copy), copy larger, buttons last
     await page.evaluate(`(async () => {
       window.scrollTo(0, Math.round(1.5 * innerHeight));
       await new Promise((r) => setTimeout(r, 1800));
@@ -227,23 +228,36 @@ async function runJs() {
     const landed = await page.evaluate(`(() => {
       const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };
       const lines = [...document.querySelectorAll('[data-hero-text-line]')];
+      const eyebrow = document.querySelector('[data-hero-eyebrow]');
+      const text = document.querySelector('[data-hero-text]');
+      const actions = document.querySelector('[data-hero-actions]');
+      const box = (el) => el.getBoundingClientRect();
       return {
-        textScale: Math.round(matrix(document.querySelector('[data-hero-text]')).a * 100) / 100,
+        textScale: Math.round(matrix(text).a * 100) / 100,
         want: +getComputedStyle(document.querySelector('[data-hero]')).getPropertyValue('--hero-reveal-scale'),
+        opacity: [eyebrow, text, actions].map((el) => +getComputedStyle(el).opacity),
         linesOpacity: Math.min(...lines.map((line) => +getComputedStyle(line).opacity)),
         linesY: lines.map((line) => Math.round(matrix(line).f)),
         typeOpacity: +getComputedStyle(document.querySelector('[data-hero-type]')).opacity,
-        actionsTransform: getComputedStyle(document.querySelector('[data-hero-actions]')).transform,
+        eyebrowScale: Math.round(matrix(eyebrow).a * 100) / 100,
+        actionsScale: Math.round(matrix(actions).a * 100) / 100,
+        gapToCopy: Math.round(box(text).top - box(eyebrow).bottom),
+        order: box(eyebrow).bottom <= box(text).top && box(text).bottom <= box(actions).top,
       };
     })()`);
+    check('js: all three blocks visible after the fly-through', landed.opacity.every((o) => o === 1), JSON.stringify(landed.opacity));
     check(
-      'js: copy returns larger after the fly-through',
-      landed.textScale === landed.want && landed.linesOpacity > 0.99,
-      `scale ${landed.textScale}/${landed.want}, opacity ${landed.linesOpacity}`,
+      'js: copy returns larger, eyebrow and buttons in normal size',
+      landed.textScale === landed.want && landed.eyebrowScale === 1 && landed.actionsScale === 1,
+      `copy ${landed.textScale}/${landed.want}, eyebrow ${landed.eyebrowScale}, buttons ${landed.actionsScale}`,
     );
-    check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0), JSON.stringify(landed.linesY));
+    check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0) && landed.linesOpacity > 0.99, JSON.stringify(landed.linesY));
     check('js: type has dissolved at the end of the push', landed.typeOpacity === 0, `opacity ${landed.typeOpacity}`);
-    check('js: buttons untouched at the end of the push', identity(landed.actionsTransform), landed.actionsTransform);
+    check(
+      'js: eyebrow sits one gap above the copy, block reads top to bottom',
+      landed.order && landed.gapToCopy > 24 && landed.gapToCopy < 56,
+      `gap ${landed.gapToCopy}px, order ${landed.order}`,
+    );
 
     // Reveal resolves once its section is in view (founder text, well below)
     await page.evaluate(`(async () => {

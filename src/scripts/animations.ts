@@ -144,9 +144,10 @@ function initMarquee(): void {
 /* --- Hero push-through (1, 2) ---------------------------------------------
  * One scrubbed timeline over the pinned hero: the display line grows out of
  * its centre until the viewer has flown through it, the photo drifts a little
- * wider underneath and an overlay takes the frame to night. Eyebrow and copy
- * leave early and upwards, the buttons stay untouched, and after the
- * fly-through the copy returns larger, line by line.
+ * wider underneath and an overlay takes the frame to night. On load only the
+ * headline and the scroll hint are on screen – eyebrow, copy and buttons are
+ * hidden here (never in CSS) and rise in one after the other once the
+ * fly-through is over; only the copy scales up.
  *
  * The scale runs on every `[data-hero-push]` layer at once, so the portal
  * mask planned for the next step only has to carry that attribute to join the
@@ -168,15 +169,12 @@ function initHero(pinned: boolean, desktop: boolean): void {
   if (!hero || !content) return;
 
   // Intro: the letters of the display line rise from below one after the
-  // other (0.03 s apart); eyebrow, copy and buttons follow with the reveal
-  // move. Starts once the display weight has loaded so no glyphs swap
+  // other (0.03 s apart) – and nothing else, the rest of the hero belongs to
+  // the reveal. Starts once the display weight has loaded so no glyphs swap
   // mid-flight (and after 1 s at the latest, should a font never arrive).
   const chars = hero.querySelectorAll<HTMLElement>('[data-hero-char]');
-  const fades = hero.querySelectorAll<HTMLElement>('[data-hero-fade]');
-  const intro = gsap.timeline({ paused: true, defaults: { duration: REVEAL_DURATION, ease: EASE_OUT } });
-  intro
-    .from(chars, { yPercent: 60, opacity: 0, stagger: 0.03 }, 0)
-    .from(fades, { y: desktop ? 24 : 16, opacity: 0, stagger: 0.1 }, 0.35);
+  const intro = gsap.timeline({ paused: true });
+  intro.from(chars, { yPercent: 60, opacity: 0, stagger: 0.03, duration: REVEAL_DURATION, ease: EASE_OUT });
   const play = (): void => {
     intro.play();
   };
@@ -188,9 +186,16 @@ function initHero(pinned: boolean, desktop: boolean): void {
   const type = hero.querySelector<HTMLElement>('[data-hero-type]');
   const overlay = hero.querySelector<HTMLElement>('[data-hero-overlay]');
   const picture = hero.querySelector<HTMLElement>('[data-parallax]');
+  const hint = hero.querySelector<HTMLElement>('[data-hero-hint]');
+  const eyebrow = hero.querySelector<HTMLElement>('[data-hero-eyebrow]');
   const text = hero.querySelector<HTMLElement>('[data-hero-text]');
   const lines = Array.from(hero.querySelectorAll<HTMLElement>('[data-hero-text-line]'));
-  const leaving = [...hero.querySelectorAll<HTMLElement>('[data-hero-out]'), ...lines];
+  const actions = hero.querySelector<HTMLElement>('[data-hero-actions]');
+
+  // Hidden by JS only: without it, and at reduced motion, the hero is whole.
+  // gsap.matchMedia reverts this when the viewport drops below 768px.
+  const late = [eyebrow, text, actions].filter((el): el is HTMLElement => el !== null);
+  if (pinned) gsap.set(late, { opacity: 0 });
 
   const through = pinned ? PUSH_THROUGH : 1;
   const timeline = gsap.timeline({
@@ -214,31 +219,69 @@ function initHero(pinned: boolean, desktop: boolean): void {
   timeline.to(push, { scale: pinned ? PUSH_SCALE : PUSH_SCALE_UNPINNED, ease: PUSH_EASE, duration: through }, 0);
   if (picture) timeline.to(picture, { scale: PUSH_IMAGE_SCALE, ease: PUSH_EASE, duration: through }, 0);
   if (overlay) timeline.to(overlay, { opacity: 1, duration: through * 0.9 }, 0);
-  timeline.to(
-    leaving,
-    { y: desktop ? -60 : -40, opacity: 0, duration: through * 0.22, stagger: through * 0.06, ease: 'power1.in' },
-    0,
-  );
+  // The hint has done its job as soon as the page moves
+  if (hint) timeline.to(hint, { opacity: 0, duration: 0.15, ease: 'power1.in' }, 0);
   // The type dissolves just as the viewer passes through it; a mask layer
   // would keep its scale and skip this one.
   if (type) timeline.to(type, { opacity: 0, duration: through * 0.25, ease: 'power1.in' }, through * 0.75);
   timeline.addLabel('through', through);
 
-  // The copy returns out of the dark, larger and line by line. How much
-  // larger lives in CSS (--hero-reveal-scale), which also caps the block's
-  // width so the scaled lines still fit the container.
-  if (!pinned || !text || !lines.length) return;
-  const scale = parseFloat(getComputedStyle(hero).getPropertyValue('--hero-reveal-scale')) || 1;
+  // Out of the dark, one block after the other: eyebrow, then the copy line
+  // by line, then the buttons. Each group takes `enter`, they start `gap`
+  // apart, so the buttons land exactly at the end of the timeline. Only the
+  // copy grows – how much lives in CSS (--hero-reveal-scale), which also caps
+  // the block's width so the scaled lines still fit the container.
+  if (!pinned) return;
   const span = 1 - through;
-  const stagger = (span * 0.3) / Math.max(1, lines.length - 1);
-  timeline
-    .to(text, { duration: 0, scale, immediateRender: false }, 'through')
-    .fromTo(
-      lines,
-      { y: 90, opacity: 0 },
-      { y: 0, opacity: 1, duration: span * 0.7, stagger, ease: EASE_OUT, immediateRender: false },
+  const enter = span * 0.4;
+  const gap = (span - enter) / 2;
+  const rise = desktop ? 40 : 28;
+
+  const scale = parseFloat(getComputedStyle(hero).getPropertyValue('--hero-reveal-scale')) || 1;
+
+  // The headline keeps its box once it has dissolved, so at its own place the
+  // eyebrow would float a headline-height above the copy. It comes to rest one
+  // gap above the copy instead – above its *scaled* top edge: the copy grows
+  // from its bottom edge, so it rises by its full height difference.
+  // Measured, and re-measured on every refresh.
+  const gapPx = parseFloat(getComputedStyle(content).rowGap) || 0;
+  const drop = (): number =>
+    eyebrow && text
+      ? text.offsetTop -
+        text.offsetHeight * (scale - 1) -
+        gapPx -
+        (eyebrow.offsetTop + eyebrow.offsetHeight)
+      : 0;
+
+  if (eyebrow) {
+    timeline.fromTo(
+      eyebrow,
+      { y: () => drop() + rise, opacity: 0 },
+      { y: drop, opacity: 1, duration: enter, ease: EASE_OUT, immediateRender: false },
       'through',
     );
+  }
+
+  if (text && lines.length) {
+    const stagger = (enter * 0.3) / Math.max(1, lines.length - 1);
+    timeline
+      .to(text, { duration: 0, scale, opacity: 1, immediateRender: false }, `through+=${gap}`)
+      .fromTo(
+        lines,
+        { y: 90, opacity: 0 },
+        { y: 0, opacity: 1, duration: enter * 0.7, stagger, ease: EASE_OUT, immediateRender: false },
+        `through+=${gap}`,
+      );
+  }
+
+  if (actions) {
+    timeline.fromTo(
+      actions,
+      { y: rise, opacity: 0 },
+      { y: 0, opacity: 1, duration: enter, ease: EASE_OUT, immediateRender: false },
+      `through+=${gap * 2}`,
+    );
+  }
 }
 
 /* --- Reveals (4, 5, 11) ---------------------------------------------------- */

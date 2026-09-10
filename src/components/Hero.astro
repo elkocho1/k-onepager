@@ -12,16 +12,19 @@
  * intro (phase 7, item 1 – animations.ts); screen readers get the plain text
  * from a visually hidden copy, the letter spans are aria-hidden.
  *
+ * On load only the headline and the scroll hint are on screen; eyebrow, copy
+ * and buttons are hidden by JS and rise in once the fly-through is over.
+ *
  * Motion hooks (animations.ts, phase 7 item 1 + 2):
  *   [data-hero-push]    every layer that shares the push-through scale. Today
  *                       only the type wrapper; a later mask layer carries the
  *                       same attribute and joins the tween without a rebuild.
  *   [data-hero-type]    the type itself – dissolves at the end of the fly-through
  *   [data-hero-overlay] night overlay, fades in over the photo
- *   [data-hero-out]     leaves early and upwards (eyebrow)
- *   [data-hero-text]    copy block: scales up for the reveal after the fly-through
- *   [data-hero-text-line] its lines – leave upwards early, return staggered
- *   [data-hero-actions] buttons: stay visible, never scale
+ *   [data-hero-hint]    scroll hint, fades out over the first 15 % of the scroll
+ *   [data-hero-eyebrow] · [data-hero-text] (+ [data-hero-text-line]) ·
+ *   [data-hero-actions] the three blocks that appear after the fly-through, in
+ *                       that order. Only the copy scales up (--hero-reveal-scale).
  */
 import { Picture } from 'astro:assets';
 import Button from './Button.astro';
@@ -49,7 +52,7 @@ const textLines = nl2br(hero.text);
   <div class="hero__overlay" data-hero-overlay aria-hidden="true"></div>
   <div class="container">
     <div class="hero__content" data-hero-content>
-      <p class="eyebrow hero__eyebrow" data-hero-fade data-hero-out>{hero.eyebrow}</p>
+      <p class="eyebrow hero__eyebrow" data-hero-eyebrow>{hero.eyebrow}</p>
       <h1 class="hero__title">
         <span class="visually-hidden">{hero.headline.join(' ')}</span>
         <span class="hero__zoom" data-hero-push data-hero-type aria-hidden="true">
@@ -63,15 +66,16 @@ const textLines = nl2br(hero.text);
           </span>
         </span>
       </h1>
-      <p class="body hero__text" data-hero-fade data-hero-text>
+      <p class="body hero__text" data-hero-text>
         {textLines.map((line) => <span class="hero__text-line" data-hero-text-line>{line}</span>)}
       </p>
-      <div class="hero__actions" data-hero-fade data-hero-actions>
+      <div class="hero__actions" data-hero-actions>
         <Button href={hero.primaryCta.href} label={hero.primaryCta.label} variant="primary" />
         <Button href={hero.secondaryCta.href} label={hero.secondaryCta.label} variant="secondary" />
       </div>
     </div>
   </div>
+  <p class="hero__hint" data-hero-hint aria-hidden="true">{hero.scrollHint}</p>
 </section>
 
 <style>
@@ -204,12 +208,36 @@ const textLines = nl2br(hero.text);
   }
 
   .hero__actions {
-    position: relative;
-    z-index: 1; /* stays in front of the type flying past */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 14px;
+  }
+
+  /* On load the headline is the only copy on screen – this says where to go.
+     Fades out over the first 15 % of the scroll (animations.ts). */
+  .hero__hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    translate: -50% 0; /* CSS translate, so GSAP owns `transform` alone */
+    z-index: 1;
+    font-size: var(--fs-eyebrow);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: var(--ls-hint);
+    text-transform: uppercase;
+    color: var(--c-muted);
+    pointer-events: none;
+  }
+
+  .hero__hint::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: linear-gradient(180deg, transparent, var(--c-muted));
   }
 
   @media (max-width: 767px) {
@@ -243,6 +271,12 @@ const textLines = nl2br(hero.text);
     .hero__title [data-hero-word='outline'] {
       letter-spacing: normal;
       margin-right: 0;
+    }
+
+    /* No fly-through below 768px, so eyebrow, copy and buttons are visible
+       from the start and the hint has nothing to announce */
+    .hero__hint {
+      display: none;
     }
 
     .hero__actions {

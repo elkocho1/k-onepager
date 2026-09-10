@@ -110,6 +110,7 @@
 
   --ls-h2: 0.96px;
   --ls-button: 1px;
+  --ls-hint: 2px;            /* hero scroll hint, tracked out like a caption */
   --ls-outline: 10px;        /* outline display line (CTA) */
   --ls-outline-hero: 0.08em; /* hero outline word – the Figma 10px at 120px, kept proportional */
   --ls-outline-mobile: 3px;  /* CTA outline line on the mobile frame (242:253) */
