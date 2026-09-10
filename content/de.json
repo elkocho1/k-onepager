@@ -57,6 +57,9 @@
     "image": {
       "src": "/images/hero.jpg",
       "alt": "Skyline mit Baukränen in der Abenddämmerung"
+    },
+    "video": {
+      "src": "/video/hero.mp4"
     }
   },
   "vision": {

@@ -143,8 +143,9 @@ function initMarquee(): void {
 
 /* --- Hero push-through (1, 2) ---------------------------------------------
  * One scrubbed timeline over the pinned hero: the display line grows out of
- * its centre until the viewer has flown through it, the photo drifts a little
- * wider underneath and an overlay takes the frame to night. On load only the
+ * its centre until the viewer has flown through it, photo and video drift a
+ * little wider underneath and the overlay takes the frame from its resting
+ * opacity (--hero-overlay-rest, Hero.astro) to full night. On load only the
  * headline and the scroll hint are on screen – eyebrow, copy and buttons are
  * hidden here (never in CSS) and rise in one after the other once the
  * fly-through is over; only the copy scales up.
@@ -158,7 +159,7 @@ function initMarquee(): void {
  */
 const PUSH_SCALE = 8;           // type size at the end of the fly-through
 const PUSH_SCALE_UNPINNED = 2.6;
-const PUSH_IMAGE_SCALE = 1.12;  // the photo widens slightly with it
+const PUSH_IMAGE_SCALE = 1.12;  // photo and video widen slightly with it
 const PUSH_EASE = 'power2.in';
 const PUSH_THROUGH = 0.72;      // share of the timeline before the reveal
 const PUSH_DISTANCE = 1.5;      // pin length in viewport heights
@@ -185,7 +186,9 @@ function initHero(pinned: boolean, desktop: boolean): void {
   if (!push.length) return;
   const type = hero.querySelector<HTMLElement>('[data-hero-type]');
   const overlay = hero.querySelector<HTMLElement>('[data-hero-overlay]');
-  const picture = hero.querySelector<HTMLElement>('[data-parallax]');
+  // Photo and video both carry [data-parallax] and share one tween, so the two
+  // layers cannot drift apart while the frame widens (Hero.astro)
+  const media = hero.querySelectorAll<HTMLElement>('[data-parallax]');
   const hint = hero.querySelector<HTMLElement>('[data-hero-hint]');
   const eyebrow = hero.querySelector<HTMLElement>('[data-hero-eyebrow]');
   const text = hero.querySelector<HTMLElement>('[data-hero-text]');
@@ -217,7 +220,9 @@ function initHero(pinned: boolean, desktop: boolean): void {
   });
 
   timeline.to(push, { scale: pinned ? PUSH_SCALE : PUSH_SCALE_UNPINNED, ease: PUSH_EASE, duration: through }, 0);
-  if (picture) timeline.to(picture, { scale: PUSH_IMAGE_SCALE, ease: PUSH_EASE, duration: through }, 0);
+  if (media.length) timeline.to(media, { scale: PUSH_IMAGE_SCALE, ease: PUSH_EASE, duration: through }, 0);
+  // Starts at the overlay's CSS value, so timeline position 0 is exactly the
+  // state the banner has without JS
   if (overlay) timeline.to(overlay, { opacity: 1, duration: through * 0.9 }, 0);
   // The hint has done its job as soon as the page moves
   if (hint) timeline.to(hint, { opacity: 0, duration: 0.15, ease: 'power1.in' }, 0);

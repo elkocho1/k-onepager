@@ -45,6 +45,21 @@ Die Logo-Wall färbt Logos per `mask-image` teal ein – dafür braucht jede Dat
 
 Alle Logos werden von `scripts/prepare-images.mjs` aus `_material/` nach `public/logos/` kopiert bzw. freigestellt. `de.json` verweist seit Phase 0 auf die realen Endungen (`.svg`/`.png`/`.jpg`) und trägt je Firma `mask: true|false`; sobald SVGs vom Kunden kommen, Pfade zurück auf `.svg`.
 
+## Hero-Video → `public/video/hero.mp4`
+
+Hintergrundvideo im Hero, unter dem night-Overlay und über `hero.jpg` (Spec-Abschnitt 1, Abweichung 10). Pfad in `de.json` unter `hero.video.src`.
+
+| | |
+|---|---|
+| Quelle | `_material/hero-video-preview.mp4` – **watermarked Stock-Preview**, 898×506, 10,8 s, H.264 + Tonspur (AAC), 1,0 MB |
+| Ziel | `public/video/hero.mp4` (per Copy aus `_material/`) |
+| Status | **Lizenz offen.** Nur zur lokalen Beurteilung der Bewegung – das Wasserzeichen liegt im Bild. Die lizenzierte Fassung kommt später. |
+| Repo | `public/video/` steht in `.gitignore`, die Datei wird **nicht** committet und ist damit auch nicht im Deploy. Vor dem Livegang die lizenzierte Fassung ablegen und den Ignore-Eintrag entscheiden (mitliefern oder außerhalb des Repos ausrollen). |
+
+**Zielformat für die finale Fassung:** 1920 px breit, **ohne Tonspur** (das Video läuft stumm, eine Tonspur wäre nur Ballast), H.264-MP4 **plus** WebM (VP9) als zweite Quelle, **unter 3 MB** für den Loop. Ein Loop von 8–12 s reicht; Schnittkante so wählen, dass Anfang und Ende zusammenpassen (`loop`). Kein Poster nötig – `hero.jpg` liegt als Ebene darunter und ist gleichzeitig das LCP-Element.
+
+Ohne JS, bei `prefers-reduced-motion: reduce` und unter 768 px wird die Datei **nicht angefragt** (`src/scripts/hero-video.ts`) – dort steht nur das Bild.
+
 ## Icons → `public/icons/warum/` (5× SVG, 50×50, einfarbig)
 
 Aus Figma exportieren (Selection → Export SVG), Node-IDs in DESIGN-SPEC.md Abschnitt 5. Dateinamen = `icon`-Wert in `de.json`: `partnership.svg`, `building.svg`, `project.svg`, `network.svg`, `capital.svg`. Alle Füllungen auf `currentColor` setzen.

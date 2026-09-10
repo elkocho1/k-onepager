@@ -1,7 +1,14 @@
 ---
 /**
- * Hero (spec section 1, Figma 139:14 / mobile 242:22): full-width photo that
- * fades into night at the top and bottom, text block, two buttons.
+ * Hero (spec section 1, Figma 139:14 / mobile 242:22): full-width banner with
+ * an even night overlay, text block, two buttons.
+ *
+ * Three layers under the copy, bottom to top: the photo (LCP element, eager
+ * and high priority – it also stands in as the video's poster, so no second
+ * download of the same frame), the background video and the night overlay.
+ * The overlay lies over the *whole* banner at one opacity
+ * (--hero-overlay-rest); the two 50 %-high gradients it replaces met in the
+ * middle of the image with different end values and drew a visible edge there.
  *
  * From 768px the headline is ONE centred line "Build Beyond." sized to fill
  * the content container – the start frame of the push-through scroll
@@ -20,7 +27,9 @@
  *                       only the type wrapper; a later mask layer carries the
  *                       same attribute and joins the tween without a rebuild.
  *   [data-hero-type]    the type itself – dissolves at the end of the fly-through
- *   [data-hero-overlay] night overlay, fades in over the photo
+ *   [data-hero-overlay] night overlay, darkens from --hero-overlay-rest to 1
+ *   [data-parallax]     photo and video – they widen together with the type
+ *   [data-hero-video]   background video, activated by hero-video.ts
  *   [data-hero-hint]    scroll hint, fades out over the first 15 % of the scroll
  *   [data-hero-eyebrow] · [data-hero-text] (+ [data-hero-text-line]) ·
  *   [data-hero-actions] the three blocks that appear after the fly-through, in
@@ -49,6 +58,22 @@ const textLines = nl2br(hero.text);
     class="hero__image"
     pictureAttributes={{ class: 'hero__picture', 'data-parallax': '' }}
   />
+  <!-- The two spellings are what Astro's VideoHTMLAttributes accept (lowercase
+       for the one, camelCase for the other); both render as HTML attributes. -->
+  <video
+    class="hero__video"
+    data-hero-video
+    data-parallax
+    data-src={hero.video.src}
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    disablepictureinpicture
+    disableRemotePlayback
+    aria-hidden="true"
+  ></video>
   <div class="hero__overlay" data-hero-overlay aria-hidden="true"></div>
   <div class="container">
     <div class="hero__content" data-hero-content>
@@ -78,8 +103,16 @@ const textLines = nl2br(hero.text);
   <p class="hero__hint" data-hero-hint aria-hidden="true">{hero.scrollHint}</p>
 </section>
 
+<script src="../scripts/hero-video.ts"></script>
+
 <style>
   .hero {
+    /* Resting opacity of the night overlay. Measured against the brightest
+       8x8 patch inside the headline box over the whole video loop: white
+       4.44:1 and the lime outline 3.78:1 at worst (0.35 dropped the outline to
+       2.90:1, under the 3:1 bar for display type). The push-through animates
+       from here to 1 (animations.ts). */
+    --hero-overlay-rest: 0.45;
     /* Size the copy grows to after the fly-through; also caps its width so the
        scaled block still fits the container. 1 below 768px (no reveal there). */
     --hero-reveal-scale: 1.5;
@@ -98,10 +131,11 @@ const textLines = nl2br(hero.text);
     overflow: hidden;
   }
 
+  /* Bottom layer: the photo. Also the video's stand-in poster. */
   .hero :global(.hero__picture) {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: -2;
   }
 
   .hero :global(.hero__image) {
@@ -110,36 +144,39 @@ const textLines = nl2br(hero.text);
     object-fit: cover;
   }
 
-  /* Night fades: top 469px of 936 (50 %) and mirrored at the bottom */
-  .hero::before,
-  .hero::after {
-    content: '';
+  /* Background video over the photo, same framing. It carries no `src` in the
+     markup – hero-video.ts sets it once the hero is in view, and only there
+     (not at reduced motion, not below 768px). Until it plays it is fully
+     transparent, so without JS the photo stands alone and the video never
+     covers it as a black plate. */
+  .hero__video {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 50%;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
     pointer-events: none;
   }
 
-  .hero::before {
-    top: 0;
-    background: linear-gradient(180deg, var(--c-night) 0%, var(--c-night-a30) 100%);
+  .hero__video.is-playing {
+    opacity: 1;
   }
 
-  .hero::after {
-    bottom: 0;
-    background: linear-gradient(0deg, var(--c-night) 3.8%, var(--c-night-a40) 100%);
-  }
-
-  /* Takes the whole frame to night while the type flies past. Its resting
-     state is invisible, so without JS and at reduced motion the photo stays
-     exactly as it is today – this is a decorative layer, no content hides here. */
+  /* One even layer over the whole banner: it carries the photo far enough
+     towards night for the copy to stand (--hero-overlay-rest) and the
+     push-through takes it the rest of the way (animations.ts). Its resting
+     value is CSS, so without JS and at reduced motion the banner looks the
+     same as at timeline position 0 – a decorative layer, no content hides
+     here. */
   .hero__overlay {
     position: absolute;
     inset: 0;
     z-index: 0;
     background: var(--c-night);
-    opacity: 0;
+    opacity: var(--hero-overlay-rest);
     pointer-events: none;
   }
 

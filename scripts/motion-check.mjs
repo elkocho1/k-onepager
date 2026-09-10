@@ -4,15 +4,17 @@
  *
  *   nojs     page scripts disabled – every motion target (reveals, parallax,
  *            marquee, hero letters, cards, tiles) is fully visible and
- *            untransformed, Lenis is off, the hex canvas stays hidden
+ *            untransformed, Lenis is off, the hex canvas stays hidden, the
+ *            hero video is idle and no video file is requested
  *   reduced  prefers-reduced-motion: reduce emulated – same as nojs, plus two
  *            viewport captures 1.5 s apart at the marquee are pixel-identical
  *            and a spotlight switch happens instantly
  *   js       scripts on – Lenis runs, nav gets .is-scrolled and aria-current,
  *            hero letters settle after the intro while eyebrow, copy and
  *            buttons wait hidden behind the scroll hint, the pinned
- *            push-through scales the type out of its centre while photo and
- *            night overlay follow, and the three blocks rise in afterwards,
+ *            push-through scales the type out of its centre while photo,
+ *            video and night overlay follow, and the three blocks rise in
+ *            afterwards, the background video runs from 768px up,
  *            anchor links land at --scroll-offset with hash + focus, reveals
  *            resolve, marquee moves, CTA glow pulses,
  *            the card track scrolls horizontally under the wheel with the
@@ -41,22 +43,36 @@ const timeout = Number(options.timeout ?? 150_000);
 const mode = options.mode ?? 'all';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const VIDEO_FILE = /\.(mp4|webm)(\?|$)/;
 let failures = 0;
 function check(name, ok, detail = '') {
   failures += ok ? 0 : 1;
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? ` – ${detail}` : ''}`);
 }
 
+/**
+ * Collects every request URL of a run, so a mode can prove what was *not*
+ * fetched. Call before navigating.
+ */
+async function trackRequests(page) {
+  const urls = [];
+  page.on('Network.requestWillBeSent', ({ request }) => urls.push(request.url));
+  await page.send('Network.enable');
+  return urls;
+}
+
 /** Every element the motion layer touches must be visible and untransformed. */
 const STATIC_PROBE = `(async () => {
   await document.fonts.ready;
-  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-char], [data-hero-push], [data-hero-eyebrow], [data-hero-text], [data-hero-text-line], [data-hero-actions], [data-hero-hint], [data-cards] > *, [data-portfolio-tabs] > *')];
+  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax]:not([data-hero-video]), [data-glow], [data-hero-content], [data-hero-char], [data-hero-push], [data-hero-eyebrow], [data-hero-text], [data-hero-text-line], [data-hero-actions], [data-hero-hint], [data-cards] > *, [data-portfolio-tabs] > *')];
   const bad = targets.filter((el) => {
     const cs = getComputedStyle(el);
     return parseFloat(cs.opacity) < 1 || cs.transform !== 'none' || cs.visibility !== 'visible';
   });
   const hex = document.querySelector('[data-hex-cursor]');
+  const hero = document.querySelector('[data-hero]');
   const overlay = document.querySelector('[data-hero-overlay]');
+  const video = document.querySelector('[data-hero-video]');
   const pinSpacer = document.querySelector('.pin-spacer');
   return {
     targets: targets.length,
@@ -64,9 +80,14 @@ const STATIC_PROBE = `(async () => {
     lenis: document.documentElement.classList.contains('lenis'),
     scrolled: !!document.querySelector('[data-nav].is-scrolled'),
     hexHidden: hex ? hex.hidden && getComputedStyle(hex).display === 'none' : null,
-    // The hero push-through must leave nothing behind: night overlay clear,
-    // hero unpinned, so the section is the plain photo it is in the design
+    // The hero push-through must leave nothing behind: the night overlay sits
+    // at its resting value from CSS (even over the whole banner), the hero is
+    // unpinned and the video is idle – the photo carries the section
     heroOverlay: overlay ? getComputedStyle(overlay).opacity : null,
+    heroOverlayRest: hero ? getComputedStyle(hero).getPropertyValue('--hero-overlay-rest').trim() : null,
+    heroVideo: video
+      ? { src: video.getAttribute('src'), currentSrc: video.currentSrc, network: video.networkState, opacity: getComputedStyle(video).opacity }
+      : null,
     heroPinned: !!pinSpacer,
   };
 })()`;
@@ -87,12 +108,31 @@ const PANELS = `(() => {
 
 const clickTab = (index) => `document.querySelectorAll('[data-portfolio-tabs] [role="tab"]')[${index}].click()`;
 
-async function staticChecks(page, label) {
+/** No mode may fetch the video unless it also plays it. */
+function checkNoVideoRequest(label, urls) {
+  const hits = urls.filter((u) => VIDEO_FILE.test(u));
+  check(`${label}: no video file requested`, hits.length === 0, hits.join(', '));
+}
+
+async function staticChecks(page, label, urls) {
   const r = await page.evaluate(STATIC_PROBE);
   check(`${label}: ${r.targets} motion targets visible and untransformed`, r.targets > 0 && r.bad.length === 0, r.bad.join(', '));
   check(`${label}: no Lenis`, !r.lenis);
   check(`${label}: hex canvas hidden`, r.hexHidden === true, r.hexHidden === null ? 'no canvas element' : '');
-  check(`${label}: hero night overlay clear`, r.heroOverlay === '0', `opacity ${r.heroOverlay}`);
+  // Even over the whole banner and exactly the value the timeline starts from
+  // (Chrome serialises the custom property as ".35", the computed opacity as
+  // "0.35" – compare numerically)
+  check(
+    `${label}: hero night overlay at its CSS resting value`,
+    r.heroOverlay !== null && parseFloat(r.heroOverlay) > 0 && parseFloat(r.heroOverlay) === parseFloat(r.heroOverlayRest),
+    `opacity ${r.heroOverlay}, --hero-overlay-rest ${r.heroOverlayRest}`,
+  );
+  check(
+    `${label}: hero video idle and transparent (no src, photo shows through)`,
+    r.heroVideo !== null && !r.heroVideo.src && !r.heroVideo.currentSrc && r.heroVideo.network === 0 && r.heroVideo.opacity === '0',
+    JSON.stringify(r.heroVideo),
+  );
+  if (urls) checkNoVideoRequest(label, urls);
   check(`${label}: hero not pinned`, r.heroPinned === false);
   return r;
 }
@@ -103,8 +143,9 @@ async function rawViewport(page) {
 
 async function runNoJs() {
   await withPage({ width, height, timeout, hideScrollbars: true, disableJs: true }, async (page) => {
+    const urls = await trackRequests(page);
     await page.navigate(url);
-    await staticChecks(page, 'no-js');
+    await staticChecks(page, 'no-js', urls);
     const h1 = await page.evaluate(`document.querySelector('h1').innerText.replace(/\\s+/g, ' ').trim()`);
     check('no-js: h1 reads as plain text (hidden copy + letters)', h1.includes('Build Beyond.'), h1);
   });
@@ -112,10 +153,11 @@ async function runNoJs() {
 
 async function runReduced() {
   await withPage({ width, height, timeout, hideScrollbars: true, reducedMotion: true }, async (page) => {
+    const urls = await trackRequests(page);
     await page.navigate(url);
     const reduce = await page.evaluate(`matchMedia('(prefers-reduced-motion: reduce)').matches`);
     check('reduced: media query emulated', reduce === true);
-    await staticChecks(page, 'reduced');
+    await staticChecks(page, 'reduced', urls);
     // Marquee in view, two captures 1.5 s apart must be identical
     await page.evaluate(`(async () => {
       document.documentElement.style.scrollBehavior = 'auto';
@@ -140,6 +182,7 @@ async function runReduced() {
 
 async function runJs() {
   await withPage({ width, height, timeout, hideScrollbars: true }, async (page) => {
+    const urls = await trackRequests(page);
     await page.navigate(url);
     await page.evaluate(`document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 600)))`);
     // The harness jumps with native scrollTo/scrollIntoView between steps –
@@ -154,7 +197,7 @@ async function runJs() {
       scrolled: !!document.querySelector('[data-nav].is-scrolled'),
       hidden: [...document.querySelectorAll('[data-reveal]')].filter((el) => getComputedStyle(el).opacity === '0').length,
       reveals: document.querySelectorAll('[data-reveal]').length,
-      heroTransform: getComputedStyle(document.querySelector('[data-hero] [data-parallax]')).transform,
+      heroTransform: getComputedStyle(document.querySelector('[data-hero] .hero__picture')).transform,
       glowTransform: getComputedStyle(document.querySelector('[data-glow]')).transform,
       current: document.querySelectorAll('[data-nav] a[aria-current="true"]').length,
     })`);
@@ -164,6 +207,30 @@ async function runJs() {
     check('js: hero picture starts unscaled', identity(boot.heroTransform), boot.heroTransform);
     check('js: CTA glow pulse running', boot.glowTransform !== 'none', boot.glowTransform);
     check('js: no current nav link on the hero', boot.current === 0);
+
+    // Background video: in view + canplay → it runs and fades over the photo.
+    // Below 768px it must not even be requested (data volume).
+    const VIDEO_STATE = `(() => {
+      const v = document.querySelector('[data-hero-video]');
+      return { src: v.getAttribute('src'), paused: v.paused, time: v.currentTime, ready: v.readyState, playing: v.classList.contains('is-playing'), opacity: getComputedStyle(v).opacity, muted: v.muted, loop: v.loop, size: [v.videoWidth, v.videoHeight] };
+    })()`;
+    if (width >= 768) {
+      await page.evaluate(`(async () => {
+        const v = document.querySelector('[data-hero-video]');
+        for (let i = 0; i < 60 && v.currentTime === 0; i++) await new Promise((r) => setTimeout(r, 100));
+      })()`);
+      const video = await page.evaluate(VIDEO_STATE);
+      check('js: hero video plays after canplay, muted and looping', !!video.src && !video.paused && video.time > 0 && video.muted && video.loop, JSON.stringify(video));
+      check('js: hero video faded over the photo (.is-playing, opacity 1)', video.playing && video.opacity === '1', JSON.stringify(video));
+      // Chrome may split the file into several range requests – all of them
+      // must point at the one file the hero asked for
+      const hits = urls.filter((u) => VIDEO_FILE.test(u));
+      check('js: only the hero video file requested', hits.length > 0 && hits.every((u) => u.endsWith('/video/hero.mp4')), hits.join(', '));
+    } else {
+      const video = await page.evaluate(VIDEO_STATE);
+      check('js: hero video not loaded below 768px (photo only)', !video.src && video.ready === 0 && video.opacity === '0', JSON.stringify(video));
+      checkNoVideoRequest('js', urls);
+    }
 
     // Marquee moves
     const m1 = await page.evaluate(`getComputedStyle(document.querySelector('[data-marquee-track]')).transform`);
@@ -204,7 +271,8 @@ async function runJs() {
         scrolled: !!document.querySelector('[data-nav].is-scrolled'),
         heroTop: Math.round(document.querySelector('[data-hero]').getBoundingClientRect().top),
         typeScale: Math.round(matrix(document.querySelector('[data-hero-type]')).a * 100) / 100,
-        pictureScale: Math.round(matrix(document.querySelector('[data-hero] [data-parallax]')).a * 1000) / 1000,
+        pictureScale: Math.round(matrix(document.querySelector('[data-hero] .hero__picture')).a * 1000) / 1000,
+        videoScale: Math.round(matrix(document.querySelector('[data-hero-video]')).a * 1000) / 1000,
         overlay: +getComputedStyle(document.querySelector('[data-hero-overlay]')).opacity,
         hint: +getComputedStyle(document.querySelector('[data-hero-hint]')).opacity,
         late: ['[data-hero-eyebrow]', '[data-hero-text]', '[data-hero-actions]'].map((s) => +getComputedStyle(document.querySelector(s)).opacity),
@@ -215,6 +283,7 @@ async function runJs() {
     check('js: hero stays pinned during the push-through', after.heroTop === 0, `top ${after.heroTop}`);
     check('js: hero type scales up out of its centre', after.typeScale > 1 && after.typeScale < 8, `scale ${after.typeScale}`);
     check('js: hero photo widens slightly with it', after.pictureScale > 1 && after.pictureScale < 1.12, `scale ${after.pictureScale}`);
+    check('js: hero video widens with the photo (same tween)', after.videoScale === after.pictureScale, `video ${after.videoScale} vs photo ${after.pictureScale}`);
     check('js: night overlay darkens the frame', after.overlay > 0 && after.overlay < 1, `opacity ${after.overlay}`);
     check('js: scroll hint gone once the page moves', after.hint === 0, `opacity ${after.hint}`);
     check('js: eyebrow, copy and buttons still hidden mid-flight', after.late.every((o) => o === 0), JSON.stringify(after.late));

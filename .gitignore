@@ -6,6 +6,8 @@ dist/
 node_modules/
 # raw material (not part of the repo, see docs/ASSETS.md)
 _material/
+# hero background video (watermarked stock preview, licence open – see docs/ASSETS.md)
+public/video/
 # phase screenshots
 docs/screens/
 # environment variables
