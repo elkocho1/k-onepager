@@ -167,7 +167,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 - **Harness:** `scroll-perf.mjs` bekommt `--max=<px>`, um einen Abschnitt dicht abzutasten statt die ganze Seite (das Ziel der Laufweite geht in die Bewertung ein). In `motion-check.mjs` sprang der Nav-Check bisher mit `scrollIntoView` + `scrollBy` – von zwei nativen Scrolls im selben Task behält Lenis nur einen, der Test maß also die Position des vorherigen Schritts; jetzt ein absoluter `scrollTo`.
 - **Offen:** Masken-/Portal-Ebene (bewusst nicht in diesem Schritt); Test auf einem echten Mobilgerät; die Typo skaliert bei `scale 8` sichtbar an der Rasterung von Chrome vorbei – kein `will-change` gesetzt, damit die Schrift an den Haltepunkten scharf bleibt (bei 0.5 und 1 im Screenshot geprüft).
 
-### Phase 7 – Animationen, Teil B/3 (Hero: Copy erscheint nach dem Durchflug) · 2026-09-10 · Commit `PENDING`
+### Phase 7 – Animationen, Teil B/3 (Hero: Copy erscheint nach dem Durchflug) · 2026-09-10 · Commit `892fa3d`
 
 - Auftrag: Eyebrow, Body und beide Buttons sind beim Laden nicht sichtbar und erscheinen erst nach dem Durchflug; dazu ein dezenter Scroll-Hinweis, weil sonst nur die Headline zu sehen ist.
 - **Intro-Timeline** hat jetzt nur noch die Headline-Buchstaben (`yPercent 60 → 0`, Stagger 0.03, 0,8 s `power4.out`). `data-hero-fade` ist ersatzlos raus, `data-hero-out` heißt `data-hero-eyebrow`.
