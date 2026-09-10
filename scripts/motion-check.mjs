@@ -9,9 +9,11 @@
  *            viewport captures 1.5 s apart at the marquee are pixel-identical
  *            and a spotlight switch happens instantly
  *   js       scripts on – Lenis runs, nav gets .is-scrolled and aria-current,
- *            hero letters settle after the intro and drift/fade on scroll,
+ *            hero letters settle after the intro, the pinned push-through
+ *            scales the type out of its centre while photo and night overlay
+ *            follow and the buttons stay put, and the copy returns larger,
  *            anchor links land at --scroll-offset with hash + focus, reveals
- *            resolve, marquee moves, hero parallax scrubs, CTA glow pulses,
+ *            resolve, marquee moves, CTA glow pulses,
  *            the card track scrolls horizontally under the wheel with the
  *            progress line easing, logo tiles settle, the spotlight
  *            cross-fades to exactly one panel at a stable height (also under
@@ -47,18 +49,24 @@ function check(name, ok, detail = '') {
 /** Every element the motion layer touches must be visible and untransformed. */
 const STATIC_PROBE = `(async () => {
   await document.fonts.ready;
-  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-fade], [data-hero-char], [data-cards] > *, [data-portfolio-tabs] > *')];
+  const targets = [...document.querySelectorAll('[data-reveal], [data-reveal-stagger] > *, [data-marquee-track], [data-parallax], [data-glow], [data-hero-content], [data-hero-fade], [data-hero-char], [data-hero-push], [data-hero-text-line], [data-cards] > *, [data-portfolio-tabs] > *')];
   const bad = targets.filter((el) => {
     const cs = getComputedStyle(el);
     return parseFloat(cs.opacity) < 1 || cs.transform !== 'none' || cs.visibility !== 'visible';
   });
   const hex = document.querySelector('[data-hex-cursor]');
+  const overlay = document.querySelector('[data-hero-overlay]');
+  const pinSpacer = document.querySelector('.pin-spacer');
   return {
     targets: targets.length,
     bad: bad.map((el) => el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : '')),
     lenis: document.documentElement.classList.contains('lenis'),
     scrolled: !!document.querySelector('[data-nav].is-scrolled'),
     hexHidden: hex ? hex.hidden && getComputedStyle(hex).display === 'none' : null,
+    // The hero push-through must leave nothing behind: night overlay clear,
+    // hero unpinned, so the section is the plain photo it is in the design
+    heroOverlay: overlay ? getComputedStyle(overlay).opacity : null,
+    heroPinned: !!pinSpacer,
   };
 })()`;
 
@@ -83,6 +91,8 @@ async function staticChecks(page, label) {
   check(`${label}: ${r.targets} motion targets visible and untransformed`, r.targets > 0 && r.bad.length === 0, r.bad.join(', '));
   check(`${label}: no Lenis`, !r.lenis);
   check(`${label}: hex canvas hidden`, r.hexHidden === true, r.hexHidden === null ? 'no canvas element' : '');
+  check(`${label}: hero night overlay clear`, r.heroOverlay === '0', `opacity ${r.heroOverlay}`);
+  check(`${label}: hero not pinned`, r.heroPinned === false);
   return r;
 }
 
@@ -150,7 +160,7 @@ async function runJs() {
     check('js: Lenis active (html.lenis)', boot.lenis);
     check('js: nav not scrolled at top', !boot.scrolled);
     check('js: below-fold reveals start hidden', boot.hidden > 0 && boot.hidden <= boot.reveals, `${boot.hidden}/${boot.reveals}`);
-    check('js: hero picture starts at scale 1.1', boot.heroTransform.startsWith('matrix(1.1,'), boot.heroTransform);
+    check('js: hero picture starts unscaled', identity(boot.heroTransform), boot.heroTransform);
     check('js: CTA glow pulse running', boot.glowTransform !== 'none', boot.glowTransform);
     check('js: no current nav link on the hero', boot.current === 0);
 
@@ -170,7 +180,8 @@ async function runJs() {
     })()`);
     check('js: hero letters and text block settled after the intro', intro.chars > 0 && intro.fades === 3 && intro.unsettled === 0, JSON.stringify(intro));
 
-    // Wheel 8×60 = 480px: nav scrolled, hero parallax progressed, Lenis smoothed
+    // Wheel 8×60 = 480px into the pinned hero: nav scrolled, the type flies
+    // through, photo and overlay follow, the buttons stay put, Lenis smoothed
     for (let i = 0; i < 8; i++) {
       await wheel(width / 2, height / 2, 60);
       await sleep(30);
@@ -178,24 +189,61 @@ async function runJs() {
     await sleep(1500);
     const after = await page.evaluate(`(() => {
       const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };
-      const content = document.querySelector('[data-hero-content]');
-      const outline = [...document.querySelectorAll('[data-hero-line="outline"] [data-hero-char]')];
+      const eyebrow = document.querySelector('[data-hero-out]');
+      const actions = document.querySelector('[data-hero-actions]');
+      const lines = [...document.querySelectorAll('[data-hero-text-line]')];
       return {
         y: Math.round(scrollY),
         scrolled: !!document.querySelector('[data-nav].is-scrolled'),
-        heroTransform: getComputedStyle(document.querySelector('[data-hero] [data-parallax]')).transform,
-        contentOpacity: +getComputedStyle(content).opacity,
-        contentY: Math.round(matrix(content).f),
-        driftFirst: Math.round(matrix(outline[0]).e * 10) / 10,
-        driftLast: Math.round(matrix(outline[outline.length - 1]).e * 10) / 10,
+        heroTop: Math.round(document.querySelector('[data-hero]').getBoundingClientRect().top),
+        typeScale: Math.round(matrix(document.querySelector('[data-hero-type]')).a * 100) / 100,
+        pictureScale: Math.round(matrix(document.querySelector('[data-hero] [data-parallax]')).a * 1000) / 1000,
+        overlay: +getComputedStyle(document.querySelector('[data-hero-overlay]')).opacity,
+        eyebrowOpacity: +getComputedStyle(eyebrow).opacity,
+        eyebrowY: Math.round(matrix(eyebrow).f),
+        linesOpacity: Math.max(...lines.map((line) => +getComputedStyle(line).opacity)),
+        actionsTransform: getComputedStyle(actions).transform,
+        actionsOpacity: +getComputedStyle(actions).opacity,
       };
     })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
     check('js: nav .is-scrolled after 40px', after.scrolled);
-    const scale = parseFloat(after.heroTransform.replace('matrix(', ''));
-    check('js: hero parallax scrubbed (scale between 1 and 1.1)', scale > 1 && scale < 1.1, after.heroTransform);
-    check('js: hero text block lifts and fades with the scroll', after.contentOpacity > 0 && after.contentOpacity < 1 && after.contentY < 0, `opacity ${after.contentOpacity}, y ${after.contentY}`);
-    check('js: outline line tracks out letter by letter', after.driftFirst === 0 && after.driftLast > 0, `first ${after.driftFirst}, last ${after.driftLast}`);
+    check('js: hero stays pinned during the push-through', after.heroTop === 0, `top ${after.heroTop}`);
+    check('js: hero type scales up out of its centre', after.typeScale > 1 && after.typeScale < 8, `scale ${after.typeScale}`);
+    check('js: hero photo widens slightly with it', after.pictureScale > 1 && after.pictureScale < 1.12, `scale ${after.pictureScale}`);
+    check('js: night overlay darkens the frame', after.overlay > 0 && after.overlay < 1, `opacity ${after.overlay}`);
+    check(
+      'js: eyebrow and copy leave upwards early',
+      after.eyebrowOpacity < 1 && after.eyebrowY < 0 && after.linesOpacity < 1,
+      `eyebrow ${after.eyebrowOpacity} @ ${after.eyebrowY}, lines ${after.linesOpacity}`,
+    );
+    check('js: buttons stay visible and unscaled', identity(after.actionsTransform) && after.actionsOpacity === 1, `${after.actionsTransform}, opacity ${after.actionsOpacity}`);
+
+    // End of the pin: the copy is back, larger and settled, the type is gone
+    await page.evaluate(`(async () => {
+      window.scrollTo(0, Math.round(1.5 * innerHeight));
+      await new Promise((r) => setTimeout(r, 1800));
+    })()`);
+    const landed = await page.evaluate(`(() => {
+      const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };
+      const lines = [...document.querySelectorAll('[data-hero-text-line]')];
+      return {
+        textScale: Math.round(matrix(document.querySelector('[data-hero-text]')).a * 100) / 100,
+        want: +getComputedStyle(document.querySelector('[data-hero]')).getPropertyValue('--hero-reveal-scale'),
+        linesOpacity: Math.min(...lines.map((line) => +getComputedStyle(line).opacity)),
+        linesY: lines.map((line) => Math.round(matrix(line).f)),
+        typeOpacity: +getComputedStyle(document.querySelector('[data-hero-type]')).opacity,
+        actionsTransform: getComputedStyle(document.querySelector('[data-hero-actions]')).transform,
+      };
+    })()`);
+    check(
+      'js: copy returns larger after the fly-through',
+      landed.textScale === landed.want && landed.linesOpacity > 0.99,
+      `scale ${landed.textScale}/${landed.want}, opacity ${landed.linesOpacity}`,
+    );
+    check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0), JSON.stringify(landed.linesY));
+    check('js: type has dissolved at the end of the push', landed.typeOpacity === 0, `opacity ${landed.typeOpacity}`);
+    check('js: buttons untouched at the end of the push', identity(landed.actionsTransform), landed.actionsTransform);
 
     // Reveal resolves once its section is in view (founder text, well below)
     await page.evaluate(`(async () => {
@@ -208,11 +256,14 @@ async function runJs() {
     })`);
     check('js: reveal completes in view (opacity 1, no offset)', founder.opacity === '1' && identity(founder.transform), JSON.stringify(founder));
 
-    // Current nav link follows the section under the viewport centre
+    // Current nav link follows the section under the viewport centre. One
+    // absolute jump, not scrollIntoView + scrollBy: of two native scrolls in
+    // the same task Lenis only keeps one, so the pair silently landed at the
+    // previous step's position and the check passed on where it happened to be.
     await page.evaluate(`(async () => {
-      document.getElementById('portfolio').scrollIntoView({ block: 'start' });
-      window.scrollBy(0, 200);
-      await new Promise((r) => setTimeout(r, 500));
+      const top = Math.round(document.getElementById('portfolio').getBoundingClientRect().top + scrollY);
+      window.scrollTo(0, top + 200);
+      await new Promise((r) => setTimeout(r, 800));
     })()`);
     const current = await page.evaluate(`[...document.querySelectorAll('[data-nav] a[aria-current="true"]')].map((a) => a.hash)`);
     check('js: aria-current on the portfolio link', current.length === 1 && current[0] === '#portfolio', current.join(','));

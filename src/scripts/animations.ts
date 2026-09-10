@@ -1,9 +1,10 @@
 /**
  * Motion layer (docs/phases/PHASE-7-animationen.md): Lenis smooth scroll,
  * GSAP + ScrollTrigger reveals, parallax, marquee loop, nav scroll state,
- * card and CTA glows (part A); hero type intro and scrub, slider stagger and
- * eased progress line, logo-wall stagger, spotlight cross-fade and the lazily
- * loaded hex cursor (part B). Everything here is layered on top of a page
+ * card and CTA glows (part A); hero type intro and pinned push-through,
+ * slider stagger and eased progress line, logo-wall stagger, spotlight
+ * cross-fade and the lazily loaded hex cursor (part B). Everything here is
+ * layered on top of a page
  * that is complete without JS – start states (opacity 0, offsets) are set by
  * GSAP only, never in CSS.
  *
@@ -43,7 +44,10 @@ function initNav(): void {
   header.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]').forEach((link) => {
     const section = document.getElementById(link.hash.slice(1));
     if (!section) return;
-    const next = section.nextElementSibling;
+    // The next *section* – Astro puts the components' inline scripts between
+    // them, and a <script> has no box to end the trigger on
+    let next = section.nextElementSibling;
+    while (next && next.tagName !== 'SECTION') next = next.nextElementSibling;
     ScrollTrigger.create({
       trigger: section,
       start: 'top center',
@@ -137,19 +141,38 @@ function initMarquee(): void {
   });
 }
 
-/* --- Hero type (1): letters rise on load, drift and fade on scroll --------- */
-function initHero(desktop: boolean): void {
+/* --- Hero push-through (1, 2) ---------------------------------------------
+ * One scrubbed timeline over the pinned hero: the display line grows out of
+ * its centre until the viewer has flown through it, the photo drifts a little
+ * wider underneath and an overlay takes the frame to night. Eyebrow and copy
+ * leave early and upwards, the buttons stay untouched, and after the
+ * fly-through the copy returns larger, line by line.
+ *
+ * The scale runs on every `[data-hero-push]` layer at once, so the portal
+ * mask planned for the next step only has to carry that attribute to join the
+ * same tween – no rebuild here. `through` is the share of the timeline the
+ * fly-through takes; the rest belongs to the reveal.
+ *
+ * Below 768px the hero is not pinned: scale and fade only, no reveal.
+ */
+const PUSH_SCALE = 8;           // type size at the end of the fly-through
+const PUSH_SCALE_UNPINNED = 2.6;
+const PUSH_IMAGE_SCALE = 1.12;  // the photo widens slightly with it
+const PUSH_EASE = 'power2.in';
+const PUSH_THROUGH = 0.72;      // share of the timeline before the reveal
+const PUSH_DISTANCE = 1.5;      // pin length in viewport heights
+
+function initHero(pinned: boolean, desktop: boolean): void {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const content = hero?.querySelector<HTMLElement>('[data-hero-content]');
   if (!hero || !content) return;
-  const chars = hero.querySelectorAll<HTMLElement>('[data-hero-char]');
-  const outlineChars = hero.querySelectorAll<HTMLElement>('[data-hero-line="outline"] [data-hero-char]');
-  const fades = hero.querySelectorAll<HTMLElement>('[data-hero-fade]');
 
-  // Intro: the letters of both lines rise from below one after the other
-  // (0.03 s apart); eyebrow, copy and buttons follow with the reveal move.
-  // Starts once the display weight has loaded so no glyphs swap mid-flight
-  // (and after 1 s at the latest, should a font never arrive).
+  // Intro: the letters of the display line rise from below one after the
+  // other (0.03 s apart); eyebrow, copy and buttons follow with the reveal
+  // move. Starts once the display weight has loaded so no glyphs swap
+  // mid-flight (and after 1 s at the latest, should a font never arrive).
+  const chars = hero.querySelectorAll<HTMLElement>('[data-hero-char]');
+  const fades = hero.querySelectorAll<HTMLElement>('[data-hero-fade]');
   const intro = gsap.timeline({ paused: true, defaults: { duration: REVEAL_DURATION, ease: EASE_OUT } });
   intro
     .from(chars, { yPercent: 60, opacity: 0, stagger: 0.03 }, 0)
@@ -160,13 +183,62 @@ function initHero(desktop: boolean): void {
   document.fonts?.ready.then(play);
   gsap.delayedCall(1, play);
 
-  // Scroll (scrub 0.6): the outline line tracks out to the right letter by
-  // letter while the whole text block lifts and fades until the hero is gone
-  const drift = desktop ? 6 : 3;
-  gsap
-    .timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } })
-    .to(outlineChars, { x: (index) => index * drift, ease: 'none' }, 0)
-    .to(content, { y: desktop ? -80 : -40, opacity: 0, ease: 'none' }, 0);
+  const push = hero.querySelectorAll<HTMLElement>('[data-hero-push]');
+  if (!push.length) return;
+  const type = hero.querySelector<HTMLElement>('[data-hero-type]');
+  const overlay = hero.querySelector<HTMLElement>('[data-hero-overlay]');
+  const picture = hero.querySelector<HTMLElement>('[data-parallax]');
+  const text = hero.querySelector<HTMLElement>('[data-hero-text]');
+  const lines = Array.from(hero.querySelectorAll<HTMLElement>('[data-hero-text-line]'));
+  const leaving = [...hero.querySelectorAll<HTMLElement>('[data-hero-out]'), ...lines];
+
+  const through = pinned ? PUSH_THROUGH : 1;
+  const timeline = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      id: 'hero-push',
+      trigger: hero,
+      start: 'top top',
+      end: pinned ? () => `+=${window.innerHeight * PUSH_DISTANCE}` : 'bottom top',
+      pin: pinned,
+      anticipatePin: pinned ? 1 : 0,
+      scrub: 0.6,
+      invalidateOnRefresh: true,
+      // The pin stretches the page by PUSH_DISTANCE viewports. Everything
+      // below the hero has to be measured afterwards – including the nav's
+      // section triggers, which are created before this one.
+      refreshPriority: 1,
+    },
+  });
+
+  timeline.to(push, { scale: pinned ? PUSH_SCALE : PUSH_SCALE_UNPINNED, ease: PUSH_EASE, duration: through }, 0);
+  if (picture) timeline.to(picture, { scale: PUSH_IMAGE_SCALE, ease: PUSH_EASE, duration: through }, 0);
+  if (overlay) timeline.to(overlay, { opacity: 1, duration: through * 0.9 }, 0);
+  timeline.to(
+    leaving,
+    { y: desktop ? -60 : -40, opacity: 0, duration: through * 0.22, stagger: through * 0.06, ease: 'power1.in' },
+    0,
+  );
+  // The type dissolves just as the viewer passes through it; a mask layer
+  // would keep its scale and skip this one.
+  if (type) timeline.to(type, { opacity: 0, duration: through * 0.25, ease: 'power1.in' }, through * 0.75);
+  timeline.addLabel('through', through);
+
+  // The copy returns out of the dark, larger and line by line. How much
+  // larger lives in CSS (--hero-reveal-scale), which also caps the block's
+  // width so the scaled lines still fit the container.
+  if (!pinned || !text || !lines.length) return;
+  const scale = parseFloat(getComputedStyle(hero).getPropertyValue('--hero-reveal-scale')) || 1;
+  const span = 1 - through;
+  const stagger = (span * 0.3) / Math.max(1, lines.length - 1);
+  timeline
+    .to(text, { duration: 0, scale, immediateRender: false }, 'through')
+    .fromTo(
+      lines,
+      { y: 90, opacity: 0 },
+      { y: 0, opacity: 1, duration: span * 0.7, stagger, ease: EASE_OUT, immediateRender: false },
+      'through',
+    );
 }
 
 /* --- Reveals (4, 5, 11) ---------------------------------------------------- */
@@ -200,23 +272,8 @@ function initReveals(desktop: boolean): void {
   });
 }
 
-/* --- Parallax (2, 11) ------------------------------------------------------ */
+/* --- Parallax (11) – the hero photo (2) belongs to the push-through above -- */
 function initParallax(desktop: boolean): void {
-  const hero = document.querySelector<HTMLElement>('[data-hero]');
-  const heroImage = hero?.querySelector<HTMLElement>('[data-parallax]');
-  if (hero && heroImage) {
-    gsap.fromTo(
-      heroImage,
-      { scale: desktop ? 1.1 : 1, y: 0 },
-      {
-        scale: 1,
-        y: desktop ? 120 : 60,
-        ease: 'none',
-        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true },
-      },
-    );
-  }
-
   const focus = document.getElementById('schwerpunkte');
   const focusBg = focus?.querySelector<HTMLElement>('[data-parallax]');
   if (focus && focusBg) {
@@ -425,12 +482,13 @@ mm.add(
   {
     reduce: '(prefers-reduced-motion: reduce)',
     desktop: '(min-width: 1024px)',
+    pinned: '(min-width: 768px)', // the hero push-through pins from here up
     hover: '(hover: hover)',
   },
   (context) => {
-    const { reduce = false, desktop = false, hover = false } = context.conditions ?? {};
+    const { reduce = false, desktop = false, pinned = false, hover = false } = context.conditions ?? {};
     if (reduce) return;
-    initHero(desktop);
+    initHero(pinned, desktop);
     initReveals(desktop);
     initParallax(desktop);
     initCtaGlow();

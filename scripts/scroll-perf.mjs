@@ -8,11 +8,13 @@
  * as information; they do not count for the scroll verdict.
  *
  *   node scripts/scroll-perf.mjs <url> [--width=1920] [--height=1080] [--step=120]
- *                                [--interval=30] [--trace=file.json] [--reduced-motion]
- *                                [--timeout=180000]
+ *                                [--interval=30] [--max=px] [--trace=file.json]
+ *                                [--reduced-motion] [--timeout=180000]
  *
  * --step is the wheel delta per event (px), --interval the pause between
- * events (ms); with Lenis the wheel input is smoothed anyway. Exits 1 when a
+ * events (ms); with Lenis the wheel input is smoothed anyway. --max stops
+ * after that many pixels instead of at the end of the page – with a small
+ * --step it samples one stretch densely (e.g. the pinned hero). Exits 1 when a
  * long task > 50 ms or CLS ≥ 0.05 occurred. Start the preview server first,
  * e.g. `npx astro preview --host 127.0.0.1 --port 4321`.
  */
@@ -22,7 +24,7 @@ import { parseOptions, withPage } from './lib/cdp.mjs';
 const [url, ...rest] = process.argv.slice(2);
 if (!url) {
   console.error(
-    'usage: node scripts/scroll-perf.mjs <url> [--width=N] [--height=N] [--step=px] [--interval=ms] [--trace=file.json] [--reduced-motion] [--timeout=ms]',
+    'usage: node scripts/scroll-perf.mjs <url> [--width=N] [--height=N] [--step=px] [--interval=ms] [--max=px] [--trace=file.json] [--reduced-motion] [--timeout=ms]',
   );
   process.exit(2);
 }
@@ -31,6 +33,7 @@ const width = Number(options.width ?? 1920);
 const height = Number(options.height ?? 1080);
 const step = Number(options.step ?? 120);
 const interval = Number(options.interval ?? 30);
+const max = Number(options.max ?? Infinity);
 const timeout = Number(options.timeout ?? 180_000);
 
 const MAX_TASK = 50; // ms
@@ -71,7 +74,7 @@ try {
       await page.evaluate(observers);
 
       // Wheel through the page from the top until the scroll position stops growing
-      const limit = await page.evaluate('document.documentElement.scrollHeight - innerHeight');
+      const limit = Math.min(max, await page.evaluate('document.documentElement.scrollHeight - innerHeight'));
       let sent = 0;
       while (sent < limit + step) {
         await page.send('Input.dispatchMouseEvent', {
@@ -117,12 +120,14 @@ try {
       if (perf.load.length) {
         console.log(`info: ${perf.load.length} long task(s) during page load, before the scroll: ${perf.load.map((t) => `${t.duration}ms@${t.start}`).join(', ')}`);
       }
+      // How far this run meant to go – the whole page, or --max
+      const target = Math.min(max, perf.limit);
       console.log(
-        `scrolled ${perf.scrollY}/${perf.limit}px · long tasks during the scroll: ${perf.long.length}${
+        `scrolled ${perf.scrollY}/${target}px · long tasks during the scroll: ${perf.long.length}${
           perf.long.length ? ` (${perf.long.map((t) => `${t.duration}ms@${t.start}`).join(', ')})` : ''
         } · CLS ${perf.cls.toFixed(4)} (${perf.shifts} shifts)`,
       );
-      const ok = perf.scrollY >= perf.limit - 1 && longest <= MAX_TASK && perf.cls < MAX_CLS;
+      const ok = perf.scrollY >= target - 1 && longest <= MAX_TASK && perf.cls < MAX_CLS;
       console.log(ok ? 'OK' : 'FAIL');
       return !ok;
     },

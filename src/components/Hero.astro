@@ -1,10 +1,27 @@
 ---
 /**
  * Hero (spec section 1, Figma 139:14 / mobile 242:22): full-width photo that
- * fades into night at the top and bottom, text block on the left, two buttons.
+ * fades into night at the top and bottom, text block, two buttons.
+ *
+ * From 768px the headline is ONE centred line "Build Beyond." sized to fill
+ * the content container – the start frame of the push-through scroll
+ * (docs/DESIGN-SPEC.md section 1, deliberate deviation 9). Below 768px the two
+ * lines stay stacked and left-aligned as in the mobile frame 242:22.
+ *
  * The headline is split into one <span> per letter at build time for the type
- * effect (phase 7, item 1 – animations.ts); screen readers get the plain text
+ * intro (phase 7, item 1 – animations.ts); screen readers get the plain text
  * from a visually hidden copy, the letter spans are aria-hidden.
+ *
+ * Motion hooks (animations.ts, phase 7 item 1 + 2):
+ *   [data-hero-push]    every layer that shares the push-through scale. Today
+ *                       only the type wrapper; a later mask layer carries the
+ *                       same attribute and joins the tween without a rebuild.
+ *   [data-hero-type]    the type itself – dissolves at the end of the fly-through
+ *   [data-hero-overlay] night overlay, fades in over the photo
+ *   [data-hero-out]     leaves early and upwards (eyebrow)
+ *   [data-hero-text]    copy block: scales up for the reveal after the fly-through
+ *   [data-hero-text-line] its lines – leave upwards early, return staggered
+ *   [data-hero-actions] buttons: stay visible, never scale
  */
 import { Picture } from 'astro:assets';
 import Button from './Button.astro';
@@ -29,23 +46,27 @@ const textLines = nl2br(hero.text);
     class="hero__image"
     pictureAttributes={{ class: 'hero__picture', 'data-parallax': '' }}
   />
+  <div class="hero__overlay" data-hero-overlay aria-hidden="true"></div>
   <div class="container">
     <div class="hero__content" data-hero-content>
-      <p class="eyebrow hero__eyebrow" data-hero-fade>{hero.eyebrow}</p>
+      <p class="eyebrow hero__eyebrow" data-hero-fade data-hero-out>{hero.eyebrow}</p>
       <h1 class="hero__title">
         <span class="visually-hidden">{hero.headline.join(' ')}</span>
-        <span class="hero__lines" aria-hidden="true">
-          {hero.headline.map((line, index) => (
-            <span class:list={['line', { 'outline-text': index === 1 }]} data-hero-line={index === 1 ? 'outline' : 'solid'}>{[...line].map((char) => <span class="char" data-hero-char>{char}</span>)}</span>
-          ))}
+        <span class="hero__zoom" data-hero-push data-hero-type aria-hidden="true">
+          <span class="hero__line">
+            {hero.headline.map((word, index) => (
+              <span
+                class:list={['hero__word', { 'outline-text': index === 1 }]}
+                data-hero-word={index === 1 ? 'outline' : 'solid'}
+              >{[...word].map((char) => <span class="char" data-hero-char>{char}</span>)}</span>
+            ))}
+          </span>
         </span>
       </h1>
-      <p class="body hero__text" data-hero-fade>
-        {textLines.map((line, index) => (
-          <Fragment>{index > 0 && <br />}{line}</Fragment>
-        ))}
+      <p class="body hero__text" data-hero-fade data-hero-text>
+        {textLines.map((line) => <span class="hero__text-line" data-hero-text-line>{line}</span>)}
       </p>
-      <div class="hero__actions" data-hero-fade>
+      <div class="hero__actions" data-hero-fade data-hero-actions>
         <Button href={hero.primaryCta.href} label={hero.primaryCta.label} variant="primary" />
         <Button href={hero.secondaryCta.href} label={hero.secondaryCta.label} variant="secondary" />
       </div>
@@ -55,11 +76,20 @@ const textLines = nl2br(hero.text);
 
 <style>
   .hero {
+    /* Size the copy grows to after the fly-through; also caps its width so the
+       scaled block still fits the container. 1 below 768px (no reveal there). */
+    --hero-reveal-scale: 1.5;
+    /* Width of a space in KMR Apparat Heavy, measured – the words are spaced
+       with a margin instead of a text node so they can stack on mobile */
+    --hero-word-gap: 0.215em;
+
     position: relative;
     isolation: isolate;
     display: grid;
     align-items: center;
-    min-height: min(936px, 100svh);
+    /* The pinned push-through needs the whole viewport (spec deviation 9);
+       the Figma frame is 936px tall */
+    min-height: 100svh;
     padding-top: 60px; /* text block centred +30px (spec) */
     overflow: hidden;
   }
@@ -97,14 +127,28 @@ const textLines = nl2br(hero.text);
     background: linear-gradient(0deg, var(--c-night) 3.8%, var(--c-night-a40) 100%);
   }
 
+  /* Takes the whole frame to night while the type flies past. Its resting
+     state is invisible, so without JS and at reduced motion the photo stays
+     exactly as it is today – this is a decorative layer, no content hides here. */
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--c-night);
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .hero__content {
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 40px;
-    max-width: 809px;
+    text-align: center;
+    /* --fs-display is derived from this width (tokens.css) */
+    container-type: inline-size;
   }
 
   .hero__eyebrow {
@@ -118,37 +162,62 @@ const textLines = nl2br(hero.text);
     color: var(--c-white);
   }
 
-  .hero__lines,
-  .hero__title .line {
+  /* The layer the push-through scales – kept separate from the <h1> so a mask
+     layer can later scale in lockstep with it */
+  .hero__zoom {
     display: block;
+    transform-origin: 50% 50%;
   }
 
-  /* One inline-block per letter so GSAP can move them (the inherited
-     letter-spacing and text-stroke still apply per glyph); a line must never
-     wrap between its letters */
-  .hero__title .line {
+  .hero__line {
+    display: block;
     white-space: nowrap;
   }
 
+  .hero__word + .hero__word {
+    margin-left: var(--hero-word-gap);
+  }
+
+  /* Outline word "Beyond." – the negative margin drops the letter-space that
+     trails the last glyph so the line is optically centred */
+  .hero__title [data-hero-word='outline'] {
+    letter-spacing: var(--ls-outline-hero);
+    margin-right: calc(-1 * var(--ls-outline-hero));
+  }
+
+  /* One inline-block per letter so GSAP can move them (the inherited
+     letter-spacing and text-stroke still apply per glyph) */
   .hero__title .char {
     display: inline-block;
   }
 
-  .hero__title .line + .line {
-    margin-top: -20px; /* lines overlap by 20px (spec) */
-    letter-spacing: var(--ls-outline);
+  /* Capped so the block still fits the container once it scales up. It grows
+     from its bottom edge into the space the headline vacates, so the 40px to
+     the buttons hold at every width and copy length. */
+  .hero__text {
+    max-width: min(809px, calc(100cqw / var(--hero-reveal-scale)));
+    transform-origin: 50% 100%;
+  }
+
+  .hero__text-line {
+    display: block;
   }
 
   .hero__actions {
+    position: relative;
+    z-index: 1; /* stays in front of the type flying past */
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 14px;
   }
 
   @media (max-width: 767px) {
-    /* Mobile frame 242:22: 780 tall, text block bottom-aligned, gaps 20 –
-       capped at the viewport height so short screens never hide the buttons */
+    /* Mobile frame 242:22: 780 tall, text block bottom-aligned and left, gaps
+       20, headline stacked – capped at the viewport height so short screens
+       never hide the buttons. No pin here, only scale and fade (phase 7). */
     .hero {
+      --hero-reveal-scale: 1;
       align-items: end;
       min-height: min(780px, 100svh);
       padding-top: var(--scroll-offset);
@@ -156,13 +225,24 @@ const textLines = nl2br(hero.text);
     }
 
     .hero__content {
+      align-items: flex-start;
       gap: 20px;
+      text-align: left;
     }
 
-    /* Mobile frame 242:22: lines overlap by 6px, outline without tracking */
-    .hero__title .line + .line {
-      margin-top: -6px;
+    .hero__word {
+      display: block;
+    }
+
+    .hero__word + .hero__word {
+      margin-left: 0;
+      margin-top: -6px; /* lines overlap by 6px (mobile frame 242:22) */
+    }
+
+    /* Mobile frame 242:22: outline line without tracking */
+    .hero__title [data-hero-word='outline'] {
       letter-spacing: normal;
+      margin-right: 0;
     }
 
     .hero__actions {

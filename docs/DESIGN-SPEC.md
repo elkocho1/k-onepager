@@ -76,13 +76,23 @@ Eyebrow (14, Bold, uppercase, magenta, 8 px vertical padding) → 24 px → H2 (
 
 ### 1 Hero – Node `139:14` (1918×936)
 
-- Vollbreites Hintergrundbild (`hero.jpg`, object-fit cover), darüber zwei Verläufe: oben `linear-gradient(180deg, #2A3233 0%, rgba(42,50,51,.3) 100%)` über 469 px, unten gespiegelt (`#2A3233 3.8% → rgba(42,50,51,.4)`) über 469 px. Ergebnis: Bild ist in der Mitte am sichtbarsten, Kanten laufen in night aus.
-- Textblock: links 160 px, vertikal zentriert (Mitte +30 px), Breite 809, flex-column gap 40.
+- Vollbreites Hintergrundbild (`hero.jpg`, object-fit cover), darüber zwei Verläufe: oben `linear-gradient(180deg, #2A3233 0%, rgba(42,50,51,.3) 100%)` über 469 px, unten gespiegelt (`#2A3233 3.8% → rgba(42,50,51,.4)`) über 469 px. Ergebnis: Bild ist in der Mitte am sichtbarsten, Kanten laufen in night aus. Darüber liegt ein Overlay in night, das im Ruhezustand unsichtbar ist (`opacity: 0`) – nur die Scroll-Sequenz blendet es ein.
+- Höhe ab 768 px `100svh` statt der 936 px des Frames (Abweichung 9), Textblock vertikal zentriert (Mitte +30 px).
+- Textblock ab 768 px **zentriert** über die volle Containerbreite (1600), `text-align: center`, flex-column gap 40:
   - Eyebrow „Venture & Innovation Platform" (14, magenta, padding 8/16)
-  - Headline `<h1>` zwei Zeilen: „Build" weiß, „Beyond." Outline lime; 120 px Heavy, Zeilen mit −20 px Überlappung
-  - Body 18/28 weiß, Zeilenumbruch nach dem ersten Satz (`de.json` `hero.text`, `\n` → `<br>`)
-  - Buttons: Primär „Pitch einreichen", Sekundär „Beteiligungen entdecken" (Breite 272), gap 14
-- Mobile (`242:22`, 390×780): Textblock ab y 226, Padding 24, Headline 78 px, Body ab 224, Buttons volle Breite untereinander.
+  - Headline `<h1>` **einzeilig**: „Build" weiß + „Beyond." Outline lime, Wortabstand 0.215 em (gemessene Leerzeichenbreite der KMR Heavy, als Margin statt Textknoten – damit die Wörter unter 768 px stapeln können). Die Größe füllt den Container: `--fs-display: calc(100cqw / 7.4)`, Container-Query auf `.hero__content` → **216 px bei 1920** (Zeile 1544 breit von 1600, je 28 px Luft), 151 px bei 1440, 121 px bei 1024, 93 px bei 768. Tracking der Outline-Zeile `--ls-outline-hero: 0.08em` (bei 120 px dieselben 10 px wie im Figma); die nachlaufende Sperrung des letzten Glyphen wird per negativem `margin-right` abgezogen, damit die Zeile optisch mittig steht.
+  - Body 18/28 weiß, zentriert; jeder Satz aus `de.json` `hero.text` wird ein `<span class="hero__text-line">` (Block) statt `<br>` – die Zeilen sind die Staffel-Einheiten der Scroll-Sequenz. Breite `min(809px, 100cqw / 1.5)`, damit der Block auch vergrößert in den Container passt.
+  - Buttons: Primär „Pitch einreichen", Sekundär „Beteiligungen entdecken", gap 14, zentriert. Sie liegen per `z-index` über der Headline, damit sie während des Durchflugs sichtbar bleiben.
+- **Scroll-Sequenz „Push-through"** (Phase 7, Punkte 1 + 2; Referenz Codegrid/Jesko Jets „This Hero Scroll Animation Feels Like Looking Through a Window"): gepinnte Sektion, Pin-Länge **1,5 Viewport-Höhen**, **eine** Scrub-Timeline (0.6). Positionen auf der normierten Timeline:
+  - `0 → 0.72` (Durchflug): Headline `scale 1 → 8` aus der Mitte mit `power2.in`; Hintergrundbild `scale 1 → 1.12` mit derselben Kurve; Overlay `opacity 0 → 1` (linear, voll bei 0.65).
+  - `0 → 0.24`: Eyebrow und Body-Zeilen `y −60, opacity → 0`, gestaffelt (0.043) – sie gehen früh nach oben weg.
+  - `0.54 → 0.72`: Headline `opacity 1 → 0` – der Durchflug endet im Dunkeln.
+  - `0.72 → 1` (Label `through`, Reveal): Body-Block `scale 1.5` (`--hero-reveal-scale`; wächst von der Unterkante nach oben, damit der Abstand zu den Buttons bei jeder Breite und Textlänge 40 px bleibt), die Zeilen steigen aus `y 90, opacity 0` gestaffelt ein.
+  - Die Buttons bekommen über die ganze Timeline **keinen** Tween.
+  - Jede Ebene, die die Skalierung teilt, trägt `data-hero-push`; eine spätere Masken-/Portal-Ebene bekommt dasselbe Attribut und läuft ohne Umbau mit. Der Ausblender der Type hängt getrennt an `data-hero-type`.
+- Unter 768 px: **kein Pin**, nur Skalierung (`scale 1 → 2.6`) und Fade über die Hero-Höhe.
+- Ohne JS und bei `prefers-reduced-motion: reduce` bleibt der Ruhezustand stehen: Overlay unsichtbar, nichts skaliert oder ausgeblendet.
+- Mobile (`242:22`, 390×780): unverändert wie im Frame – Textblock linksbündig unten, Padding 24, Headline **zweizeilig gestapelt** 78 px mit −6 px Überlappung und ohne Tracking, Buttons volle Breite untereinander.
 
 ### 2 Vision – Node `139:45`
 
@@ -185,3 +195,4 @@ Fluid Type für Display/H2 mit `clamp()` zwischen Mobile- und Desktop-Wert.
 6. „Webseite"-Button nur bei vorhandener URL.
 7. Mobile ohne Burger-Menü wie im Figma – **entschieden (2026-09-09)**: nur das Logo, keine Anker-Links; Kontakt über die Hero- und CTA-Buttons. 768–1023: Nav-Links ebenfalls ausgeblendet, der Kontakt-Button bleibt.
 8. Magenta-**Text** (Eyebrows, Text der Primär-Buttons, Nav-CTA-Text) nutzt `--c-magenta-text: #FF67FF` statt `#FF00FF`, damit WCAG AA (4,5:1 für 16-px-Text) auf allen Hintergründen erfüllt ist: auf Night 5,39:1 (statt 4,18:1), auf der Spotlight-Tönung `--c-spot-bg` 4,53:1 (statt 3,51:1) – Lighthouse hatte den Nav-Button auf den Rechtsseiten und den „Webseite"-Button im Portfolio-Spotlight beanstandet. Die Zwischenwerte reichten nicht: `#FF4DFF` (Phase 1) nur auf Night (4,84:1), nicht auf der Tönung (4,07:1); `#FF66FF` (Phase 4/5) rechnerisch 4,51:1 auf der Tönung, aber axe/Lighthouse rundet den gemischten Hintergrund auf `#313F3F` und kommt auf 4,49:1 – `#FF67FF` ist der kleinste Wert, der auch so 4,5:1 erreicht (4,51:1). Rahmen, Glow und Aktiv-Zustände (Portfolio-Tile, Trennlinie, Hover-Füllung) bleiben `--c-magenta`. Footer-Stadt „Stuttgart" bleibt `--c-magenta` (24 px Medium = großer Text, 3:1 genügt).
+9. **Hero (Abschnitt 1) – Push-through statt Figma-Standbild.** Ab 768 px steht die Headline **einzeilig zentriert** („Build Beyond.") statt zweizeilig links gestapelt, in Containerbreite (216 px bei 1920) statt 120 px; der Textblock ist zentriert statt links auf 160 px, und die Sektion ist `100svh` hoch statt 936 px. Grund: der Hero-Scroll-Effekt aus Phase 7 (Referenz Codegrid/Jesko Jets, „Looking Through a Window") skaliert die Headline aus der Bildmitte auf ein Vielfaches – dafür muss sie mittig stehen und den Rahmen füllen, und die gepinnte Sektion braucht den vollen Viewport, sonst schaut während des Pins die Folgesektion darunter hervor. Die Outline-Sperrung wandert von fix 10 px auf `0.08em` (bei 120 px derselbe Wert), damit sie in jeder Größe gleich wirkt. Der Mobile-Frame `242:22` bleibt unangetastet: unter 768 px zweizeilig, linksbündig, 78 px, kein Pin – einzeilig wäre die Headline dort nur 46 px groß und hätte keine Wirkung mehr.
