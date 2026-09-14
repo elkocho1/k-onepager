@@ -238,7 +238,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 **Nachtrag (gleicher Tag, Commit `f84f92c`): Zeitpunkt des Hintergrunds.** Ab 40 px lag das night-Band noch über dem hellen Hero-Foto und blendete sichtbar ein; Wunsch: erst, wenn die Textzeilen kommen. Der Trigger in `initNav` rechnet seinen Start jetzt als Funktion: mit Pin `hero-push.start + (end − start) × PUSH_THROUGH` (0,72 → bei 1080 hoch 1166 px, dort steht das Overlay auf 1, die Einblendung geht unter), ohne Pin und bei reduced motion Hero-Unterkante − Balkenhöhe (der Push-Trigger existiert dort nicht bzw. ist ungepinnt), mindestens 40. Wird bei jedem Refresh neu ausgewertet; `hero-push` misst mit `refreshPriority: 1` vorher. Gemessen 1920: Klasse aus bei 0/100/600/1000/1100 (Overlay 0,45 → 1), an ab 1170, Logo-Oberkante durchgehend 20,2. `motion-check.mjs` angepasst (Wheel-Probe erwartet nun *keinen* Hintergrund bei 300–480 px; neu: aus bei 0,72 − 60 px, an bei 0,72 + 20 px, an am Pin-Ende; reduced: aus bei 300, an bei innerHeight; < 768: an, sobald der Hero raus ist): 1920 alle Checks grün, 390 genau die sieben vorbestehenden Fehler, Nav-Checks grün. Spec Abschnitt 0 und Abweichung 12 ergänzt.
 
 
-### Phase 7 – Animationen, Teil B/7 (Hero-Reveal zeitbasiert) · 2026-09-14 · Commit `(folgt)`
+### Phase 7 – Animationen, Teil B/7 (Hero-Reveal zeitbasiert) · 2026-09-14 · Commit `880912b`
 
 **Auftrag:** Eyebrow, Copy-Zeilen und Buttons erschienen beim Runter- und Hochscrollen nicht flüssig nacheinander.
 
