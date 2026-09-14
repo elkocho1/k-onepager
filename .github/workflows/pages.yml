@@ -1,0 +1,58 @@
+# Client preview on GitHub Pages: https://elkocho1.github.io/k-onepager/
+#
+# Every push to main builds the site under the /k-onepager base path
+# (PUBLIC_BASE_PATH / PUBLIC_SITE_URL, read by astro.config.mjs) with
+# noindex on every page (PUBLIC_PREVIEW, read by src/lib/paths.ts) and
+# publishes it with the official Astro action. Production for IONOS stays
+# deploy.yml – it builds without these variables, so base is '/'.
+#
+# One-time repository setting: Settings → Pages → Build and deployment →
+# Source: "GitHub Actions".
+
+name: Pages preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_BASE_PATH: /k-onepager
+      PUBLIC_SITE_URL: https://elkocho1.github.io
+      PUBLIC_PREVIEW: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node major from package.json "engines.node" (">=22.12.0" → 22)
+      - name: Read Node version from package.json
+        id: node
+        run: echo "version=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")" >> "$GITHUB_OUTPUT"
+
+      - name: Build with Astro
+        uses: withastro/action@v6
+        with:
+          node-version: ${{ steps.node.outputs.version }}
+          package-manager: npm@latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

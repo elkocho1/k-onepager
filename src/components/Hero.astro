@@ -40,6 +40,7 @@ import { Picture } from 'astro:assets';
 import Button from './Button.astro';
 import { content, nl2br } from '../lib/content';
 import { resolveImage } from '../lib/images';
+import { withBase } from '../lib/paths';
 
 const { hero } = content;
 const image = resolveImage(hero.image.src);
@@ -65,7 +66,7 @@ const textLines = nl2br(hero.text);
     class="hero__video"
     data-hero-video
     data-parallax
-    data-src={hero.video.src}
+    data-src={withBase(hero.video.src)}
     autoplay
     muted
     loop

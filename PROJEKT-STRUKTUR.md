@@ -145,6 +145,7 @@ Intern:
 - ~~Deploy-Action anlegen~~ – angelegt (Phase 8); erster Staging-Deploy, sobald die Secrets gesetzt sind; danach Rich-Results-Test und Search Console auf der Live-URL
 - Hero-Video (nicht im Repo) nach dem ersten Deploy von Hand nach `/video/hero.mp4` auf den Webspace, sobald die lizenzierte Fassung da ist
 - Rechtstexte eintragen → `legal.noindex` in `de.json` auf `false` (Seiten indexierbar, wieder in der Sitemap)
+- Kunden-Vorschau: https://elkocho1.github.io/k-onepager/ (GitHub Pages, `.github/workflows/pages.yml`, bei jedem Push auf `main`, `noindex`); vor dem Livegang optional abschalten (Settings → Pages → Source „None")
 
 ## Ablauf Build (Claude Code)
 1. Repo in den lokalen Ordner klonen, `de.json` + diese Datei + `_material/` ablegen

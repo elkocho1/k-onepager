@@ -5,6 +5,7 @@
  */
 import Base from '../layouts/Base.astro';
 import { content } from '../lib/content';
+import { home } from '../lib/paths';
 
 const { notFound } = content;
 ---
@@ -14,7 +15,7 @@ const { notFound } = content;
     <p class="eyebrow">{notFound.eyebrow}</p>
     <h1 class="not-found__title">{notFound.title}</h1>
     <p class="body">{notFound.text}</p>
-    <a href="/" class="btn btn--primary not-found__back">{notFound.backLabel}</a>
+    <a href={home} class="btn btn--primary not-found__back">{notFound.backLabel}</a>
   </section>
 </Base>
 

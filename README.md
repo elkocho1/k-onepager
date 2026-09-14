@@ -18,6 +18,9 @@ npm run og-image         # scripts/og.html → public/og/kplus-build-beyond.jpg 
 npm run dev              # http://localhost:4321
 npm run build            # → dist/
 npm run preview
+# Vorschau-Build wie auf GitHub Pages (Unterordner, noindex) – PowerShell:
+#   $env:PUBLIC_BASE_PATH='/k-onepager'; $env:PUBLIC_SITE_URL='https://elkocho1.github.io'; $env:PUBLIC_PREVIEW='true'; npm run build
+# Ohne diese Variablen ist es der Produktions-Build (base '/', Domain aus de.json).
 npm run check            # astro check (TypeScript)
 npm run check:phase -- 1 index impressum   # Screenshots (docs/screens) + Lighthouse a11y via Chrome headless
 node scripts/browser-eval.mjs http://127.0.0.1:4321/ "document.title"   # JS im Headless Chrome auswerten (Preview vorher starten)

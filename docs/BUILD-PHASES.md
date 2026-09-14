@@ -389,3 +389,20 @@ _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor
 **Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei, `dist/` mit `.htaccess`, `404.html`, `og/kplus-build-beyond.jpg`, `robots.txt`, `sitemap-index.xml`; `motion-check.mjs` alle drei Modi grün (die `sizes`-Änderung hat nichts verschoben). README um `subset-fonts` und `og-image` ergänzt.
 
 **Offen (Kunde / nach Livegang):** Domain (`de.json` `meta.siteUrl`, `robots.txt`, `.htaccess`-Host), IONOS-Secrets → erster Staging-Deploy, Rechtstexte (dann `legal.noindex: false`), Mailadressen, Beteiligungs-URLs, Font-Lizenz, Video-Lizenz, Rich-Results-Test und Search Console auf der Live-URL.
+
+
+### Phase 8 – Nachtrag: Kunden-Vorschau auf GitHub Pages · 2026-09-14 · Branch `feat/pages-preview`
+
+**Auftrag:** Der Stand von `main` soll für den Kunden unter https://elkocho1.github.io/k-onepager/ sichtbar sein – ohne Änderung an Inhalt oder Design, nicht indexierbar, und der spätere IONOS-Build muss unverändert unter `/` laufen.
+
+**Umsetzung.**
+- `astro.config.mjs`: `site` und `base` kommen aus Umgebungsvariablen – `PUBLIC_SITE_URL` (Default `meta.siteUrl` aus `de.json`) und `PUBLIC_BASE_PATH` (Default `/`). Der Sitemap-Filter vergleicht das Pfadende, damit er mit und ohne base greift.
+- `src/lib/paths.ts` (neu): `withBase(path)` setzt `import.meta.env.BASE_URL` vor Wurzelpfade (Anker, `mailto:`, absolute URLs unverändert), `home` = Startseite mit base, `isPreview` = `PUBLIC_PREVIEW === 'true'`.
+- Was Astro/Vite selbst umschreibt (im Testbuild geprüft): `<Picture>`/`getImage`-Srcsets inkl. Hero-Preload, gebündelte CSS/JS, `url()` in `tokens.css` (Fonts), `Astro.url` (Canonical, og:url), Sitemap. Von Hand über `withBase()`: Favicon und Font-Preloads (`Base.astro`), OG-Bild-URL und JSON-LD `url`/`logo`, Nav-/Footer-Logo und Startseiten-Link, Footer-Rechtslinks, Portfolio-Logos (`<img>` und `--logo: url()` der Masken), Hero-Video `data-src`, Zurück-Links in `Legal.astro` und `404.astro`.
+- `noindex`: `Base.astro` setzt `noindex, nofollow`, wenn `isPreview` oder die Seite es selbst verlangt; der Produktions-Build bleibt `index, follow` auf der Startseite.
+- `.github/workflows/pages.yml`: Push auf `main` (und manuell) → `withastro/action@v6` mit Node-Major aus `package.json` `engines.node` (`>=22.12.0` → 22), Umgebungsvariablen `PUBLIC_BASE_PATH=/k-onepager`, `PUBLIC_SITE_URL=https://elkocho1.github.io`, `PUBLIC_PREVIEW=true`; danach `actions/deploy-pages@v5` (Environment `github-pages`). `deploy.yml` (IONOS) baut weiter ohne diese Variablen.
+- README: beide Build-Varianten dokumentiert.
+
+**Geprüft.** Vorschau-Build (`PUBLIC_BASE_PATH=/k-onepager`): kein Wurzelpfad ohne base mehr in `index.html`, `impressum`, `404` und den CSS-Dateien; `astro preview` liefert `/` → 404 und `/k-onepager/` → 200. Headless Chrome unter `/k-onepager/`: 25 Antworten, **0 ≥ 400**, 0 Konsolenfehler, alle fünf Font-Schnitte `loaded`, Logo-`naturalWidth` > 0, Video `readyState` 4, Tile-Maske `url(…/k-onepager/logos/kappes-group.svg)`, alle vier Nav-Anker treffen ihr Ziel, Footer → `/k-onepager/impressum` → Zurück-Link → `/k-onepager/`; `robots` = `noindex, nofollow`, Canonical `https://elkocho1.github.io/k-onepager/`, Sitemap ebenso. Produktions-Build ohne Variablen: keine Spur von `k-onepager`/`github.io` in `dist/`, Favicon/Fonts/Logo/Video unter `/…`, `robots` `index, follow`, Canonical `https://www.kplus.de/`; `astro check` 0 Fehler, `motion-check.mjs` alle drei Modi grün.
+
+**Einmalig im Repo:** Settings → Pages → Build and deployment → Source **GitHub Actions**. Die Vorschau ist per `noindex` und fehlender Verlinkung nicht für Suchmaschinen gedacht, aber öffentlich erreichbar.

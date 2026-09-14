@@ -12,6 +12,7 @@ import { Picture } from 'astro:assets';
 import Button from './Button.astro';
 import { content } from '../lib/content';
 import { publicImageSize, resolveImage } from '../lib/images';
+import { withBase } from '../lib/paths';
 
 const { portfolio } = content;
 const companies = await Promise.all(
@@ -23,7 +24,7 @@ const companies = await Promise.all(
 );
 
 const logoStyle = (company: (typeof companies)[number]) =>
-  `--logo: url('${company.logo}'); --logo-ratio: ${company.logoSize.width} / ${company.logoSize.height}`;
+  `--logo: url('${withBase(company.logo)}'); --logo-ratio: ${company.logoSize.width} / ${company.logoSize.height}`;
 ---
 
 <section id={portfolio.id} class="portfolio">
@@ -52,7 +53,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
           ) : (
             <img
               class="tile__logo"
-              src={company.logo}
+              src={withBase(company.logo)}
               alt=""
               width={company.logoSize.width}
               height={company.logoSize.height}
@@ -82,7 +83,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
             ) : (
               <img
                 class="spot__logo"
-                src={company.logo}
+                src={withBase(company.logo)}
                 alt={company.name}
                 width={company.logoSize.width}
                 height={company.logoSize.height}

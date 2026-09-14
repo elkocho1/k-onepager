@@ -5,6 +5,7 @@
  * and legal links. Left-aligned on mobile, legal links above the copyright.
  */
 import { content } from '../lib/content';
+import { withBase } from '../lib/paths';
 import { publicImageSize } from '../lib/images';
 
 const { footer, nav } = content;
@@ -15,7 +16,7 @@ const logo = await publicImageSize(nav.logo);
   <div class="container">
     <div class="site-footer__brand">
       <img
-        src={nav.logo}
+        src={withBase(nav.logo)}
         alt={nav.logoAlt}
         width={logo.width}
         height={logo.height}
@@ -35,7 +36,7 @@ const logo = await publicImageSize(nav.logo);
         <ul class="site-footer__links" role="list">
           {footer.links.map((link) => (
             <li>
-              <a href={link.href}>{link.label}</a>
+              <a href={withBase(link.href)}>{link.label}</a>
             </li>
           ))}
         </ul>

@@ -8,6 +8,7 @@
  */
 import Base from './Base.astro';
 import { content } from '../lib/content';
+import { home } from '../lib/paths';
 
 type LegalPageKey = keyof typeof content.legal.pages;
 
@@ -26,7 +27,7 @@ const page = legal.pages[key];
     <h1 class="legal__title">{page.title}</h1>
     <p class="legal__placeholder">{legal.placeholder}</p>
     <slot />
-    <a href="/" class="legal__back">{legal.backLabel}</a>
+    <a href={home} class="legal__back">{legal.backLabel}</a>
   </article>
 </Base>
 

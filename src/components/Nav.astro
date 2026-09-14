@@ -17,6 +17,7 @@
  */
 import Button from './Button.astro';
 import { content } from '../lib/content';
+import { home, withBase } from '../lib/paths';
 import { publicImageSize } from '../lib/images';
 
 const { nav } = content;
@@ -25,9 +26,9 @@ const logo = await publicImageSize(nav.logo);
 
 <header class="site-header" data-nav>
   <div class="site-header__inner container" data-nav-inner>
-    <a href="/" class="site-header__logo">
+    <a href={home} class="site-header__logo">
       <img
-        src={nav.logo}
+        src={withBase(nav.logo)}
         alt={nav.logoAlt}
         width={logo.width}
         height={logo.height}
