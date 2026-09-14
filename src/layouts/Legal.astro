@@ -1,8 +1,10 @@
 ---
 /**
  * Layout for the legal pages (Impressum, Datenschutz): narrow text column,
- * placeholder copy and `noindex` until the client delivers the texts.
- * Once real content exists, pass it via the default slot and set noindex to false.
+ * placeholder copy and `noindex` until the client delivers the texts
+ * (content/de.json legal.noindex – astro.config.mjs reads the same flag to
+ * keep the pages out of the sitemap). Once real content exists, pass it via
+ * the default slot and set the flag to false.
  */
 import Base from './Base.astro';
 import { content } from '../lib/content';
@@ -14,8 +16,8 @@ interface Props {
   noindex?: boolean;
 }
 
-const { page: key, noindex = true } = Astro.props;
 const { legal } = content;
+const { page: key, noindex = legal.noindex } = Astro.props;
 const page = legal.pages[key];
 ---
 

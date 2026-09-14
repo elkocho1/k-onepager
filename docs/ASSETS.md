@@ -15,6 +15,7 @@ Quelle: `_material/fonts/WOFF2/`. Alle sieben Schnitte vorhanden (Light, Book, R
 | KMR-Apparat-Book.woff2 | 350 | aktiver Nav-Link (optional, sonst 400) |
 
 Light und Black **nicht** einbinden. Preload: Regular + Medium. `@font-face` mit `font-display: swap`, `unicode-range` nicht nötig.
+Seit Phase 8 liegen in `public/fonts/` **Subsets** (Latin-1 + Typo-Zeichen, 32–37 kB statt 44–51 kB): `npm run subset-fonts` erzeugt sie aus `_material/fonts/WOFF2/` (Python fontTools + brotli). Nie die Rohdateien direkt kopieren.
 Offen: Weblizenz vom Kunden bestätigen lassen (siehe PROJEKT-STRUKTUR.md).
 
 ## Fotos → `src/assets/images/` (astro:assets)
@@ -69,5 +70,5 @@ Stand Phase 3: `building` (139:97), `project` (75:503) und `network` (75:516) si
 ## Sonstiges
 
 - `public/favicon.svg`: K+-Bildmarke, teal auf transparent.
-- `public/og/kplus-build-beyond.jpg`: 1200×630, night-Hintergrund, „Build Beyond." weiß/lime, Logo – in Phase 8 gestalten (HTML→Screenshot via Playwright oder Figma).
+- `public/og/kplus-build-beyond.jpg`: 1200×630, night-Hintergrund, „Build Beyond." weiß/lime, Logo, Claim – generiert aus `scripts/og.html` per `npm run og-image` (Headless Chrome + sharp, Phase 8). Nach Text- oder Logoänderungen neu rendern.
 - `_material/Kappes Beteiligungstexte_.docx`: Quelle der Portfolio-Texte, bereits in `de.json` übernommen.

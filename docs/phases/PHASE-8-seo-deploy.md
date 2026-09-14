@@ -38,10 +38,10 @@
 
 ## Definition of Done
 
-- [ ] Lighthouse Mobile: Performance ≥ 90, A11y ≥ 95, Best Practices ≥ 95, SEO 100
-- [ ] `dist/` enthält sitemap-index.xml, robots.txt, og-Bild, .htaccess
-- [ ] Rich-Results-Test ohne Fehler
-- [ ] GitHub Action läuft grün und deployt nach Staging; Produktions-Deploy nur nach Freigabe
-- [ ] Impressum/Datenschutz mit echten Texten, keine Platzhalter-Mailadressen mehr in `de.json`
-- [ ] `PROJEKT-STRUKTUR.md` „Offene Punkte" aktualisiert
-- [ ] Commit `chore(phase-8): seo, performance, deploy`
+- [x] Lighthouse Mobile: Performance ≥ 90, A11y ≥ 95, Best Practices ≥ 95, SEO 100 (2026-09-14: Mobile **96 / 100 / 100 / 100**, Desktop 100 / 100 / 100 / 100 – Status-Log)
+- [x] `dist/` enthält sitemap-index.xml, robots.txt, og-Bild, .htaccess (dazu 404.html)
+- [ ] Rich-Results-Test ohne Fehler – braucht die Live-URL; JSON-LD lokal strukturell geprüft (Organization, url, logo, founder, address), `sameAs` offen (LinkedIn vom Kunden)
+- [ ] GitHub Action läuft grün und deployt nach Staging; Produktions-Deploy nur nach Freigabe – Workflow angelegt, läuft ohne Secrets als reiner Build (Upload wird übersprungen); Staging-Deploy, sobald die IONOS-Secrets gesetzt sind
+- [ ] Impressum/Datenschutz mit echten Texten, keine Platzhalter-Mailadressen mehr in `de.json` – Kundenlieferung offen
+- [x] `PROJEKT-STRUKTUR.md` „Offene Punkte" aktualisiert
+- [x] Commit `chore(phase-8): seo, performance, deploy` (technischer Teil; Rest folgt mit den Kundenlieferungen)

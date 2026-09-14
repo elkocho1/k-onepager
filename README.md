@@ -13,6 +13,8 @@ Statischer Onepager für die Kplus GmbH (Stuttgart, Claim „Build beyond."). As
 ```
 npm install
 npm run prepare-images   # _material/Bilder → src/assets/images/ (sharp)
+npm run subset-fonts     # _material/fonts/WOFF2 → public/fonts/ (Latin-1 + Typo-Zeichen, fontTools)
+npm run og-image         # scripts/og.html → public/og/kplus-build-beyond.jpg (Headless Chrome)
 npm run dev              # http://localhost:4321
 npm run build            # → dist/
 npm run preview

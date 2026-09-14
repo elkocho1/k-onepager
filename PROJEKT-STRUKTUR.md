@@ -130,7 +130,7 @@ Blockierend für den Build-Start: keine – Start mit Platzhaltern.
 Vom Kunden:
 1. Mailadresse für Pitch/Kontakt (aktuell `mailto:pitch@kplus.de` / `mailto:info@kplus.de` als Platzhalter)
 2. Impressum und Datenschutzerklärung (IONOS als Hoster muss drinstehen)
-3. Domain + IONOS-Hosting-Paket, danach SFTP-Zugangsdaten → als GitHub-Secrets für die Deploy-Action
+3. Domain + IONOS-Hosting-Paket, danach FTPS-Zugangsdaten → als GitHub-Secrets für die Deploy-Action (`IONOS_HOST`, `IONOS_USER`, `IONOS_PASSWORD`, `IONOS_STAGING_DIR`, `IONOS_REMOTE_DIR` – `.github/workflows/deploy.yml`); mit der Domain `meta.siteUrl` in `de.json`, `public/robots.txt` und den www-Redirect in `public/.htaccess` final setzen
 4. Website-URLs der sechs Beteiligungen (`url` in `de.json` noch leer außer kappes.group)
 5. Logos als SVG bzw. transparente PNGs ≥ 800 px (siehe Tabelle)
 6. Optional: je ein Foto pro Beteiligung fürs Spotlight-Panel
@@ -141,8 +141,10 @@ Vom Kunden:
 
 Intern:
 - Icons der Warum-K+-Karten aus Figma als SVG exportieren
-- OG-Bild 1200×630 gestalten
-- Deploy-Action anlegen, sobald IONOS-Zugang da ist
+- ~~OG-Bild 1200×630 gestalten~~ – erledigt (Phase 8, `npm run og-image`)
+- ~~Deploy-Action anlegen~~ – angelegt (Phase 8); erster Staging-Deploy, sobald die Secrets gesetzt sind; danach Rich-Results-Test und Search Console auf der Live-URL
+- Hero-Video (nicht im Repo) nach dem ersten Deploy von Hand nach `/video/hero.mp4` auf den Webspace, sobald die lizenzierte Fassung da ist
+- Rechtstexte eintragen → `legal.noindex` in `de.json` auf `false` (Seiten indexierbar, wieder in der Sitemap)
 
 ## Ablauf Build (Claude Code)
 1. Repo in den lokalen Ordner klonen, `de.json` + diese Datei + `_material/` ablegen

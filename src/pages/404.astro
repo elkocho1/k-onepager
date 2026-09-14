@@ -1,0 +1,43 @@
+---
+/**
+ * 404 page: Apache serves it for unknown paths (public/.htaccess
+ * ErrorDocument). Copy from content/de.json (notFound), never indexed.
+ */
+import Base from '../layouts/Base.astro';
+import { content } from '../lib/content';
+
+const { notFound } = content;
+---
+
+<Base title={notFound.metaTitle} description={notFound.description} noindex>
+  <section class="not-found container">
+    <p class="eyebrow">{notFound.eyebrow}</p>
+    <h1 class="not-found__title">{notFound.title}</h1>
+    <p class="body">{notFound.text}</p>
+    <a href="/" class="btn btn--primary not-found__back">{notFound.backLabel}</a>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 820px;
+    min-height: 60vh;
+    padding-block: calc(var(--nav-top) + var(--nav-height) + var(--section-gap)) var(--section-gap);
+  }
+
+  .not-found__title {
+    font-size: var(--fs-h2);
+    font-weight: 400;
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-h2);
+    color: var(--c-teal);
+  }
+
+  .not-found__back {
+    margin-top: 16px;
+  }
+</style>

@@ -1,0 +1,44 @@
+# K+ Onepager – Apache rules for the IONOS webspace
+# (docs/phases/PHASE-8-seo-deploy.md, item 16). Deployed with dist/.
+
+# --- HTTPS and one host --------------------------------------------------------
+# Force https; send the bare domain to www (the canonical host in
+# content/de.json meta.siteUrl). Staging subdomains are left as they are.
+# Update the host when the client confirms the final domain.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+  RewriteCond %{HTTP_HOST} ^kplus\.de$ [NC]
+  RewriteRule ^ https://www.kplus.de%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# --- Caching -------------------------------------------------------------------
+# Astro hashes everything under /_astro/ – cache for a year, immutable.
+# Fonts, logos and icons keep their names but change rarely: a year as well.
+# HTML (and the sitemap/robots) must always be revalidated.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|avif|webp|jpe?g|png|svg|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(mp4|webm)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# --- Types and compression -----------------------------------------------------
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/avif .avif
+  AddType image/webp .webp
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+# --- Errors --------------------------------------------------------------------
+ErrorDocument 404 /404.html

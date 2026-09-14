@@ -9,12 +9,34 @@ import Portfolio from '../components/Portfolio.astro';
 import Schwerpunkte from '../components/Schwerpunkte.astro';
 import Founder from '../components/Founder.astro';
 import Cta from '../components/Cta.astro';
+import { getImage } from 'astro:assets';
 import { content } from '../lib/content';
+import { resolveImage } from '../lib/images';
 
-const { meta } = content;
+const { meta, hero } = content;
+
+// Preload the hero photo (the LCP element): the same widths, format and
+// sizes as the <Picture> in Hero.astro, so the srcset points at the very
+// files the browser will pick – the AVIF source, which every current browser
+// takes; the others simply ignore the typed preload.
+const heroPreload = await getImage({
+  src: resolveImage(hero.image.src),
+  widths: [768, 1280, 1920, 2560],
+  sizes: '100vw',
+  format: 'avif',
+});
 ---
 
 <Base title={meta.title} description={meta.description}>
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    type="image/avif"
+    imagesrcset={heroPreload.srcSet.attribute}
+    imagesizes="100vw"
+    fetchpriority="high"
+  />
   <Hero />
   <Vision />
   <Mission />

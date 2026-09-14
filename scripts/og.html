@@ -1,0 +1,118 @@
+<!doctype html>
+<!--
+  Open Graph image template (1200×630) – rendered by scripts/og-image.mjs,
+  which fills the double-brace placeholders (copy from content/de.json, fonts and logo
+  as data URIs) and screenshots the page into public/og/kplus-build-beyond.jpg.
+  Colours are the brand tokens from src/styles/tokens.css (a standalone page
+  cannot import them).
+-->
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'KMR Apparat';
+        src: url('{{fontRegular}}') format('woff2');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'KMR Apparat';
+        src: url('{{fontBold}}') format('woff2');
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: 'KMR Apparat';
+        src: url('{{fontHeavy}}') format('woff2');
+        font-weight: 800;
+      }
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 72px 80px 64px;
+        background: #2a3233; /* --c-night */
+        color: #ffffff;
+        font-family: 'KMR Apparat', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Faint hex lattice on the right, like the cursor lattice on the site */
+      .lattice {
+        position: absolute;
+        right: -40px;
+        top: -30px;
+        width: 620px;
+        height: 700px;
+        opacity: 0.16;
+        -webkit-mask-image: radial-gradient(circle at 70% 45%, #000 0%, transparent 62%);
+        mask-image: radial-gradient(circle at 70% 45%, #000 0%, transparent 62%);
+      }
+      .logo {
+        display: block;
+        height: 60px;
+        width: auto;
+      }
+      .eyebrow {
+        margin-top: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #ff67ff; /* --c-magenta-text */
+      }
+      .headline {
+        margin-top: 18px;
+        font-size: 148px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+      .headline .outline {
+        color: transparent;
+        -webkit-text-stroke: 3px #ccff00; /* --c-lime */
+        letter-spacing: 0.04em;
+      }
+      .claim {
+        max-width: 860px;
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.3;
+        color: #7ed1c9; /* --c-teal */
+      }
+    </style>
+  </head>
+  <body>
+    <svg class="lattice" viewBox="0 0 620 700" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <pattern id="hex" width="97" height="168" patternUnits="userSpaceOnUse">
+          <path
+            d="M48.5 2 L95 28 V84 L48.5 110 L2 84 V28 Z M48.5 114 L95 140 V196 L48.5 222 L2 196 V140 Z"
+            fill="none"
+            stroke="#ff00ff"
+            stroke-width="1.5"
+            transform="translate(0,-56)"
+          />
+          <path d="M97 58 L143.5 84 V140 L97 166 L50.5 140 V84 Z" fill="none" stroke="#ff00ff" stroke-width="1.5" transform="translate(-48.5,0)" />
+        </pattern>
+      </defs>
+      <rect width="620" height="700" fill="url(#hex)" />
+    </svg>
+    <div>
+      <img class="logo" src="{{logo}}" alt="" />
+      <p class="eyebrow" style="margin-top: 96px">{{eyebrow}}</p>
+      <p class="headline"><span>{{word1}}</span> <span class="outline">{{word2}}</span></p>
+    </div>
+    <p class="claim">{{claim}}</p>
+  </body>
+</html>

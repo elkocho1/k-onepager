@@ -14,7 +14,7 @@ Aufruf in Claude Code, z. B.: `Lies CLAUDE.md und docs/phases/PHASE-0-setup.md u
 | 5 | [Schwerpunkte · Founder · CTA](phases/PHASE-5-schwerpunkte-founder-cta.md) | Restliche Sektionen statisch | fertig |
 | 6 | [Responsive](phases/PHASE-6-responsive.md) – Mobile-Frame 1:1, Zwischen-Breakpoints | Alle Sektionen bei 390 / 768 / 1024 / 1440 / 1920 sauber | fertig |
 | 7 | [Animationen](phases/PHASE-7-animationen.md) – GSAP, Lenis, Hex-Cursor, reduced-motion | Alle 15 Animationen aus der Liste | fertig – Teil A (2–6, 8, 11–14) · Teil B (1, 7, 9, 10, 15); Test auf echtem Mobilgerät offen |
-| 8 | [SEO · Performance · Deploy](phases/PHASE-8-seo-deploy.md) | Lighthouse ≥ 95, Sitemap, OG, GitHub Action → IONOS | offen |
+| 8 | [SEO · Performance · Deploy](phases/PHASE-8-seo-deploy.md) | Lighthouse ≥ 95, Sitemap, OG, GitHub Action → IONOS | technisch fertig (Lighthouse Mobile 96/100/100/100, OG, Sitemap-Filter, Font-Subsets, Hero-Preload, Action, .htaccess, 404); offen: Kundenlieferungen (Domain, IONOS-Secrets, Rechtstexte, Mails, URLs), Rich-Results-Test und Staging-Deploy |
 
 ## Reihenfolge und Abhängigkeiten
 
@@ -360,3 +360,32 @@ _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor
 ### Phase 7 – Nachtrag: Founder-Bild mobil, Kopf abgeschnitten · 2026-09-14 · Commit `c38b05b`
 
 **Befund.** Unter 1024 px wird das Hochformat-Foto (1600 × 2399) im Querformat-Rahmen 342 × 247 gezeigt; mit `object-position: 50% 20%` lag der Ausschnitt 53 px zu tief (20 % von 266 px Überhang) und der Kopf war oben abgeschnitten. **Behoben:** `object-position: 50% 0` im 1023er-Block von `Founder.astro`. Gegengeprüft per Style-Injektion vor dem Build: 0 % zeigt den Kopf bei 390 und 800 komplett mit wenig Luft, 6 % schneidet schon den Scheitel an. Desktop (713 × 515, 15 %) unverändert.
+
+
+### Phase 8 – SEO, Performance, Deploy (technischer Teil) · 2026-09-14 · Branch `feat/phase-8` (Worktree `kplus-worktree-hex-blocks`)
+
+**Auftrag:** Phase 8 laut `docs/phases/PHASE-8-seo-deploy.md` – alles, was ohne Kundenlieferungen (Domain, IONOS-Zugang, Rechtstexte, Mailadressen, Beteiligungs-URLs) geht.
+
+**SEO / Meta.**
+- Canonical und OG/Twitter-Tags waren da (`Base.astro`). **Sitemap:** `astro.config.mjs` filtert per `legal.noindex` (neu in `de.json`, Standard `true`; `Legal.astro` liest denselben Wert als `noindex`-Default) die Rechtsseiten und `/404/` heraus – `dist/sitemap-0.xml` enthält nur noch `/`. Sobald die Kundentexte drin sind: Flag auf `false`, dann sind die Seiten indexierbar und wieder in der Sitemap. `robots.txt` unverändert (Sitemap-URL steht auf der Platzhalter-Domain).
+- **OG-Bild** `public/og/kplus-build-beyond.jpg` (1200×630, 38,9 kB): Vorlage `scripts/og.html` (night, Logo, Eyebrow magenta, „Build" weiß / „Beyond." lime-Outline in KMR Apparat Heavy, Claim teal, dezentes Hex-Raster rechts), gerendert von `scripts/og-image.mjs` per Headless Chrome (`scripts/lib/cdp.mjs`, Fonts und Logo als Data-URIs, weil Chrome `file://`-Fonts blockt) und sharp → `npm run og-image`. Texte kommen aus `de.json` (`hero.eyebrow`, `hero.headline`, `footer.claim`).
+- **JSON-LD** `Organization` lokal strukturell geprüft (name, legalName, url, logo, founder, address). Rich-Results-Test braucht die Live-URL; `sameAs` offen (LinkedIn).
+- **Titel/Description** je Seite: Startseite aus `meta`, Rechtsseiten aus `legal.pages`, neu `404.astro` aus `notFound` (noindex, eigener Text, Button zur Startseite) – Ziel des `ErrorDocument` in der `.htaccess`.
+- **Überschriften/alt:** 1 × `h1`, 7 × `h2` (eine je Sektion), 16 `<img>` alle mit `alt`; die sechs Spotlight-Fotos sind dekorativ (`alt=""`, Astro rendert das als leeres `alt`), die Tile-Logos ebenfalls `alt=""`, weil der Firmenname als Text daneben steht (mit `alt` = Name läse der Screenreader den Namen doppelt – bewusste Abweichung von Punkt 6); im Spotlight trägt das Logo den Firmennamen.
+
+**Performance.**
+- **Hero-Preload:** `index.astro` holt per `getImage()` dieselben AVIF-Varianten wie das `<Picture>` in `Hero.astro` (gleiche `widths`/`sizes`/Format → identische Hashes, im Build verifiziert: Preload-`imagesrcset` = `<source type="image/avif">`-Srcset) und setzt `<link rel="preload" as="image" type="image/avif" imagesrcset imagesizes fetchpriority="high">` in den `<head>`-Slot. Hero-AVIF 1920 px 123 kB (Ziel ≤ 250), alle anderen Bilder ≤ 120 kB (AVIF).
+- **`sizes`-Korrektur** Vision- und Founder-Foto: `100vw` unter 1024 px lag bei 390 px × DPR 2 = 780 px knapp über der 778-/713-Stufe, der Browser lud die 1556-/1426-Variante; jetzt `calc(100vw - 48px)` (Container minus 2 × 24 px Rand) → 684w. Lighthouse-Ersparnis am Vision-Foto 66 kB.
+- **Fonts** auf Latin-1 + Typo-Zeichen (Gedankenstriche, „“”‚‘’, …, ‰, ‹›, €, ™, Pfeile) subsettet – `scripts/subset-fonts.mjs` (`npm run subset-fonts`, Python fontTools, Layout-Features und Name-Tabelle bleiben): Book 43,7 → 32,4 kB, Regular 46,2 → 34,5, Medium 48,6 → 35,7, Bold 48,1 → 35,6, Heavy 49,9 → 36,6 (alle ≤ 40 kB). Verwendete Sonderzeichen in `de.json`: © · Ü ß ä ö ü – —.
+- **JS** unverändert: nur `gsap`, `gsap/ScrollTrigger`, `lenis`; Hauptmodul 52 kB gzip, Hex-Chunk lazy. Lighthouse „unused JavaScript" 27 kB = ungenutzte GSAP-Teile, kein Handlungsbedarf.
+- **CSS:** `inlineStylesheets: 'auto'` bleibt (Spec). Gegengemessen mit `'always'` (32 kB CSS ins HTML): Mobile-Score +1, LCP 2,9 statt 3,0 s – nicht wert, die Spec-Einstellung zu verlassen.
+- **Lighthouse** (13.4.1, gegen `astro preview`, Standard-Drosselung, alle vier Kategorien) – Mobile 390 × 844 @2x: **Performance 96, A11y 100, Best Practices 100, SEO 100** (FCP 1,7 s, LCP 2,7 s, TBT 0 ms, CLS 0,001, SI 1,7 s); Desktop-Preset: **100 / 100 / 100 / 100** (FCP 0,4 s, LCP 0,7 s). Reports `docs/screens/lighthouse-phase-8-mobile.json` / `-desktop.json` (Ordner gitignored). Verbleibende Hinweise: `kplus.png` (481 px für 105–174 px Anzeige, 10 kB – erledigt sich mit dem SVG vom Kunden), `welean.png` als PNG (Maske, 20 kB).
+
+**Deploy.**
+- `.github/workflows/deploy.yml`: `push` auf `main` und `workflow_dispatch` (Input `target` = staging | production); Node 22 mit npm-Cache, `npm ci`, `npm run check`, `npm run build`, dann `SamKirkland/FTP-Deploy-Action@v4.3.5` (FTPS, `dangerous-clean-slate: false`, `.git*` ausgeschlossen). Push deployt nach Staging, Produktion nur per Dispatch (GitHub-Environment `production` – dort lassen sich Reviewer als Freigabe einrichten). **Secrets:** `IONOS_HOST`, `IONOS_USER`, `IONOS_PASSWORD`, `IONOS_STAGING_DIR`, `IONOS_REMOTE_DIR`. Solange sie fehlen, baut der Workflow nur und überspringt den Upload mit Hinweis (bleibt grün).
+- `public/.htaccess`: http → https, Apex `kplus.de` → `www.kplus.de` (Host beim Domain-Entscheid anpassen; Staging-Subdomains unberührt), `Cache-Control` 1 Jahr immutable für `/_astro/`, Fonts, Bilder, `no-cache` für HTML/XML/TXT, 30 Tage für Video, `nosniff`, MIME-Typen woff2/avif/webp, Deflate, `ErrorDocument 404 /404.html`.
+- Hero-Video liegt nicht im Repo (Lizenz offen): nach dem ersten Deploy einmal von Hand nach `/video/hero.mp4` auf den Webspace; die Action löscht fremde Dateien nicht.
+
+**Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei, `dist/` mit `.htaccess`, `404.html`, `og/kplus-build-beyond.jpg`, `robots.txt`, `sitemap-index.xml`; `motion-check.mjs` alle drei Modi grün (die `sizes`-Änderung hat nichts verschoben). README um `subset-fonts` und `og-image` ergänzt.
+
+**Offen (Kunde / nach Livegang):** Domain (`de.json` `meta.siteUrl`, `robots.txt`, `.htaccess`-Host), IONOS-Secrets → erster Staging-Deploy, Rechtstexte (dann `legal.noindex: false`), Mailadressen, Beteiligungs-URLs, Font-Lizenz, Video-Lizenz, Rich-Results-Test und Search Console auf der Live-URL.
