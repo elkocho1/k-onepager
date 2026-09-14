@@ -331,7 +331,7 @@ _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor
 
 **Abnahme.** `astro check` 0 Fehler, Build fehlerfrei. `motion-check.mjs` +3 Checks: js „tile click scrolls the spotlight block under the nav" (96), js „no scroll when the spotlight block is fully visible", reduced „tile click jumps the spotlight block under the nav" (96). Spec Abschnitt 6 ergänzt. Die Klick-Prüfung scrollt den Block vorher unter die Falz (bei 1920 mit „+200" stand er schon ganz im Viewport und der Klick scrollte – korrekt – nicht) und wartet danach 1,5 s: ein natives `scrollTo` 400 ms nach einem Lenis-Scroll wird von Lenis nicht übernommen, das nächste `lenis.scrollTo` lief dann ans Seitenende. Nebenbei: die Hex-Sonde schwenkte bei 390 von x −45 los und maß den Trail außerhalb des Canvas – Start jetzt bei max(40, Mitte − 240). 1920 alle Checks grün, 390 genau die sieben vorbestehenden Fehler.
 
-### Phase 7 – Nachtrag: CTA-Glow läuft in die Founder-Sektion · 2026-09-14 · Commit `(folgt)`
+### Phase 7 – Nachtrag: CTA-Glow läuft in die Founder-Sektion · 2026-09-14 · Commit `7ceee22`
 
 **Auftrag:** Der lime Glow hinter „Let's build beyond." endete an der Oberkante der CTA-Sektion in einer harten Kante über dem Eyebrow; er soll in die Founder-Sektion überlaufen.
 
