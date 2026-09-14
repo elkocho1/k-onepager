@@ -37,13 +37,19 @@ const textLines = nl2br(cta.text);
 <style>
   .cta {
     position: relative;
-    isolation: isolate;
-    overflow: hidden;
+    /* Only the x axis is clipped (the circle is wider than a phone): the
+       glow may run out at the top into the founder section and at the
+       bottom into the footer instead of ending on a hard edge. No stacking
+       context here on purpose – the glow's z-index -1 then sits in the root
+       context: above the night page background, behind every section's
+       content (spec deviation 13). */
+    overflow-x: clip;
     margin-top: var(--section-gap);
     text-align: center;
   }
 
-  /* Glow: 775px circle, centred, 130px above the section, blurred 32px */
+  /* Glow: 775px circle, centred, 130px above the section, blurred 32px –
+     runs past the section edges (see .cta) */
   .cta__glow {
     position: absolute;
     top: -130px;
