@@ -442,9 +442,10 @@ function initSlider(desktop: boolean): Cleanup | undefined {
       gsap.to(batch, { y: 0, opacity: 1, duration: REVEAL_DURATION, ease: EASE_OUT, stagger: 0.12 }),
   });
 
-  // Progress line: the inline script in WarumKplus.astro derives the fill
-  // from the native scroll position and announces it as `warum:progress`;
-  // here the bar eases to that value instead of snapping (hidden on mobile)
+  // Progress line: warum-slider.ts derives the fill from the native scroll
+  // position (or from the pin progress on desktop) and announces it as
+  // `warum:progress`; here the bar eases to that value instead of snapping
+  // (hidden on mobile)
   const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
   if (!bar) return;
   const scaleTo = gsap.quickTo(bar, 'scaleX', { duration: 0.4, ease: 'power3' });
@@ -641,3 +642,10 @@ mm.add('(pointer: fine) and (prefers-reduced-motion: no-preference)', loadHexCur
 
 // Web fonts change line counts – re-measure the trigger positions once loaded
 document.fonts?.ready.then(() => ScrollTrigger.refresh());
+
+// The Why-K+ pin (warum-slider.ts) stretches its section by the card row's
+// overflow and re-measures on its own (fonts, resize); every trigger below
+// has to be measured against the new page height. Debounced – a window drag
+// fires it per frame, and ScrollTrigger refreshes on resize itself.
+const refreshAfterPin = gsap.delayedCall(0.2, () => ScrollTrigger.refresh()).pause();
+document.addEventListener('warum:pin', () => refreshAfterPin.restart(true));

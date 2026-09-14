@@ -5,6 +5,12 @@
  * (five features + one statement) with scroll snapping, and a progress line
  * with counter. Mobile stacks the cards; the progress UI is hidden there.
  * Icons are inlined at build time from public/icons/warum/<icon>.svg.
+ *
+ * The section is the scroll runway for the desktop pin (phase 7, item 7):
+ * src/scripts/warum-slider.ts adds `.warum--pinned`, sets the runway height
+ * and sticks the inner block while the vertical scroll pushes the card row
+ * sideways. Without JS, below 1024px and at reduced motion the section is
+ * exactly the native slider described above.
  */
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -24,87 +30,45 @@ const icons = Object.fromEntries(
 ) as Record<string, string>;
 ---
 
-<section id={warumKplus.id} class="warum">
-  <div class="container warum__head" data-reveal>
-    <div class="warum__heading">
-      <p class="eyebrow warum__eyebrow">{warumKplus.eyebrow}</p>
-      <h2 class="h2">{warumKplus.headline}</h2>
+<section id={warumKplus.id} class="warum" data-warum>
+  <div class="warum__sticky" data-warum-sticky>
+    <div class="container warum__head" data-reveal>
+      <div class="warum__heading">
+        <p class="eyebrow warum__eyebrow">{warumKplus.eyebrow}</p>
+        <h2 class="h2">{warumKplus.headline}</h2>
+      </div>
+      <p class="warum__label">{warumKplus.sliderLabel}</p>
     </div>
-    <p class="warum__label">{warumKplus.sliderLabel}</p>
-  </div>
 
-  <ul class="cards" role="list" tabindex="0" aria-label={warumKplus.trackLabel} data-cards data-lenis-prevent-horizontal>
-    {warumKplus.cards.map((card) => (
-      <li class="card">
-        <span class="card__glow" aria-hidden="true" data-card-glow></span>
-        <span class="card__icon" set:html={icons[card.icon]} />
-        <div class="card__body">
-          <h3 class="card__title">{card.title}</h3>
-          <p class="card__text">{card.text}</p>
-        </div>
-      </li>
-    ))}
-    <li class="card card--statement">
-      <span class="card__glow" aria-hidden="true" data-card-glow></span>
-      <p class="card__statement">{warumKplus.statement}</p>
-    </li>
-  </ul>
-
-  <div class="container warum__progress" aria-hidden="true">
-    <div class="progress">
-      <span class="progress__bar" style={`--progress: ${1 / total}`} data-progress-bar></span>
+    <div class="warum__slider" data-warum-slider>
+      <ul class="cards" role="list" tabindex="0" aria-label={warumKplus.trackLabel} data-cards data-lenis-prevent-horizontal>
+        {warumKplus.cards.map((card) => (
+          <li class="card">
+            <span class="card__glow" aria-hidden="true" data-card-glow></span>
+            <span class="card__icon" set:html={icons[card.icon]} />
+            <div class="card__body">
+              <h3 class="card__title">{card.title}</h3>
+              <p class="card__text">{card.text}</p>
+            </div>
+          </li>
+        ))}
+        <li class="card card--statement">
+          <span class="card__glow" aria-hidden="true" data-card-glow></span>
+          <p class="card__statement">{warumKplus.statement}</p>
+        </li>
+      </ul>
     </div>
-    <span class="progress__count" data-progress-count>{pad(1)}/{pad(total)}</span>
+
+    <div class="container warum__progress" aria-hidden="true">
+      <div class="progress">
+        <span class="progress__bar" style={`--progress: ${1 / total}`} data-progress-bar></span>
+      </div>
+      <span class="progress__count" data-progress-count>{pad(1)}/{pad(total)}</span>
+    </div>
   </div>
 </section>
 
-<script>
-  // Progress line + counter follow the native scroll position (no GSAP);
-  // `warum:progress` lets the motion layer ease the line (animations.ts, 7).
-  const track = document.querySelector<HTMLElement>('[data-cards]');
-  const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
-  const count = document.querySelector<HTMLElement>('[data-progress-count]');
-
-  if (track && bar && count) {
-    const cards = Array.from(track.children) as HTMLElement[];
-    const total = cards.length;
-    const pad = (n: number) => String(n).padStart(2, '0');
-    let ticking = false;
-
-    const update = () => {
-      ticking = false;
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      const ratio = maxScroll > 0 ? Math.min(1, track.scrollLeft / maxScroll) : 0;
-      // Active card: the one whose start sits closest to the snap edge.
-      const snapPadding = parseFloat(getComputedStyle(track).scrollPaddingInlineStart) || 0; // "auto" → 0
-      const edge = track.getBoundingClientRect().left + snapPadding;
-      let active = 0;
-      let best = Infinity;
-      cards.forEach((card, index) => {
-        const distance = Math.abs(card.getBoundingClientRect().left - edge);
-        if (distance < best) {
-          best = distance;
-          active = index;
-        }
-      });
-      const fill = (1 + ratio * (total - 1)) / total;
-      bar.style.setProperty('--progress', String(fill));
-      count.textContent = `${pad(active + 1)}/${pad(total)}`;
-      track.dispatchEvent(new CustomEvent('warum:progress', { bubbles: true, detail: { fill, active } }));
-    };
-
-    const schedule = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    };
-
-    track.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    update();
-  }
-</script>
+<script src="../scripts/warum-slider.ts"></script>
 
 <style>
   .warum {
@@ -272,7 +236,7 @@ const icons = Object.fromEntries(
     position: absolute;
     inset: 0;
     background: var(--c-magenta); /* Figma 139:188 – active state, not text */
-    /* Fill from the inline script; with motion GSAP eases an inline transform
+    /* Fill from warum-slider.ts; with motion GSAP eases an inline transform
        over it (animations.ts) – no CSS transition, it would fight that */
     transform: scaleX(var(--progress, 0.1667));
     transform-origin: left center;
@@ -283,6 +247,33 @@ const icons = Object.fromEntries(
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     color: var(--c-muted);
+  }
+
+  /* --- Scroll pin (desktop, motion – class and values from warum-slider.ts)
+     The section is the runway (block height + overflow × PIN_TRAVEL), the
+     block sticks with its bottom edge on the bottom of the viewport, the
+     slider clips the row at the viewport edges and the track is translated
+     instead of scrolled. The end padding equals the start padding, so at the
+     end of the runway the last card is flush with the container's right edge. */
+  .warum--pinned {
+    height: var(--warum-pin-height);
+    scroll-margin-top: var(--warum-pin-margin, 0px);
+  }
+
+  .warum--pinned .warum__sticky {
+    position: sticky;
+    top: var(--warum-pin-top, 0px);
+  }
+
+  .warum--pinned .warum__slider {
+    overflow-x: clip;
+  }
+
+  .warum--pinned .cards {
+    padding-inline-end: var(--track-start);
+    overflow: visible;
+    scroll-snap-type: none;
+    will-change: transform;
   }
 
   /* --- 1024–1439: narrower cards (phase 6) -------------------------------- */
