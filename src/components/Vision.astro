@@ -25,12 +25,13 @@ const image = resolveImage(vision.image.src);
       class="vision__image"
       pictureAttributes={{ class: 'vision__picture', 'data-reveal': '' }}
     />
-    <div class="vision__text" data-reveal>
+    <!-- Eyebrow, h2 and each paragraph are direct children, so the section
+         reveal (animations.ts, data-reveal-stagger) staggers them one by one
+         with the same travel, duration and threshold as every [data-reveal] -->
+    <div class="vision__text" data-reveal-stagger>
       <p class="eyebrow">{vision.eyebrow}</p>
       <h2 class="h2">{vision.headline}</h2>
-      <div class="vision__copy">
-        {vision.paragraphs.map((paragraph) => <p class="body">{paragraph}</p>)}
-      </div>
+      {vision.paragraphs.map((paragraph) => <p class="body">{paragraph}</p>)}
     </div>
   </div>
 </section>
@@ -60,17 +61,20 @@ const image = resolveImage(vision.image.src);
     object-position: 60% 50%; /* crop slightly to the right (spec) */
   }
 
-  /* Eyebrow pattern: eyebrow → 24 → h2 → 24 → body */
+  /* Eyebrow pattern: eyebrow → 24 → h2 → 24 → body, paragraphs 16 apart.
+     Sibling margins instead of a flex gap plus a copy wrapper, so every text
+     element is a direct child (see the markup note above). */
   .vision__text {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-head);
   }
 
-  .vision__copy {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  .vision__text > * + * {
+    margin-top: var(--gap-head);
+  }
+
+  .vision__text > .body + .body {
+    margin-top: 16px;
   }
 
   /* Below 1920 the container is narrower than 1600 – proportional columns */

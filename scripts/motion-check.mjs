@@ -537,24 +537,34 @@ async function runJs() {
       console.log('skip  js: card glow (no hover media)');
     }
 
-    // Hex cursor (pointer: fine): canvas shown, lattice drawn around the
-    // mouse and nowhere else, layer under the nav and click-through
-    const fine = await page.evaluate(`matchMedia('(pointer: fine)').matches`);
+    // Hex cursor (pointer: fine): canvas shown; after a sweep the spotlight is
+    // lit at the mouse, the trail behind it, nothing far away; the layer sits
+    // under the nav and is click-through; everything fades once the mouse rests
+    const fine = await page.evaluate(`matchMedia('(pointer: fine) and (hover: hover)').matches`);
     if (fine) {
       const at = { x: Math.round(width / 2), y: Math.round(height / 2) };
-      await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: at.x, y: at.y });
-      await sleep(400);
-      const hex = await page.evaluate(`(() => {
+      // Sweep 240px from the left to the centre in 8 steps
+      for (let i = 0; i <= 8; i++) {
+        await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: at.x - 240 + i * 30, y: at.y });
+        await sleep(30);
+      }
+      await sleep(60);
+      const HEX_PROBE = `(() => {
         const c = document.querySelector('[data-hex-cursor]');
         if (!c) return { missing: true };
         const cs = getComputedStyle(c);
         const dpr = c.width / innerWidth;
         const ctx = c.getContext('2d');
         const lit = (x, y, size) => { const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), size, size).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; };
-        return { hidden: c.hidden, near: lit(${at.x} - 30, ${at.y} - 30, 60), far: lit(${at.x} + 400, ${at.y} - 20, 40), z: +cs.zIndex, navZ: +getComputedStyle(document.querySelector('[data-nav]')).zIndex, pointer: cs.pointerEvents, blend: cs.mixBlendMode };
-      })()`);
-      check('js: hex canvas shown for a fine pointer, lattice drawn at the mouse', !hex.missing && !hex.hidden && hex.near > 0, JSON.stringify(hex));
-      check('js: hex lattice limited to the radius, under the nav, click-through, screen blend', !hex.missing && hex.far === 0 && hex.z < hex.navZ && hex.pointer === 'none' && hex.blend === 'screen', JSON.stringify(hex));
+        return { hidden: c.hidden, near: lit(${at.x} - 30, ${at.y} - 30, 60), trail: lit(${at.x} - 260, ${at.y} - 20, 40), far: lit(${at.x} + 400, ${at.y} - 20, 40), z: +cs.zIndex, navZ: +getComputedStyle(document.querySelector('[data-nav]')).zIndex, pointer: cs.pointerEvents, blend: cs.mixBlendMode };
+      })()`;
+      const hex = await page.evaluate(HEX_PROBE);
+      check('js: hex canvas shown for a fine pointer, spotlight lit at the mouse', !hex.missing && !hex.hidden && hex.near > 0, JSON.stringify(hex));
+      check('js: hex trail still lit where the sweep started', !hex.missing && hex.trail > 0, JSON.stringify(hex));
+      check('js: hex lattice limited to spotlight and trail, under the nav, click-through, screen blend', !hex.missing && hex.far === 0 && hex.z < hex.navZ && hex.pointer === 'none' && hex.blend === 'screen', JSON.stringify(hex));
+      await sleep(1600);
+      const rested = await page.evaluate(HEX_PROBE);
+      check('js: hex spotlight and trail gone once the mouse rests', !rested.missing && rested.near === 0 && rested.trail === 0, JSON.stringify(rested));
     } else {
       console.log('skip  js: hex cursor (no fine pointer)');
     }

@@ -636,8 +636,9 @@ mm.add(
   },
 );
 
-// The hex lattice needs a mouse; it loads last, after everything else
-mm.add('(pointer: fine) and (prefers-reduced-motion: no-preference)', loadHexCursor);
+// The hex lattice needs a mouse (fine pointer that can hover – no touch);
+// it loads last, after everything else
+mm.add('(pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference)', loadHexCursor);
 
 // Web fonts change line counts – re-measure the trigger positions once loaded
 document.fonts?.ready.then(() => ScrollTrigger.refresh());

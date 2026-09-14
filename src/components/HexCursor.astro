@@ -2,10 +2,12 @@
 /**
  * Hex cursor layer (phase 7, item 15): a fixed, click-through canvas below
  * the nav on which src/scripts/hex-cursor.ts draws the magenta hexagon
- * lattice around the pointer. Rendered hidden – the script (loaded lazily
- * after `load`, only for fine pointers without reduced motion) reveals it,
- * so without JS or with `prefers-reduced-motion: reduce` there is no canvas
- * on screen.
+ * spotlight and cell trail around the pointer. Rendered hidden – the script
+ * (loaded lazily after `load`, only for fine pointers that can hover, not
+ * with reduced motion) reveals it, so without JS, on touch devices or with
+ * `prefers-reduced-motion: reduce` there is no canvas on screen. One
+ * viewport-sized canvas for the whole page: the sections are night almost
+ * everywhere, and the screen blend keeps the lattice subdued over the photos.
  */
 ---
 
