@@ -18,7 +18,7 @@
 2. **Hero Bild** – ~~`scale: 1.1 → 1`, `y: 0 → 120` über die Hero-Höhe~~ → in die Push-through-Timeline von Punkt 1 gewandert: `scale 1 → 1.12` mit derselben Kurve wie die Headline, kein `y` (die Sektion ist gepinnt).
 3. **Nav** – ab 40 px Scroll `.is-scrolled` (Hintergrund + Blur + top 0), CSS-Transition 300 ms. Aktiver Nav-Link per ScrollTrigger je Sektion (`aria-current="true"`).
 4. **Section-Reveal** – alle `[data-reveal]`: `y: 24, opacity: 0 → 0, 1`, 0.8 s, `--ease-out`, `start: 'top 85%'`, `once: true`. `IntersectionObserver`-Fallback nicht nötig, ScrollTrigger übernimmt.
-5. **Mission-Prinzipien** – `[data-reveal-stagger] > *` stagger 0.12.
+5. **Gestaffelte Reveals** – `[data-reveal-stagger] > *`: dieselben Werte wie Punkt 4, Kinder 0.12 s versetzt. Mission-Prinzipien, Schwerpunkte-Listen (seitlich) und seit B/8 die Textblöcke von Vision und Mission (Eyebrow → H2 → Absätze; das Vision-Bild bleibt ein eigenes `[data-reveal]`-Ziel).
 6. **Marquee** – zwei Zeilen endlos gegenläufig (`xPercent: -50` auf dem doppelten Track, `repeat: -1`, Dauer 40 s / 32 s, `ease: none`), Geschwindigkeit leicht scroll-abhängig (Velocity-Boost ×1.5 beim Scrollen, `ScrollTrigger` `onUpdate` + `timeScale`). Pause bei `document.hidden`.
 7. **Warum-K+-Slider** – Desktop: nativer Scroll bleibt, zusätzlich Fortschrittslinie per `scaleX` animiert (GSAP `quickTo`), Karten beim Eintritt stagger-reveal. Option (nach Sichtung): horizontales Pinning der Sektion, bei dem vertikales Scrollen die Karten schiebt (`pin: true, scrub: 1, end: '+=' + track.scrollWidth`) – nur wenn es sich in der Referenz gut anfühlt, sonst nativ lassen. Mobile: nur Stagger.
 8. **Karten-Glow Hover** – Glow-Opacity 1 → 2 und leichte Bewegung zum Cursor (`quickTo` x/y, nur `hover: hover`).
