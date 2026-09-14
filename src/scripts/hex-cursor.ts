@@ -13,6 +13,12 @@
  *    centre) and fades on its own with an exponential decay, 1 % left after
  *    CELL_DECAY ms – a comet tail along the mouse path.
  *  - Outside spotlight and trail the canvas is clear.
+ *  - Blocks: elements marked `data-hex-block` (photos, cards, tiles, the
+ *    spotlight panel, the focus-areas section) are cut out of the layer
+ *    every frame, so the lattice only shows on the plain night surface. The
+ *    canvas is fixed and viewport-sized, so their client rects are canvas
+ *    coordinates; they are erased with `destination-out`, following the
+ *    element's corner radius.
  *
  * Loaded lazily after `load` by animations.ts – only for `(pointer: fine)`
  * with `(hover: hover)` and not with `prefers-reduced-motion: reduce`, so
@@ -62,6 +68,7 @@ const DECAY_TO_1_PERCENT = Math.log(100); // exp(-k · t / CELL_DECAY) = 0.01 at
 const DPR_MAX = 2;
 
 type Cell = { cx: number; cy: number; energy: number };
+type Block = { el: HTMLElement; radius: number };
 
 export function initHexCursor(): () => void {
   const canvas = document.querySelector<HTMLCanvasElement>('[data-hex-cursor]');
@@ -90,6 +97,16 @@ export function initHexCursor(): () => void {
   const position = { x: 0, y: 0 }; // eased spotlight centre
   // Lit cells by lattice index (row/col packed into one number)
   const cells = new Map<number, Cell>();
+  // Elements the lattice must not cover, with their corner radius (px,
+  // re-read on resize – it may be fluid)
+  const blocks: Block[] = Array.from(document.querySelectorAll<HTMLElement>('[data-hex-block]'), (el) => ({
+    el,
+    radius: 0,
+  }));
+
+  const measureRadii = (): void => {
+    for (const block of blocks) block.radius = parseFloat(getComputedStyle(block.el).borderTopLeftRadius) || 0;
+  };
 
   const hexPath = (cx: number, cy: number): void => {
     ctx.moveTo(cx + corners[0][0], cy + corners[0][1]);
@@ -124,6 +141,22 @@ export function initHexCursor(): () => void {
     ctx.clearRect(0, 0, width, height);
   };
 
+  // Cut every block in the viewport out of what was drawn. Measured per
+  // frame: blocks scroll, and the pinned card row translates.
+  const eraseBlocks = (): void => {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.globalAlpha = 1;
+    for (const { el, radius } of blocks) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0 || r.bottom <= 0 || r.top >= height || r.right <= 0 || r.left >= width) continue;
+      ctx.beginPath();
+      if (radius > 0 && typeof ctx.roundRect === 'function') ctx.roundRect(r.left, r.top, r.width, r.height, radius);
+      else ctx.rect(r.left, r.top, r.width, r.height);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  };
+
   const resize = (): void => {
     const dpr = Math.min(window.devicePixelRatio || 1, DPR_MAX);
     width = window.innerWidth;
@@ -136,6 +169,7 @@ export function initHexCursor(): () => void {
     ctx.lineJoin = 'round';
     ctx.strokeStyle = COLOR;
     ctx.fillStyle = COLOR;
+    measureRadii();
   };
 
   const draw = (): void => {
@@ -182,6 +216,9 @@ export function initHexCursor(): () => void {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
+
+    // Nothing of the above over photos and blocks
+    if (blocks.length > 0 && (intensity > 0 || cells.size > 0)) eraseBlocks();
   };
 
   const tick = (): void => {

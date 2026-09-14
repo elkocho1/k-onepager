@@ -639,6 +639,33 @@ async function runJs() {
       await sleep(1600);
       const rested = await page.evaluate(HEX_PROBE);
       check('js: hex spotlight and trail gone once the mouse rests', !rested.missing && rested.near === 0 && rested.trail === 0, JSON.stringify(rested));
+
+      // Photos and blocks (data-hex-block) are cut out of the layer: sweep the
+      // mouse from the night surface 40px into the vision photo – lit outside
+      // its left edge, nothing inside
+      const block = await page.evaluate(`(() => {
+        document.documentElement.style.scrollBehavior = 'auto';
+        const el = document.querySelector('.vision__picture');
+        el.scrollIntoView({ block: 'center' });
+        const r = el.getBoundingClientRect();
+        return { count: document.querySelectorAll('[data-hex-block]').length, left: Math.round(r.left), y: Math.round(r.top + r.height / 2), width: Math.round(r.width) };
+      })()`);
+      await sleep(1200); // the reveal has settled
+      for (let i = 0; i <= 8; i++) {
+        await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: block.left - 200 + i * 30, y: block.y });
+        await sleep(30);
+      }
+      await sleep(60);
+      const edge = await page.evaluate(`(() => {
+        const c = document.querySelector('[data-hex-cursor]');
+        const dpr = c.width / innerWidth;
+        const ctx = c.getContext('2d');
+        const lit = (x, y, size) => { const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), size, size).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; };
+        const r = document.querySelector('.vision__picture').getBoundingClientRect();
+        return { left: r.left, outside: lit(r.left - 60, ${block.y} - 20, 40), inside: lit(r.left + 4, ${block.y} - 20, 40), deep: lit(r.left + 120, ${block.y} - 20, 40) };
+      })()`);
+      check('js: hex blocks marked (hero, photos, cards, tiles, spotlights, focus)', block.count >= 20, `${block.count} blocks`);
+      check('js: hex lattice lit beside the vision photo, none inside it', edge.outside > 0 && edge.inside === 0 && edge.deep === 0, JSON.stringify(edge));
     } else {
       console.log('skip  js: hex cursor (no fine pointer)');
     }

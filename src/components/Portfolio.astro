@@ -45,6 +45,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
           aria-controls={`spot-${company.slug}`}
           tabindex={index === 0 ? 0 : -1}
           data-slug={company.slug}
+          data-hex-block
         >
           {company.mask ? (
             <span class="tile__logo tile__logo--mask" style={logoStyle(company)} aria-hidden="true"></span>
@@ -73,6 +74,7 @@ const logoStyle = (company: (typeof companies)[number]) =>
           aria-labelledby={`tab-${company.slug}`}
           tabindex="0"
           hidden={index !== 0}
+          data-hex-block
         >
           <div class="spot__text" data-spot-text>
             {company.mask ? (
