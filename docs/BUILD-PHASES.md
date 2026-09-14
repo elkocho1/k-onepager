@@ -225,7 +225,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Offen:** Lenis-`lerp` (0.1 lässt ~800 ms Sub-Pixel-Auslauf stehen, 0.3 wäre unter der Schwelle – Entscheidung über das Scrollgefühl der ganzen Seite); die 21 px, um die der Copy-Block tiefer sitzt; Nav-Kontrast am Seitenanfang (aus B/4); Masken-/Portal-Ebene; Test auf einem echten Mobilgerät; lizenzierte Fassung des Hero-Videos.
 
-### Phase 7 – Animationen, Teil B/6 (Nav: kein Andocken) · 2026-09-14 · Commit `(folgt)`
+### Phase 7 – Animationen, Teil B/6 (Nav: kein Andocken) · 2026-09-14 · Commit `0ff959e`
 
 **Auftrag:** Beim ersten Scrollschritt schob die Nav das Logo sichtbar nach oben – das soll weg.
 
