@@ -296,6 +296,13 @@ function initHero(pinned: boolean, desktop: boolean): void {
     },
   });
 
+  // The hex lattice (hex-cursor.ts) stays off the hero photo, but once the
+  // copy reveals the frame is plain night – release the block with the
+  // reveal; the reverse run (and matchMedia's revert) restores "on". The
+  // attribute starts as "on", not empty: GSAP cannot render an empty string
+  // back, it would leave the end value in place.
+  reveal.set(hero, { attr: { 'data-hex-block': 'off' } }, 0);
+
   if (eyebrow) {
     reveal.fromTo(
       eyebrow,

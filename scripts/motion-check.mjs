@@ -310,6 +310,7 @@ async function runJs() {
         overlay: +getComputedStyle(document.querySelector('[data-hero-overlay]')).opacity,
         hint: +getComputedStyle(document.querySelector('[data-hero-hint]')).opacity,
         late: ['[data-hero-eyebrow]', '[data-hero-text]', '[data-hero-actions]'].map((s) => +getComputedStyle(document.querySelector(s)).opacity),
+        hexBlock: document.querySelector('[data-hero]').getAttribute('data-hex-block'),
       };
     })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
@@ -321,6 +322,7 @@ async function runJs() {
     check('js: night overlay darkens the frame', after.overlay > 0 && after.overlay < 1, `opacity ${after.overlay}`);
     check('js: scroll hint gone once the page moves', after.hint === 0, `opacity ${after.hint}`);
     check('js: eyebrow, copy and buttons still hidden mid-flight', after.late.every((o) => o === 0), JSON.stringify(after.late));
+    check('js: hex lattice still blocked over the hero photo mid-flight', after.hexBlock === 'on', `data-hex-block "${after.hexBlock}"`);
 
     // End of the pin: the type is gone and the three blocks are in, in order –
     // eyebrow (dropped onto the copy), copy larger, buttons last
@@ -351,6 +353,7 @@ async function runJs() {
         actionsScale: Math.round(matrix(actions).a * 100) / 100,
         gapToCopy: Math.round(box(text).top - box(eyebrow).bottom),
         order: box(eyebrow).bottom <= box(text).top && box(text).bottom <= box(actions).top,
+        hexBlock: document.querySelector('[data-hero]').getAttribute('data-hex-block'),
       };
     })()`);
     check('js: all three blocks visible after the fly-through', landed.opacity.every((o) => o === 1), JSON.stringify(landed.opacity));
@@ -361,6 +364,7 @@ async function runJs() {
     );
     check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0) && landed.linesOpacity > 0.99, JSON.stringify(landed.linesY));
     check('js: type has dissolved at the end of the push', landed.typeOpacity === 0, `opacity ${landed.typeOpacity}`);
+    check('js: hex lattice released over the hero once the copy shows', landed.hexBlock === 'off', `data-hex-block "${landed.hexBlock}"`);
     // Nav: bar height and logo width glide together out of the hero – sampled
     // at the pin end, halfway through the transition and after it
     const NAV_PROBE = `(() => {

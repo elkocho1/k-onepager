@@ -18,7 +18,8 @@
  *    every frame, so the lattice only shows on the plain night surface. The
  *    canvas is fixed and viewport-sized, so their client rects are canvas
  *    coordinates; they are erased with `destination-out`, following the
- *    element's corner radius.
+ *    element's corner radius. A block whose attribute reads `off` is
+ *    skipped – the hero sets that once its copy has revealed (animations.ts).
  *
  * Loaded lazily after `load` by animations.ts – only for `(pointer: fine)`
  * with `(hover: hover)` and not with `prefers-reduced-motion: reduce`, so
@@ -147,6 +148,7 @@ export function initHexCursor(): () => void {
     ctx.globalCompositeOperation = 'destination-out';
     ctx.globalAlpha = 1;
     for (const { el, radius } of blocks) {
+      if (el.dataset.hexBlock === 'off') continue;
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0 || r.bottom <= 0 || r.top >= height || r.right <= 0 || r.left >= width) continue;
       ctx.beginPath();
