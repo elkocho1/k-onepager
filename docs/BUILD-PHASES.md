@@ -319,7 +319,7 @@ _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor
 
 **Merge 2026-09-14:** `feat/hex-cursor-trail` (Hex-Cursor B/8, Vision/Mission B/9, Skyline B/10) per Fast-Forward und `feat/warum-scroll-pin` (B/11) per Merge-Commit nach `main`. Einziger Konflikt: die angehängten Einträge in dieser Datei, beide behalten. `astro check` 0 Fehler, `npm run build` fehlerfrei, `motion-check.mjs` 1920 auf dem zusammengeführten Stand alle Checks grün (inkl. der neuen Pin-Prüfungen des Sliders). Der Stash `stash@{0}` „WIP warum slider" ist damit vollständig überholt und kann gelöscht werden.
 
-### Phase 7 – Animationen, Teil B/12 (Hex-Cursor nur auf der Night-Fläche) · 2026-09-14 · Branch `feat/hex-cursor-blocks` (Worktree `kplus-worktree-hex-blocks`), nicht gemergt
+### Phase 7 – Animationen, Teil B/12 (Hex-Cursor nur auf der Night-Fläche) · 2026-09-14 · Branch `feat/hex-cursor-blocks` (Worktree `kplus-worktree-hex-blocks`), Commit `d7eae2c`, nicht gemergt
 
 **Auftrag:** Das Hex-Raster der Maus-Animation soll nur auf der dunklen Hintergrundfläche erscheinen, nicht über Bildern oder Blöcken.
 
