@@ -254,7 +254,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Befund.** `<Picture>` in `Founder.astro` setzte keine `quality`; Astro reicht dann nichts an sharp durch und AVIF fällt auf den sharp-Standard **50**. Das 713-px-Porträt lag bei 9,7 kB, die 1426-px-Variante (DPR > 1) bei 25,6 kB – Haut und Stoff glattgebügelt, Kanten blockig. **Behoben:** `quality={82}` (wie die JPG-Vorstufe aus `prepare-images.mjs`). Größen danach: 342 w 9,0 kB · 684 w 24,1 · 713 w 25,7 · 1426 w 74,3 kB AVIF (WebP 15/47 kB). Vorher/nachher-Zoom auf Uhr und Ärmel: Textur erhalten statt verschmiert. Die übrigen Fotos (Hero, Vision, Schwerpunkte, Spotlights) laufen noch mit dem Standard – falls dort dasselbe auffällt, gleiche Maßnahme.
 
-### Phase 7 – Animationen, Teil B/8 (Hex-Cursor: Spotlight + Zellen-Trail) · 2026-09-14 · Branch `feat/hex-cursor-trail`, Commit `(folgt)` – **nicht gemerged**
+### Phase 7 – Animationen, Teil B/8 (Hex-Cursor: Spotlight + Zellen-Trail) · 2026-09-14 · Branch `feat/hex-cursor-trail`, Commit `d92542e` – **nicht gemerged**
 
 **Auftrag:** Der Hex-Cursor wirkte wie ein statisches Raster, das per Maske freigelegt wird – zu großflächig (Radius 220), kein Nachziehen, kein Abklingen. Ersetzen durch Spotlight + Zellen-Trail.
 
