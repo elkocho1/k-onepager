@@ -312,6 +312,7 @@ async function runJs() {
         overlay: +getComputedStyle(document.querySelector('[data-hero-overlay]')).opacity,
         hint: +getComputedStyle(document.querySelector('[data-hero-hint]')).opacity,
         late: ['[data-hero-eyebrow]', '[data-hero-text]', '[data-hero-actions]'].map((s) => +getComputedStyle(document.querySelector(s)).opacity),
+        hexBlock: document.querySelector('[data-hero]').getAttribute('data-hex-block'),
       };
     })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
@@ -323,6 +324,7 @@ async function runJs() {
     check('js: night overlay darkens the frame', after.overlay > 0 && after.overlay < 1, `opacity ${after.overlay}`);
     check('js: scroll hint gone once the page moves', after.hint === 0, `opacity ${after.hint}`);
     check('js: eyebrow, copy and buttons still hidden mid-flight', after.late.every((o) => o === 0), JSON.stringify(after.late));
+    check('js: hex lattice still blocked over the hero photo mid-flight', after.hexBlock === 'on', `data-hex-block "${after.hexBlock}"`);
 
     // End of the pin: the type is gone and the three blocks are in, in order –
     // eyebrow (dropped onto the copy), copy larger, buttons last
@@ -353,6 +355,7 @@ async function runJs() {
         actionsScale: Math.round(matrix(actions).a * 100) / 100,
         gapToCopy: Math.round(box(text).top - box(eyebrow).bottom),
         order: box(eyebrow).bottom <= box(text).top && box(text).bottom <= box(actions).top,
+        hexBlock: document.querySelector('[data-hero]').getAttribute('data-hex-block'),
       };
     })()`);
     check('js: all three blocks visible after the fly-through', landed.opacity.every((o) => o === 1), JSON.stringify(landed.opacity));
@@ -363,6 +366,7 @@ async function runJs() {
     );
     check('js: copy lines settled at their place', landed.linesY.every((y) => y === 0) && landed.linesOpacity > 0.99, JSON.stringify(landed.linesY));
     check('js: type has dissolved at the end of the push', landed.typeOpacity === 0, `opacity ${landed.typeOpacity}`);
+    check('js: hex lattice released over the hero once the copy shows', landed.hexBlock === 'off', `data-hex-block "${landed.hexBlock}"`);
     // Nav: bar height and logo width glide together out of the hero – sampled
     // at the pin end, halfway through the transition and after it
     const NAV_PROBE = `(() => {
@@ -661,6 +665,33 @@ async function runJs() {
       await sleep(1600);
       const rested = await page.evaluate(HEX_PROBE);
       check('js: hex spotlight and trail gone once the mouse rests', !rested.missing && rested.near === 0 && rested.trail === 0, JSON.stringify(rested));
+
+      // Photos and blocks (data-hex-block) are cut out of the layer: sweep the
+      // mouse from the night surface 40px into the vision photo – lit outside
+      // its left edge, nothing inside
+      const block = await page.evaluate(`(() => {
+        document.documentElement.style.scrollBehavior = 'auto';
+        const el = document.querySelector('.vision__picture');
+        el.scrollIntoView({ block: 'center' });
+        const r = el.getBoundingClientRect();
+        return { count: document.querySelectorAll('[data-hex-block]').length, left: Math.round(r.left), y: Math.round(r.top + r.height / 2), width: Math.round(r.width) };
+      })()`);
+      await sleep(1200); // the reveal has settled
+      for (let i = 0; i <= 8; i++) {
+        await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: block.left - 200 + i * 30, y: block.y });
+        await sleep(30);
+      }
+      await sleep(60);
+      const edge = await page.evaluate(`(() => {
+        const c = document.querySelector('[data-hex-cursor]');
+        const dpr = c.width / innerWidth;
+        const ctx = c.getContext('2d');
+        const lit = (x, y, size) => { const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), size, size).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; };
+        const r = document.querySelector('.vision__picture').getBoundingClientRect();
+        return { left: r.left, outside: lit(r.left - 60, ${block.y} - 20, 40), inside: lit(r.left + 4, ${block.y} - 20, 40), deep: lit(r.left + 120, ${block.y} - 20, 40) };
+      })()`);
+      check('js: hex blocks marked (hero, photos, cards, tiles, spotlights, focus)', block.count >= 20, `${block.count} blocks`);
+      check('js: hex lattice lit beside the vision photo, none inside it', edge.outside > 0 && edge.inside === 0 && edge.deep === 0, JSON.stringify(edge));
     } else {
       console.log('skip  js: hex cursor (no fine pointer)');
     }

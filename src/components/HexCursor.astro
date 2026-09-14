@@ -6,8 +6,10 @@
  * (loaded lazily after `load`, only for fine pointers that can hover, not
  * with reduced motion) reveals it, so without JS, on touch devices or with
  * `prefers-reduced-motion: reduce` there is no canvas on screen. One
- * viewport-sized canvas for the whole page: the sections are night almost
- * everywhere, and the screen blend keeps the lattice subdued over the photos.
+ * viewport-sized canvas for the whole page; the script erases every
+ * `data-hex-block` element (photos, cards, tiles, the spotlight panel, the
+ * focus-areas section) from it each frame, so the lattice only shows on the
+ * plain night surface.
  */
 ---
 
@@ -21,7 +23,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Full magenta on night, subdued over the photos (hero, focus areas) */
+    /* Full magenta on night (photos and blocks are cut out by the script) */
     mix-blend-mode: screen;
   }
 </style>

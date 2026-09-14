@@ -43,7 +43,7 @@ const icons = Object.fromEntries(
     <div class="warum__slider" data-warum-slider>
       <ul class="cards" role="list" tabindex="0" aria-label={warumKplus.trackLabel} data-cards data-lenis-prevent-horizontal>
         {warumKplus.cards.map((card) => (
-          <li class="card">
+          <li class="card" data-hex-block>
             <span class="card__glow" aria-hidden="true" data-card-glow></span>
             <span class="card__icon" set:html={icons[card.icon]} />
             <div class="card__body">
@@ -52,7 +52,7 @@ const icons = Object.fromEntries(
             </div>
           </li>
         ))}
-        <li class="card card--statement">
+        <li class="card card--statement" data-hex-block>
           <span class="card__glow" aria-hidden="true" data-card-glow></span>
           <p class="card__statement">{warumKplus.statement}</p>
         </li>

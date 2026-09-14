@@ -19,7 +19,7 @@ const image = resolveImage(schwerpunkte.image.src);
 const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
 ---
 
-<section id={schwerpunkte.id} class="focus">
+<section id={schwerpunkte.id} class="focus" data-hex-block>
   <div class="focus__bg" data-parallax>
     <Picture
       src={image}
