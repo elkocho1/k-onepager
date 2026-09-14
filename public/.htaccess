@@ -1,27 +1,33 @@
 # K+ Onepager – Apache rules for the IONOS webspace
-# (docs/phases/PHASE-8-seo-deploy.md, item 16). Deployed with dist/.
+# (docs/phases/PHASE-8-seo-deploy.md, item 16). Deployed with dist/ into
+# k-onepager/ and applies to that folder only; the client's existing site next
+# to it is not affected.
 
-# --- HTTPS and one host --------------------------------------------------------
-# Force https; send the bare domain to www (the canonical host in
-# content/de.json meta.siteUrl). Staging subdomains are left as they are.
-# Update the host when the client confirms the final domain.
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
-  RewriteCond %{HTTP_HOST} ^kplus\.de$ [NC]
-  RewriteRule ^ https://www.kplus.de%{REQUEST_URI} [R=301,L]
-</IfModule>
+# --- Charset ---------------------------------------------------------------------
+AddDefaultCharset UTF-8
 
-# --- Caching -------------------------------------------------------------------
-# Astro hashes everything under /_astro/ – cache for a year, immutable.
-# Fonts, logos and icons keep their names but change rarely: a year as well.
-# HTML (and the sitemap/robots) must always be revalidated.
+# --- HTTPS and one host – prepared, enable at go-live ---------------------------
+# Off until the domain is assigned to the k-onepager/ folder. Then remove the
+# leading "# " from the block below and put the final host in the second rule
+# (the canonical host in astro.config.mjs `site`). While the folder is reached
+# through a preview address only, an active redirect could loop or point away.
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTPS} !=on
+#   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+#   RewriteCond %{HTTP_HOST} ^kplus\.de$ [NC]
+#   RewriteRule ^ https://www.kplus.de%{REQUEST_URI} [R=301,L]
+# </IfModule>
+
+# --- Caching ---------------------------------------------------------------------
+# Astro hashes everything under /_astro/ (CSS, JS, images) – a year, immutable.
+# Fonts, logos, icons and the OG image keep their names but change rarely: a
+# year as well. HTML (and sitemap/robots) must always be revalidated.
 <IfModule mod_headers.c>
-  <FilesMatch "\.(js|css|avif|webp|jpe?g|png|svg|woff2?)$">
+  <FilesMatch "\.(js|mjs|css|avif|webp|jpe?g|png|gif|svg|ico|woff2?|ttf|otf)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "\.(html|xml|txt)$">
+  <FilesMatch "\.(html|xml|txt|json|webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
   <FilesMatch "\.(mp4|webm)$">
@@ -30,15 +36,24 @@
   Header set X-Content-Type-Options "nosniff"
 </IfModule>
 
-# --- Types and compression -----------------------------------------------------
+# --- Types and compression -------------------------------------------------------
 <IfModule mod_mime.c>
   AddType font/woff2 .woff2
+  AddType font/woff .woff
   AddType image/avif .avif
   AddType image/webp .webp
+  AddType application/javascript .mjs
+  AddCharset UTF-8 .html .css .js .mjs .json .xml .txt .svg
+</IfModule>
+# Brotli where the module exists, Deflate (gzip) otherwise. Fonts (woff2),
+# images and video are already compressed and are left alone.
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml text/javascript application/javascript application/json application/xml image/svg+xml
 </IfModule>
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml text/javascript application/javascript application/json application/xml image/svg+xml
 </IfModule>
 
-# --- Errors --------------------------------------------------------------------
+# --- Errors ----------------------------------------------------------------------
+# Root-relative: the k-onepager/ folder is the document root of its (sub)domain.
 ErrorDocument 404 /404.html

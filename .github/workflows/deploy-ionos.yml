@@ -1,0 +1,254 @@
+# Build on every push to main (and on demand) and upload dist/ to the client's
+# IONOS webspace over SFTP – into the folder k-onepager/ below the SFTP user's
+# home, never anywhere else. The client's existing website lives next to it.
+#
+# Repository secrets (Settings → Secrets and variables → Actions → Secrets):
+#   SFTP_HOST       IONOS SFTP host, e.g. access123456789.webspace-data.io
+#   SFTP_USER       SFTP user
+#   SFTP_PASSWORD   SFTP password
+# Repository variable (… → Variables), optional but recommended:
+#   SFTP_KNOWN_HOSTS  the server's host key line(s) in known_hosts format –
+#                     see README.md → Deployment → Host-Key. Without it the key
+#                     is fetched with ssh-keyscan on every run (trust on first
+#                     use) and printed so it can be pinned.
+#
+# Safety run: with DRY_RUN 'true' (below) or the workflow_dispatch input
+# dry-run, the job lists the SFTP home read-only and simulates the upload
+# (lftp mirror --dry-run) – nothing is written or deleted. Listing and plan go
+# to the job summary and to notice annotations.
+#
+# Upload: lftp `mirror --reverse --delete` – only files whose size or mtime
+# differ are transferred, files that no longer exist in dist/ are removed
+# inside k-onepager/ (and nowhere else). Before the upload every file in dist/
+# gets an mtime derived from its content hash, so an unchanged file keeps the
+# same mtime across builds and is skipped. video/ is excluded in both
+# directions: the hero video is not in the repository (docs/ASSETS.md) and is
+# uploaded to k-onepager/video/ by hand.
+#
+# PUBLIC_PREVIEW=true marks every page noindex, nofollow (src/lib/paths.ts,
+# src/layouts/Base.astro). Remove the variable for the go-live – README.md.
+
+name: Deploy IONOS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run: list the SFTP home and simulate the upload, write nothing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ionos
+  cancel-in-progress: false
+
+env:
+  # Target folder relative to the SFTP user's home. Fixed on purpose – never
+  # the home directory itself.
+  REMOTE_DIR: k-onepager
+  # Safety switch for the push trigger: 'true' = every run is a dry run (see
+  # above). Set to 'false' once the dry-run log has been checked.
+  DRY_RUN: 'true'
+  # Preview: noindex, nofollow on every page until the domain is assigned
+  PUBLIC_PREVIEW: 'true'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node major from package.json "engines.node" (">=22.12.0" → 22)
+      - name: Read Node version from package.json
+        id: node
+        run: echo "version=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.node.outputs.version }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Check secrets and mode
+        id: mode
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          INPUT_DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          missing=""
+          [ -n "$SFTP_HOST" ] || missing="$missing SFTP_HOST"
+          [ -n "$SFTP_USER" ] || missing="$missing SFTP_USER"
+          [ -n "$SFTP_PASSWORD" ] || missing="$missing SFTP_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing – Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          case "$REMOTE_DIR" in
+            ""|.|/|./|..|*..*|/*) echo "::error::REMOTE_DIR must be a sub folder of the SFTP home (is '$REMOTE_DIR')"; exit 1 ;;
+          esac
+          if [ "$DRY_RUN" = "true" ] || [ "$INPUT_DRY_RUN" = "true" ]; then
+            echo "dry=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Mode::DRY RUN – read-only listing and simulated upload, nothing is written"
+          else
+            echo "dry=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Mode::REAL DEPLOY to $REMOTE_DIR/"
+          fi
+
+      - name: Install lftp
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp > /dev/null
+          lftp --version | head -n 1
+
+      # Strict host key checking. Pinned key from the repository variable if
+      # present, otherwise trust on first use with the key printed for pinning.
+      - name: Host key
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_KNOWN_HOSTS: ${{ vars.SFTP_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          if [ -n "$SFTP_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$SFTP_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            echo "::notice title=Host key::pinned from repository variable SFTP_KNOWN_HOSTS"
+          else
+            ssh-keyscan -p 22 -H -t ed25519,ecdsa,rsa "$SFTP_HOST" > ~/.ssh/known_hosts 2>/dev/null || true
+            if [ ! -s ~/.ssh/known_hosts ]; then
+              echo "::error::ssh-keyscan returned no host key for SFTP_HOST on port 22 – host name or port wrong, or SFTP is not enabled for this webspace"
+              exit 1
+            fi
+            fp=$(ssh-keygen -lf ~/.ssh/known_hosts | awk '{print $2" ("$4")"}' | paste -sd '|')
+            echo "::warning title=Host key not pinned::fetched with ssh-keyscan (trust on first use). Fingerprints: $fp – pin them: repository variable SFTP_KNOWN_HOSTS = the known_hosts lines printed in this step (README.md → Deployment → Host-Key)."
+            echo "known_hosts line(s) to pin (hashed host name, no credentials):"
+            cat ~/.ssh/known_hosts
+            {
+              echo "### Host key (not pinned yet)"
+              echo
+              echo "Fingerprints: $fp"
+              echo
+              echo 'Pin: repository variable `SFTP_KNOWN_HOSTS` ='
+              echo
+              echo '```'
+              cat ~/.ssh/known_hosts
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          chmod 600 ~/.ssh/known_hosts
+
+      # Same content → same mtime, so lftp's size+mtime comparison skips files
+      # that did not change since the last deploy.
+      - name: Content-derived mtimes for dist/
+        run: |
+          n=0
+          while IFS= read -r -d '' f; do
+            h=$(sha256sum "$f" | cut -c1-8)
+            touch -d "@$(( 0x$h % 500000000 + 1000000000 ))" "$f"
+            n=$((n + 1))
+          done < <(find dist -type f -print0)
+          echo "$n files in dist/"
+
+      # Read-only: what is in the SFTP home (the client's existing site) and in
+      # the target folder. Always runs before anything is written.
+      - name: List SFTP home (read-only)
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          script="$RUNNER_TEMP/list.lftp"
+          cat > "$script" <<LFTP
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          set net:timeout 30
+          set net:max-retries 3
+          set net:persist-retries 2
+          open --env-password -u "$SFTP_USER" -p 22 "sftp://$SFTP_HOST"
+          echo "== SFTP home (pwd) =="
+          pwd
+          echo "== SFTP home listing =="
+          cls -la
+          echo "== $REMOTE_DIR/ listing (may not exist yet) =="
+          cls -la "$REMOTE_DIR/"
+          bye
+          LFTP
+          out="$RUNNER_TEMP/listing.txt"
+          lftp -f "$script" > "$out" 2>&1 || true
+          rm -f "$script"
+          cat "$out"
+          if ! grep -q "== SFTP home listing ==" "$out"; then
+            echo "::error::SFTP login or listing failed – see the output above (host, user, password, host key?)"
+            exit 1
+          fi
+          { echo "### SFTP home (read-only listing)"; echo; echo '```'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          body=$(sed 's/%/%25/g' "$out" | head -c 3500 | awk -v ORS='%0A' '1')
+          echo "::notice title=SFTP home listing::$body"
+
+      - name: ${{ steps.mode.outputs.dry == 'true' && 'DRY RUN – simulate upload (nothing written)' || format('Upload dist/ to IONOS ({0}/)', env.REMOTE_DIR) }}
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          DRY: ${{ steps.mode.outputs.dry }}
+        run: |
+          # The password stays in the environment (open --env-password); the
+          # script file holds host and user only and is not printed.
+          if [ "$DRY" = "true" ]; then opts="--dry-run --verbose=3"; else opts="--verbose=1"; fi
+          script="$RUNNER_TEMP/deploy.lftp"
+          cat > "$script" <<LFTP
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          set cmd:fail-exit yes
+          set net:timeout 30
+          set net:max-retries 3
+          set net:persist-retries 2
+          set mirror:set-permissions off
+          open --env-password -u "$SFTP_USER" -p 22 "sftp://$SFTP_HOST"
+          mirror --reverse --delete $opts --parallel=4 --no-perms --exclude-glob .git* --exclude ^video/ ./dist/ ./$REMOTE_DIR/
+          bye
+          LFTP
+          out="$RUNNER_TEMP/mirror.txt"
+          set +e
+          lftp -f "$script" > "$out" 2>&1
+          rc=$?
+          set -e
+          rm -f "$script"
+          cat "$out"
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::lftp mirror exited with $rc – see the output above"
+            exit "$rc"
+          fi
+          transfers=$(grep -ci 'Transferring\|Sending' "$out" || true)
+          removals=$(grep -ci 'Removing' "$out" || true)
+          if [ "$DRY" = "true" ]; then
+            {
+              echo "### DRY RUN – planned operations (nothing was written)"
+              echo
+              echo "Target: \`$REMOTE_DIR/\` below the SFTP home. lftp mirror can only create, replace or remove entries inside this target; \`video/\` is excluded in both directions."
+              echo
+              echo '```'; cat "$out"; echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice title=Dry run::$transfers transfers, $removals removals planned, all inside $REMOTE_DIR/ (mirror target). Full plan in the job summary."
+            split -l 45 -d "$out" "$RUNNER_TEMP/plan-"
+            i=0
+            for part in "$RUNNER_TEMP"/plan-*; do
+              i=$((i + 1))
+              if [ "$i" -gt 8 ]; then echo "::notice title=Dry run plan::… truncated, see the job summary"; break; fi
+              body=$(sed 's/%/%25/g' "$part" | head -c 3500 | awk -v ORS='%0A' '1')
+              echo "::notice title=Dry run plan $i::$body"
+            done
+          else
+            {
+              echo "### Deployed dist/ → \`$REMOTE_DIR/\`"
+              echo
+              echo '```'; cat "$out"; echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice title=Deployed::dist/ → $REMOTE_DIR/ – $transfers transfers, $removals removals (video/ excluded, nothing outside $REMOTE_DIR/ touched)"
+          fi
