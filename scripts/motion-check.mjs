@@ -324,7 +324,8 @@ async function runJs() {
     // eyebrow (dropped onto the copy), copy larger, buttons last
     await page.evaluate(`(async () => {
       window.scrollTo(0, Math.round(1.5 * innerHeight));
-      await new Promise((r) => setTimeout(r, 1800));
+      // Lenis lerp (~0.8 s) plus the timed reveal (0.3 + 0.3 + 0.8 + stagger ≈ 1.6 s)
+      await new Promise((r) => setTimeout(r, 3000));
     })()`);
     const landed = await page.evaluate(`(() => {
       const matrix = (el) => { const t = getComputedStyle(el).transform; return t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t); };

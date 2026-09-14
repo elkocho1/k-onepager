@@ -41,8 +41,8 @@ function initNav(): void {
   // Re-evaluated on every refresh; the 300ms transition itself is CSS.
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const start = (): number => {
-    const push = ScrollTrigger.getById('hero-push');
-    if (push?.pin) return push.start + (push.end - push.start) * PUSH_THROUGH;
+    const reveal = heroRevealScroll();
+    if (reveal !== null) return reveal;
     const heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : 0;
     return Math.max(40, heroBottom - header.offsetHeight);
   };
@@ -181,6 +181,16 @@ const PUSH_DISTANCE = 1.5;      // pin length in viewport heights
    stopped (measured, docs/BUILD-PHASES.md) – the timeline follows the
    smoothed scroll position directly instead. */
 const PUSH_SCRUB = true;
+const REVEAL_GAP = 0.3;         // seconds between the three reveal blocks
+const REVEAL_STAGGER = 0.15;    // seconds between the copy lines
+
+/* Scroll position where the copy reveal begins: PUSH_THROUGH of the pinned
+   push-through. null without a pin (below 768px, reduced motion) – the push
+   trigger is missing there or not pinned. */
+function heroRevealScroll(): number | null {
+  const push = ScrollTrigger.getById('hero-push');
+  return push?.pin ? push.start + (push.end - push.start) * PUSH_THROUGH : null;
+}
 
 function initHero(pinned: boolean, desktop: boolean): void {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
@@ -247,17 +257,19 @@ function initHero(pinned: boolean, desktop: boolean): void {
   // The type dissolves just as the viewer passes through it; a mask layer
   // would keep its scale and skip this one.
   if (type) timeline.to(type, { opacity: 0, duration: through * 0.25, ease: 'power1.in' }, through * 0.75);
-  timeline.addLabel('through', through);
+  // The fly-through fills `through`; the rest of the pin is dwell time for
+  // the reveal below, so the timeline keeps its full length of 1
+  timeline.to({}, { duration: 1 - through }, through);
 
   // Out of the dark, one block after the other: eyebrow, then the copy line
-  // by line, then the buttons. Each group takes `enter`, they start `gap`
-  // apart, so the buttons land exactly at the end of the timeline. The copy
+  // by line, then the buttons. Not scrubbed – a wheel step of 120px would
+  // cover most of a block's scroll window and the lines snapped in. Instead
+  // a timed sequence plays forward once the scroll passes `through` and
+  // runs back in reverse when it returns above it, so the order and the pace
+  // are the same in both directions whatever the scroll speed. The copy
   // already sits at its final size (CSS, --hero-copy-scale) – no block is
   // left on a fractional scale, so the type stays crisp at rest.
   if (!pinned) return;
-  const span = 1 - through;
-  const enter = span * 0.4;
-  const gap = (span - enter) / 2;
   const rise = desktop ? 40 : 28;
 
   // Only used to keep the line travel at the same distance on screen as
@@ -273,33 +285,46 @@ function initHero(pinned: boolean, desktop: boolean): void {
   const drop = (): number =>
     eyebrow && text ? text.offsetTop - gapPx - (eyebrow.offsetTop + eyebrow.offsetHeight) : 0;
 
+  const reveal = gsap.timeline({
+    paused: true,
+    scrollTrigger: {
+      id: 'hero-reveal',
+      start: () => heroRevealScroll() ?? 0,
+      end: 'max',
+      toggleActions: 'play none none reverse',
+      invalidateOnRefresh: true,
+    },
+  });
+
   if (eyebrow) {
-    timeline.fromTo(
+    reveal.fromTo(
       eyebrow,
       { y: () => drop() + rise, opacity: 0 },
-      { y: drop, opacity: 1, duration: enter, ease: EASE_OUT, immediateRender: false },
-      'through',
+      { y: drop, opacity: 1, duration: REVEAL_DURATION, ease: EASE_OUT },
+      0,
     );
   }
 
   if (text && lines.length) {
-    const stagger = (enter * 0.3) / Math.max(1, lines.length - 1);
-    timeline
-      .to(text, { duration: 0, opacity: 1, immediateRender: false }, `through+=${gap}`)
+    // A staggered fromTo renders only its first target's start state up front
+    // (measured) – all lines sit hidden at their travel distance from the outset
+    gsap.set(lines, { y: 90 * copyScale, opacity: 0 });
+    reveal
+      .set(text, { opacity: 1 }, REVEAL_GAP)
       .fromTo(
         lines,
         { y: 90 * copyScale, opacity: 0 },
-        { y: 0, opacity: 1, duration: enter * 0.7, stagger, ease: EASE_OUT, immediateRender: false },
-        `through+=${gap}`,
+        { y: 0, opacity: 1, duration: REVEAL_DURATION, stagger: REVEAL_STAGGER, ease: EASE_OUT },
+        REVEAL_GAP,
       );
   }
 
   if (actions) {
-    timeline.fromTo(
+    reveal.fromTo(
       actions,
       { y: rise, opacity: 0 },
-      { y: 0, opacity: 1, duration: enter, ease: EASE_OUT, immediateRender: false },
-      `through+=${gap * 2}`,
+      { y: 0, opacity: 1, duration: REVEAL_DURATION, ease: EASE_OUT },
+      REVEAL_GAP * 2,
     );
   }
 }
