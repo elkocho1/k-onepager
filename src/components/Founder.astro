@@ -115,8 +115,11 @@ const image = resolveImage(founder.image.src);
       border-radius: var(--radius-tile); /* mobile frame 242:235 */
     }
 
+    /* Landscape crop of a portrait photo: the face sits in the top fifth of
+       the source, so the frame starts at the top edge – 20% already cut the
+       head off at 390 */
     .founder :global(.founder__image) {
-      object-position: 50% 20%;
+      object-position: 50% 0;
     }
   }
 
