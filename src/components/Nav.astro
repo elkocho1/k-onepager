@@ -2,9 +2,10 @@
 /**
  * Fixed site header (spec section 0, Figma 139:32 / mobile 242:27).
  * Transparent on the hero; `.is-scrolled` (toggled from 40px scroll by
- * src/scripts/animations.ts) docks the bar and adds the night background and
- * blur, the current section's link carries aria-current. Mobile shows only the
- * logo (spec deviation 7).
+ * src/scripts/animations.ts) adds the night background and blur, the current
+ * section's link carries aria-current. Mobile shows only the logo (spec
+ * deviation 7). The bar never moves: on scroll it keeps its --nav-top offset
+ * and only the background grows up to the viewport edge (spec deviation 12).
  *
  * Bar height and logo width are scroll-coupled while the hero is left
  * (animations.ts, initNavShrink): both glide on one scrubbed trigger from
@@ -52,9 +53,7 @@ const logo = await publicImageSize(nav.logo);
     position: fixed;
     inset: var(--nav-top) 0 auto 0;
     z-index: 100;
-    transition:
-      background-color var(--dur-base) var(--ease-out),
-      top var(--dur-base) var(--ease-out);
+    transition: background-color var(--dur-base) var(--ease-out);
   }
 
   .site-header__inner {
@@ -108,9 +107,12 @@ const logo = await publicImageSize(nav.logo);
     flex: none;
   }
 
-  /* Scroll state – class toggled by animations.ts, transition above */
+  /* Scroll state – class toggled by animations.ts, transition above. The
+     top offset moves into padding, so the content stays exactly where it is
+     while the background reaches the viewport edge (no dock, deviation 12). */
   .site-header.is-scrolled {
     top: 0;
+    padding-top: var(--nav-top);
     background: var(--c-night-a85);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
@@ -132,8 +134,10 @@ const logo = await publicImageSize(nav.logo);
   }
 
   @media (max-width: 767px) {
-    .site-header {
+    .site-header,
+    .site-header.is-scrolled {
       top: 0;
+      padding-top: 0;
     }
 
     .site-header__inner {
