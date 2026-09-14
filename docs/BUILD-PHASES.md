@@ -272,7 +272,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei; `motion-check.mjs` Hex-Probe umgebaut (Schwenk in 8 Schritten per CDP; neu: Spotlight bei der Maus, Trail am Startpunkt, nichts in 400 px, unter der Nav/click-through/screen, **alles weg nach 1,6 s Ruhe**), 1920 alle Checks grün; no-js und reduced: Canvas bleibt `hidden`.
 
-### Phase 7 – Animationen, Teil B/8 (Vision/Mission-Reveal gestaffelt) · 2026-09-14 · Commit `d92542e` (Komponenten – von der parallelen Hex-Cursor-Session mit eingesammelt) + Doku `TBD`
+### Phase 7 – Animationen, Teil B/9 (Vision/Mission-Reveal gestaffelt) · 2026-09-14 · Commit `d92542e` (Komponenten – von der parallelen Hex-Cursor-Session mit eingesammelt) + Doku `da367f7`
 
 **Auftrag:** Die Sektion „Vision und Mission" soll beim Scrollen dieselbe Einblendung bekommen wie die Textblöcke davor – alle Textelemente und das Bild, gleiche Werte, einmalig, reduced motion respektiert, kein Layout-Shift.
 
