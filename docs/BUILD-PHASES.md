@@ -250,7 +250,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Abnahme.** `astro check` ohne Fehler, `npm run build` fehlerfrei, `motion-check.mjs` 1920: alle Checks grün (Wartezeit der „landed"-Probe 1,8 → 3 s wegen Lenis-Lerp + 1,55 s Sequenz). Spec Abschnitt 1 (Timeline) angepasst.
 
-### Phase 7 – Animationen, Teil B/10 (Warum K+: Scroll-Pin des Sliders) · 2026-09-14 · Branch `feat/warum-scroll-pin`, Commit `TBD` – **nicht gemerged**
+### Phase 7 – Animationen, Teil B/10 (Warum K+: Scroll-Pin des Sliders) · 2026-09-14 · Branch `feat/warum-scroll-pin`, Commit `e66d9e6` – **nicht gemerged**
 
 _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor-trail`; dieser Branch setzt auf `df89777` = main vor dem Founder-Nachtrag auf.)_
 
