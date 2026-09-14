@@ -61,14 +61,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Node major from package.json "engines.node" (">=22.12.0" → 22)
       - name: Read Node version from package.json
         id: node
         run: echo "version=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ steps.node.outputs.version }}
           cache: npm
@@ -192,7 +192,9 @@ jobs:
           body=$(sed 's/%/%25/g' "$out" | head -c 3500 | awk -v ORS='%0A' '1')
           echo "::notice title=SFTP home listing::$body"
 
-      - name: ${{ steps.mode.outputs.dry == 'true' && 'DRY RUN – simulate upload (nothing written)' || format('Upload dist/ to IONOS ({0}/)', env.REMOTE_DIR) }}
+      # Dry run or real upload – the mode is decided in "Check secrets and mode"
+      # (step names are fixed before the job starts, so they cannot show it).
+      - name: Upload dist/ to IONOS (k-onepager/) – or dry run, see Mode
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
