@@ -17,8 +17,10 @@
  *            afterwards, the background video runs from 768px up,
  *            anchor links land at --scroll-offset with hash + focus, reveals
  *            resolve, marquee moves, CTA glow pulses,
- *            the card track scrolls horizontally under the wheel with the
- *            progress line easing, logo tiles settle, the spotlight
+ *            the Why-K+ pin holds the block while the vertical wheel pushes
+ *            the card row sideways (below 1024px the track scrolls
+ *            horizontally under the wheel) with the progress line easing,
+ *            logo tiles settle, the spotlight
  *            cross-fades to exactly one panel at a stable height (also under
  *            rapid clicks), the hex lattice shows around the mouse
  *
@@ -478,51 +480,123 @@ async function runJs() {
     const rapid = await page.evaluate(PANELS);
     check('js: rapid switches settle on the last panel', rapid.shown.length === 1 && rapid.shown[0] === 4 && rapid.opacity[0] === 1 && rapid.settled && rapid.selected === 4 && Math.abs(rapid.height - before.height) < 1, JSON.stringify(rapid));
 
-    // Anchor link: hash, focus and --scroll-offset landing
+    // Anchor link: hash, focus and the landing – at --scroll-offset, or with
+    // the desktop pin (warum-slider.ts) at the pin start: the section carries
+    // a scroll-margin so its bottom edge lands on the bottom of the viewport
     await page.evaluate(`(async () => {
       window.scrollTo(0, 0);
       await new Promise((r) => setTimeout(r, 400));
       document.querySelector('[data-nav] nav a[href="#warum-kplus"]').click();
       await new Promise((r) => setTimeout(r, 2500));
     })()`);
-    const anchor = await page.evaluate(`({
-      top: Math.round(document.getElementById('warum-kplus').getBoundingClientRect().top),
-      offset: parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop),
-      hash: location.hash,
-      focused: document.activeElement?.id,
-    })`);
-    check('js: anchor lands at --scroll-offset', Math.abs(anchor.top - anchor.offset) <= 1, `top ${anchor.top}, offset ${anchor.offset}`);
-    check('js: anchor keeps hash and moves focus', anchor.hash === '#warum-kplus' && anchor.focused === 'warum-kplus', `${anchor.hash} focus=${anchor.focused}`);
-
-    // Card track: horizontal wheel scrolls the track natively (two 400px
-    // deltas – a single small delta snaps back to card 1 with scroll-snap
-    // mandatory) and the progress line eases along, vertical wheel scrolls
-    // the page
-    const rect = await page.evaluate(`(() => { const r = document.querySelector('[data-cards]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
-    for (let i = 0; i < 2; i++) {
-      await wheel(Math.round(rect.x), Math.round(rect.y), 0, 400);
-      await sleep(400);
-    }
-    await sleep(600);
-    const track = await page.evaluate(`(() => {
-      const bar = document.querySelector('[data-progress-bar]');
-      const t = getComputedStyle(bar).transform;
-      const m = t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t);
+    const anchor = await page.evaluate(`(() => {
+      const s = document.getElementById('warum-kplus');
+      const cs = getComputedStyle(s);
       return {
-        left: document.querySelector('[data-cards]').scrollLeft,
-        y: Math.round(scrollY),
-        cardsHidden: [...document.querySelectorAll('[data-cards] > *')].filter((c) => getComputedStyle(c).opacity !== '1').length,
-        scaleX: Math.round(m.a * 1000) / 1000,
-        counter: document.querySelector('[data-progress-count]').textContent,
+        top: Math.round(s.getBoundingClientRect().top),
+        offset: parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop),
+        pinned: s.classList.contains('warum--pinned'),
+        pinTop: parseFloat(cs.getPropertyValue('--warum-pin-top')) || 0,
+        hash: location.hash,
+        focused: document.activeElement?.id,
       };
     })()`);
-    check('js: horizontal wheel scrolls the card track', track.left > 0, `scrollLeft ${track.left}`);
-    check('js: slider cards revealed', track.cardsHidden === 0, `${track.cardsHidden} still hidden`);
-    check('js: progress line eased past its start (scaleX > 1/6)', track.scaleX > 0.17 && track.scaleX <= 1, `scaleX ${track.scaleX}, counter ${track.counter}`);
-    await wheel(Math.round(rect.x), Math.round(rect.y), 200);
-    await sleep(1200);
-    const page2 = await page.evaluate(`Math.round(scrollY)`);
-    check('js: vertical wheel over the track scrolls the page', page2 > track.y, `${track.y} → ${page2}`);
+    const landing = anchor.pinned ? Math.max(anchor.offset, anchor.pinTop) : anchor.offset;
+    check(anchor.pinned ? 'js: anchor lands at the pin start' : 'js: anchor lands at --scroll-offset', Math.abs(anchor.top - landing) <= 1, `top ${anchor.top}, expected ${landing}`);
+    check('js: anchor keeps hash and moves focus', anchor.hash === '#warum-kplus' && anchor.focused === 'warum-kplus', `${anchor.hash} focus=${anchor.focused}`);
+
+    const rect = await page.evaluate(`(() => { const r = document.querySelector('[data-cards]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+    if (anchor.pinned) {
+      // Scroll pin (1024px up, motion): the section is the runway, the block
+      // sticks and the vertical wheel pushes the card row sideways by
+      // transform – no native track scroll – with counter and line on the
+      // same progress; a horizontal wheel does nothing; at the end of the
+      // runway the last card is flush with the container's right edge, then
+      // the block releases; scrolling back reverses the row
+      const PIN = `(() => {
+        const s = document.getElementById('warum-kplus');
+        const cs = getComputedStyle(s);
+        const track = s.querySelector('[data-cards]');
+        const cards = [...track.children];
+        const t = getComputedStyle(track).transform;
+        const bt = getComputedStyle(document.querySelector('[data-progress-bar]')).transform;
+        const pinTop = parseFloat(cs.getPropertyValue('--warum-pin-top'));
+        return {
+          x: t === 'none' ? 0 : Math.round(new DOMMatrixReadOnly(t).e),
+          left: track.scrollLeft,
+          y: Math.round(scrollY),
+          stickyTop: Math.round(s.querySelector('[data-warum-sticky]').getBoundingClientRect().top),
+          pinTop: Math.round(pinTop),
+          travel: parseFloat(cs.getPropertyValue('--warum-pin-travel')),
+          pinStart: Math.round(s.getBoundingClientRect().top + scrollY - pinTop),
+          lastRight: Math.round(cards[cards.length - 1].getBoundingClientRect().right),
+          containerRight: Math.round(s.querySelector('.warum__head').getBoundingClientRect().right),
+          cardsHidden: cards.filter((c) => getComputedStyle(c).opacity !== '1').length,
+          scaleX: bt === 'none' ? 1 : Math.round(new DOMMatrixReadOnly(bt).a * 1000) / 1000,
+          counter: document.querySelector('[data-progress-count]').textContent,
+          overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      })()`;
+      const jump = (y) => page.evaluate(`(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, ${y}); })()`);
+      const at = await page.evaluate(PIN);
+      check('js: pin start – row at 0, counter 01', at.x === 0 && at.counter.startsWith('01') && at.travel > 0, `x ${at.x}, counter ${at.counter}, travel ${at.travel}`);
+      for (let i = 0; i < 3; i++) {
+        await wheel(Math.round(rect.x), Math.round(rect.y), 400);
+        await sleep(300);
+      }
+      await sleep(1200);
+      const moved = await page.evaluate(PIN);
+      check('js: vertical wheel over the track drives the row sideways (transform, no native scroll)', moved.y > at.y && moved.x < -600 && moved.left === 0, `scrollY ${at.y} → ${moved.y}, x ${moved.x}, scrollLeft ${moved.left}`);
+      check('js: pinned block stays put while the row moves', moved.stickyTop === moved.pinTop, `sticky top ${moved.stickyTop}, pin top ${moved.pinTop}`);
+      check('js: slider cards revealed', moved.cardsHidden === 0, `${moved.cardsHidden} still hidden`);
+      check('js: counter and line follow the pin progress', moved.scaleX > 0.17 && moved.scaleX < 1 && !moved.counter.startsWith('01'), `scaleX ${moved.scaleX}, counter ${moved.counter}`);
+      check('js: no horizontal page overflow while pinned', moved.overflow === 0, `${moved.overflow}px`);
+      await wheel(Math.round(rect.x), Math.round(rect.y), 0, 400);
+      await sleep(800);
+      const sideways = await page.evaluate(PIN);
+      check('js: horizontal wheel leaves the pinned row alone', sideways.x === moved.x && sideways.left === 0, `x ${moved.x} → ${sideways.x}, scrollLeft ${sideways.left}`);
+      await jump(moved.pinStart + moved.travel);
+      await sleep(800);
+      const end = await page.evaluate(PIN);
+      check('js: pin end – last card flush with the container, counter 06, line full', Math.abs(end.lastRight - end.containerRight) <= 1 && end.counter.startsWith('06') && end.scaleX >= 0.99, `last ${end.lastRight} vs ${end.containerRight}, counter ${end.counter}, scaleX ${end.scaleX}`);
+      await jump(moved.pinStart + moved.travel + 300);
+      await sleep(800);
+      const released = await page.evaluate(PIN);
+      check('js: block releases after the runway', released.stickyTop <= released.pinTop - 290 && released.x === end.x, `sticky top ${released.stickyTop}, pin top ${released.pinTop}, x ${released.x}`);
+      await jump(moved.pinStart + Math.round(moved.travel / 2));
+      await sleep(800);
+      const back = await page.evaluate(PIN);
+      check('js: scrolling back reverses the row', back.x > end.x && back.x < 0 && back.stickyTop === back.pinTop, `x ${end.x} → ${back.x}`);
+    } else {
+      // Card track without the pin: horizontal wheel scrolls the track
+      // natively (two 400px deltas – a single small delta snaps back to card 1
+      // with scroll-snap mandatory) and the progress line eases along,
+      // vertical wheel scrolls the page
+      for (let i = 0; i < 2; i++) {
+        await wheel(Math.round(rect.x), Math.round(rect.y), 0, 400);
+        await sleep(400);
+      }
+      await sleep(600);
+      const track = await page.evaluate(`(() => {
+        const bar = document.querySelector('[data-progress-bar]');
+        const t = getComputedStyle(bar).transform;
+        const m = t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t);
+        return {
+          left: document.querySelector('[data-cards]').scrollLeft,
+          y: Math.round(scrollY),
+          cardsHidden: [...document.querySelectorAll('[data-cards] > *')].filter((c) => getComputedStyle(c).opacity !== '1').length,
+          scaleX: Math.round(m.a * 1000) / 1000,
+          counter: document.querySelector('[data-progress-count]').textContent,
+        };
+      })()`);
+      check('js: horizontal wheel scrolls the card track', track.left > 0, `scrollLeft ${track.left}`);
+      check('js: slider cards revealed', track.cardsHidden === 0, `${track.cardsHidden} still hidden`);
+      check('js: progress line eased past its start (scaleX > 1/6)', track.scaleX > 0.17 && track.scaleX <= 1, `scaleX ${track.scaleX}, counter ${track.counter}`);
+      await wheel(Math.round(rect.x), Math.round(rect.y), 200);
+      await sleep(1200);
+      const page2 = await page.evaluate(`Math.round(scrollY)`);
+      check('js: vertical wheel over the track scrolls the page', page2 > track.y, `${track.y} → ${page2}`);
+    }
 
     // Card glow follows the pointer (hover: hover)
     const hover = await page.evaluate(`matchMedia('(hover: hover)').matches`);
