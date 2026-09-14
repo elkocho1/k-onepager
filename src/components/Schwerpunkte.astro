@@ -1,8 +1,9 @@
 ---
 /**
  * Schwerpunkte (spec section 7, Figma 139:379 / mobile 242:203): background
- * photo (1373 wide, centred) faded into night on all four sides plus a night
- * overlay, centred eyebrow / h2 and six items – three on the left with a lime
+ * wireframe skyline from the Figma file (1373 wide, centred, 2746 source for
+ * 2x screens) faded into night on all four sides plus a night overlay,
+ * centred eyebrow / h2 and six items – three on the left with a lime
  * rule on the left, three on the right, right-aligned with the rule on the
  * right. Below 1024px all six stack left-aligned over the covering photo.
  */
@@ -20,7 +21,7 @@ const columns = [schwerpunkte.items.slice(0, 3), schwerpunkte.items.slice(3)];
     <Picture
       src={image}
       alt={schwerpunkte.image.alt}
-      widths={[768, 1373, 2000]}
+      widths={[768, 1373, 2000, 2746]}
       sizes="(max-width: 1023px) 100vw, 1373px"
       formats={['avif', 'webp']}
       loading="lazy"

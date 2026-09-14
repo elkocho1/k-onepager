@@ -23,7 +23,7 @@ Offen: Weblizenz vom Kunden bestätigen lassen (siehe PROJEKT-STRUKTUR.md).
 |---|---|---|
 | `hero.jpg` | `Bilder/pexels-timothy-huliselan-…jpg` (4000×3000, Querformat) | auf 2560 px Breite, Qualität 80 |
 | `vision.jpg` | `Bilder/pexels-jerry-zhang-…jpg` (2420×3232, Hochformat – Kräne mit Laub, entspricht Figma) | auf 1600 px Breite |
-| `schwerpunkte.jpg` | `Bilder/pexels-anatoleos-…jpg` (3542×5398) | auf 2000 px Breite; Figma zeigt eine Wireframe-Skyline (`hero-architecture-Photoroom`) – Kundenmaterial fehlt, Kran-Motiv ist Platzhalter |
+| `schwerpunkte.jpg` | `figma-export/schwerpunkte-export2x-139-381.png` (2746×1664) – Figma-Node `139:381` „hero-architecture-Photoroom 1" per MCP `download_assets` bei Scale 2 exportiert; der Export enthält Figmas Beschnitt und steht auf night (#2A3233) | JPEG Qualität 85 ohne Chroma-Subsampling (dünne cyanfarbene Linien); die Rohdatei im Figma ist ein 1600×1000-PNG mit Alpha (`schwerpunkte-raw1-139-381.png`, zur Referenz). Kundenoriginal fehlt weiterhin |
 | `founder-alexander-kappes.jpg` | `Bilder/kappes Alexander.jpg` (5239×7854, 11,8 MB) | auf 1600 px Breite, Fokus Gesicht oben, Qualität 82 |
 | `portfolio/kappes-group.jpg` … `portfolio/kappes-kemper.jpg` (6×) | fehlen → Platzhalter: `Bilder/pexels-sunny-yadav-…jpg` und die anderen Kran-Motive rotierend | auf 1600 px Breite |
 

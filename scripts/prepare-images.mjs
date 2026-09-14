@@ -28,12 +28,17 @@ const PHOTOS = {
   founder: 'kappes Alexander.jpg', // 5239×7854, 11.8 MB
 };
 
-/** @type {{ src: string; out: string; width: number; quality?: number }[]} */
+/**
+ * `dir` overrides the source folder (default _material/Bilder). Line art on a
+ * dark ground keeps its thin strokes only without chroma subsampling.
+ * @type {{ src: string; out: string; width: number; quality?: number; dir?: string; chromaSubsampling?: string }[]}
+ */
 const JOBS = [
   { src: PHOTOS.cranesDusk, out: 'hero.jpg', width: 2560, quality: 80 },
   { src: PHOTOS.cranesFoliage, out: 'vision.jpg', width: 1600 },
-  // Placeholder: Figma shows a wireframe skyline, client material is missing
-  { src: PHOTOS.cranesTall, out: 'schwerpunkte.jpg', width: 2000 },
+  // Wireframe skyline from the Figma design (node 139:381, exported at 2x on
+  // the night ground it sits on in the frame) – the customer has no original
+  { src: 'figma-export/schwerpunkte-export2x-139-381.png', dir: LOGO_SRC, out: 'schwerpunkte.jpg', width: 2746, quality: 85, chromaSubsampling: '4:4:4' },
   // Face is in the upper part – crop via object-position in CSS
   { src: PHOTOS.founder, out: 'founder-alexander-kappes.jpg', width: 1600, quality: 82 },
   // Portfolio placeholders (rotating crane motifs)
@@ -48,14 +53,15 @@ const JOBS = [
 const DEFAULT_QUALITY = 80;
 
 for (const job of JOBS) {
-  const input = path.join(SRC, job.src);
+  const input = path.join(job.dir ?? SRC, job.src);
   const output = path.join(OUT, job.out);
   await mkdir(path.dirname(output), { recursive: true });
 
   const info = await sharp(input)
     .rotate() // apply EXIF orientation, then strip metadata (sharp default)
     .resize({ width: job.width, withoutEnlargement: true })
-    .jpeg({ quality: job.quality ?? DEFAULT_QUALITY, mozjpeg: true })
+    .flatten({ background: '#2a3233' }) // --c-night; only matters for sources with alpha
+    .jpeg({ quality: job.quality ?? DEFAULT_QUALITY, mozjpeg: true, chromaSubsampling: job.chromaSubsampling ?? '4:2:0' })
     .toFile(output);
 
   const { size } = await stat(output);
