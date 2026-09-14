@@ -100,8 +100,17 @@ function initLenis(): Cleanup {
   };
   document.addEventListener('click', onClick);
 
+  // Portfolio tiles (portfolio.ts): the spotlight block glides under the nav
+  // instead of the native jump
+  const onPortfolioScroll = (event: Event): void => {
+    event.preventDefault();
+    lenis.scrollTo((event as CustomEvent<{ top: number }>).detail.top);
+  };
+  document.addEventListener('portfolio:scroll', onPortfolioScroll);
+
   return () => {
     document.removeEventListener('click', onClick);
+    document.removeEventListener('portfolio:scroll', onPortfolioScroll);
     gsap.ticker.remove(tick);
     lenis.destroy();
   };

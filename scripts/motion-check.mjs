@@ -211,6 +211,8 @@ async function runReduced() {
     // Spotlight switches without a fade
     const instant = await page.evaluate(`(() => { ${clickTab(1)}; return ${PANELS}; })()`);
     check('reduced: spotlight switches instantly (one panel, no fade)', instant.shown.length === 1 && instant.shown[0] === 1 && instant.opacity[0] === 1 && instant.selected === 1, JSON.stringify(instant));
+    const spotReduced = await page.evaluate(`Math.round(document.querySelector('[data-portfolio-panels]').getBoundingClientRect().top)`);
+    check('reduced: tile click jumps the spotlight block under the nav', spotReduced === 96, `top ${spotReduced}`);
   });
 }
 
@@ -479,6 +481,24 @@ async function runJs() {
     await sleep(1200);
     const rapid = await page.evaluate(PANELS);
     check('js: rapid switches settle on the last panel', rapid.shown.length === 1 && rapid.shown[0] === 4 && rapid.opacity[0] === 1 && rapid.settled && rapid.selected === 4 && Math.abs(rapid.height - before.height) < 1, JSON.stringify(rapid));
+    // Tile click brings the spotlight block under the nav: portfolio.ts hands
+    // the layout position over via portfolio:scroll and Lenis glides there.
+    // First with the block below the fold …
+    await page.evaluate(`(async () => { const el = document.querySelector('[data-portfolio-panels]'); window.scrollTo(0, Math.round(el.getBoundingClientRect().top + scrollY - innerHeight + 200)); await new Promise((r) => setTimeout(r, 1200)); })()`);
+    const spotBefore = await page.evaluate(`Math.round(document.querySelector('[data-portfolio-panels]').getBoundingClientRect().top)`);
+    await page.evaluate(`(async () => { ${clickTab(1)}; await new Promise((r) => setTimeout(r, 1500)); })()`);
+    const spotAfterClick = await page.evaluate(`Math.round(document.querySelector('[data-portfolio-panels]').getBoundingClientRect().top)`);
+    check('js: tile click scrolls the spotlight block under the nav', spotAfterClick === 96, `top ${spotBefore} → ${spotAfterClick}`);
+    // … then with the block fully in view: no scroll (below 1024 the block is
+    // taller than the viewport, so it never fits – the check passes through)
+    await page.evaluate(`(async () => { window.scrollTo(0, scrollY - 300); await new Promise((r) => setTimeout(r, 1200)); })()`);
+    const inView = await page.evaluate(`(() => { const r = document.querySelector('[data-portfolio-panels]').getBoundingClientRect(); return { top: Math.round(r.top), fits: r.top >= 96 && r.bottom <= innerHeight }; })()`);
+    await page.evaluate(`(async () => { ${clickTab(2)}; await new Promise((r) => setTimeout(r, 1500)); })()`);
+    const stayed = await page.evaluate(`Math.round(document.querySelector('[data-portfolio-panels]').getBoundingClientRect().top)`);
+    check('js: no scroll when the spotlight block is fully visible', !inView.fits || stayed === inView.top, `before ${inView.top} (fits ${inView.fits}) after ${stayed}`);
+    // Let the Lenis scroll settle completely – a native scrollTo while Lenis
+    // still animates is not adopted and the next lenis.scrollTo goes astray
+    await sleep(1500);
 
     // Anchor link: hash, focus and the landing – at --scroll-offset, or with
     // the desktop pin (warum-slider.ts) at the pin start: the section carries
@@ -617,9 +637,11 @@ async function runJs() {
     const fine = await page.evaluate(`matchMedia('(pointer: fine) and (hover: hover)').matches`);
     if (fine) {
       const at = { x: Math.round(width / 2), y: Math.round(height / 2) };
-      // Sweep 240px from the left to the centre in 8 steps
+      // Sweep from the left to the centre in 8 steps (240px, or what fits on
+      // a narrow viewport); the trail is sampled where the sweep started
+      const from = Math.max(40, at.x - 240);
       for (let i = 0; i <= 8; i++) {
-        await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: at.x - 240 + i * 30, y: at.y });
+        await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: Math.round(from + ((at.x - from) * i) / 8), y: at.y });
         await sleep(30);
       }
       await sleep(60);
@@ -630,7 +652,7 @@ async function runJs() {
         const dpr = c.width / innerWidth;
         const ctx = c.getContext('2d');
         const lit = (x, y, size) => { const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), size, size).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; };
-        return { hidden: c.hidden, near: lit(${at.x} - 30, ${at.y} - 30, 60), trail: lit(${at.x} - 260, ${at.y} - 20, 40), far: lit(${at.x} + 400, ${at.y} - 20, 40), z: +cs.zIndex, navZ: +getComputedStyle(document.querySelector('[data-nav]')).zIndex, pointer: cs.pointerEvents, blend: cs.mixBlendMode };
+        return { hidden: c.hidden, near: lit(${at.x} - 30, ${at.y} - 30, 60), trail: lit(${from} - 20, ${at.y} - 20, 40), far: lit(${at.x} + 400, ${at.y} - 20, 40), z: +cs.zIndex, navZ: +getComputedStyle(document.querySelector('[data-nav]')).zIndex, pointer: cs.pointerEvents, blend: cs.mixBlendMode };
       })()`;
       const hex = await page.evaluate(HEX_PROBE);
       check('js: hex canvas shown for a fine pointer, spotlight lit at the mouse', !hex.missing && !hex.hidden && hex.near > 0, JSON.stringify(hex));

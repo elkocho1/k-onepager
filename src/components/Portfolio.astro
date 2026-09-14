@@ -216,6 +216,11 @@ const logoStyle = (company: (typeof companies)[number]) =>
   /* All panels sit in the same cell: during the cross-fade two are shown at
      once and the cell keeps the taller one's height (on desktop all 480px) */
   .spotlights {
+    /* Below 1024px the panels are content-high: when the old panel is hidden
+       after the cross-fade the block shrinks, and Chrome's scroll anchoring
+       would shift the page by the difference right after a tile click has
+       scrolled the block under the nav (portfolio.ts) */
+    overflow-anchor: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     margin-top: 56px;

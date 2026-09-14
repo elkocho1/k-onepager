@@ -150,7 +150,7 @@ Eyebrow (14, Bold, uppercase, magenta, 8 px vertical padding) → 24 px → H2 (
   - Rechts Bild (flex 1, Höhe 100 %, object-fit cover) mit Overlay `linear-gradient(90deg, rgba(42,50,51,.95) 0%, rgba(42,50,51,.2) 55%, rgba(42,50,51,0) 100%)`.
   - Chip: Rahmen 1 px `rgba(126,209,201,.4)`, radius 999, padding 8/16, Text 14 Medium teal.
   - Button „Webseite" nur rendern, wenn `url` in `de.json` nicht leer ist.
-- Verhalten: Klick auf Tile → Spotlight zeigt Firma (alle sechs Spotlights im HTML rendern, nur eines sichtbar; ohne JS ist das erste sichtbar). Tiles sind `<button aria-pressed>`; Spotlight-Wechsel über `hidden`-Attribut. Cross-Fade in Phase 7.
+- Verhalten: Klick auf Tile → Spotlight zeigt Firma (alle sechs Spotlights im HTML rendern, nur eines sichtbar; ohne JS ist das erste sichtbar). Zusätzlich (2026-09-14, Kundenwunsch zur Orientierung): der Klick scrollt den Spotlight-Block unter die Nav (Oberkante = `--scroll-offset` 96), mit Lenis weich, bei reduced motion als Sprung – nur, wenn der Block nicht schon komplett im Viewport steht; Tastatur-Auswahl (Pfeiltasten) scrollt nicht, damit die fokussierte Kachel sichtbar bleibt. Tiles sind `<button aria-pressed>`; Spotlight-Wechsel über `hidden`-Attribut. Cross-Fade in Phase 7.
 - Mobile (`242:149`): Wall 2×3, Tiles 165×128 gap 12, Logo max 118×36, Name 15.5. Spotlight gestapelt: Bild oben 342×200, Accent-Line horizontal, Text darunter padding 24/28.
 
 ### 7 Schwerpunkte – Node `139:379` (1918×832) – `id="schwerpunkte"`
