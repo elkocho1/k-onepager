@@ -249,3 +249,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 **Gemessen** (1920, Sonde alle 150 ms): vorwärts ab Scroll ≈ 1166 Eyebrow 0 → 0,46 → 0,83 → 0,97 → 1, Zeile 1 ab +0,3 s (0,51 → 0,85 → 0,97 → 1), Zeile 2 0,15 s dahinter, Buttons ab +0,6 s (0,51 → 0,86 → 0,97 → 1), fertig nach ≈ 1,5 s. Rückwärts (Scroll auf 900): Buttons 0,98 → 0,89 → 0,6 → 0, dann Zeile 2, Zeile 1, Eyebrow, fertig nach ≈ 1,4 s – gleiche Reihenfolge umgekehrt, keine Sprünge.
 
 **Abnahme.** `astro check` ohne Fehler, `npm run build` fehlerfrei, `motion-check.mjs` 1920: alle Checks grün (Wartezeit der „landed"-Probe 1,8 → 3 s wegen Lenis-Lerp + 1,55 s Sequenz). Spec Abschnitt 1 (Timeline) angepasst.
+
+### Phase 7 – Nachtrag: Founder-Bild verpixelt · 2026-09-14 · Commit `(folgt)`
+
+**Befund.** `<Picture>` in `Founder.astro` setzte keine `quality`; Astro reicht dann nichts an sharp durch und AVIF fällt auf den sharp-Standard **50**. Das 713-px-Porträt lag bei 9,7 kB, die 1426-px-Variante (DPR > 1) bei 25,6 kB – Haut und Stoff glattgebügelt, Kanten blockig. **Behoben:** `quality={82}` (wie die JPG-Vorstufe aus `prepare-images.mjs`). Größen danach: 342 w 9,0 kB · 684 w 24,1 · 713 w 25,7 · 1426 w 74,3 kB AVIF (WebP 15/47 kB). Vorher/nachher-Zoom auf Uhr und Ärmel: Textur erhalten statt verschmiert. Die übrigen Fotos (Hero, Vision, Schwerpunkte, Spotlights) laufen noch mit dem Standard – falls dort dasselbe auffällt, gleiche Maßnahme.
