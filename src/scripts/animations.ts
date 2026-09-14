@@ -10,7 +10,7 @@
  * GSAP only, never in CSS.
  *
  * `prefers-reduced-motion: reduce` (checked live via gsap.matchMedia): only
- * the nav state (background after 40px, active link) is wired up – no smooth
+ * the nav state (background once the hero copy reveals, active link) is wired up – no smooth
  * scroll, no tweens, the marquee stays static, the spotlight switches
  * instantly (portfolio.ts default) and the hex canvas stays hidden.
  */
@@ -33,9 +33,21 @@ function initNav(): void {
   const header = document.querySelector<HTMLElement>('[data-nav]');
   if (!header) return;
 
-  // `.is-scrolled` from 40px; the 300ms transition itself is CSS (Nav.astro)
+  // `.is-scrolled` once the hero copy starts to reveal – timeline position
+  // PUSH_THROUGH of the pinned push-through, where the overlay is already full
+  // night, so the bar's background fades in unseen (spec deviation 12).
+  // Without a pin (below 768px) and at reduced motion, where the push trigger
+  // does not exist, it comes when the hero's bottom edge reaches the bar.
+  // Re-evaluated on every refresh; the 300ms transition itself is CSS.
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const start = (): number => {
+    const push = ScrollTrigger.getById('hero-push');
+    if (push?.pin) return push.start + (push.end - push.start) * PUSH_THROUGH;
+    const heroBottom = hero ? hero.getBoundingClientRect().bottom + window.scrollY : 0;
+    return Math.max(40, heroBottom - header.offsetHeight);
+  };
   ScrollTrigger.create({
-    start: 40,
+    start,
     end: 'max',
     onToggle: (self) => header.classList.toggle('is-scrolled', self.isActive),
   });

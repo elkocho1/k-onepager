@@ -199,9 +199,13 @@ async function runReduced() {
     for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
     check('reduced: marquee static (two captures 1.5 s apart identical)', diff === 0, `${diff} differing bytes`);
     // Nav state is functional, not motion – it must still work
+    // (background once the hero's bottom edge reaches the bar – no pin here)
     await page.evaluate(`(async () => { window.scrollTo(0, 300); await new Promise((r) => setTimeout(r, 400)); })()`);
+    const early = await page.evaluate(`!!document.querySelector('[data-nav].is-scrolled')`);
+    check('reduced: nav still transparent at 300px over the hero', early === false);
+    await page.evaluate(`(async () => { window.scrollTo(0, innerHeight); await new Promise((r) => setTimeout(r, 400)); })()`);
     const scrolled = await page.evaluate(`!!document.querySelector('[data-nav].is-scrolled')`);
-    check('reduced: nav .is-scrolled after 300px', scrolled === true);
+    check('reduced: nav .is-scrolled once the hero has left', scrolled === true);
     // Spotlight switches without a fade
     const instant = await page.evaluate(`(() => { ${clickTab(1)}; return ${PANELS}; })()`);
     check('reduced: spotlight switches instantly (one panel, no fade)', instant.shown.length === 1 && instant.shown[0] === 1 && instant.opacity[0] === 1 && instant.selected === 1, JSON.stringify(instant));
@@ -307,7 +311,7 @@ async function runJs() {
       };
     })()`);
     check('js: wheel scroll moved the page (Lenis)', after.y > 300 && after.y <= 480, `scrollY ${after.y}`);
-    check('js: nav .is-scrolled after 40px', after.scrolled);
+    check('js: nav still transparent during the fly-through', !after.scrolled);
     check('js: hero stays pinned during the push-through', after.heroTop === 0, `top ${after.heroTop}`);
     check('js: hero type scales up out of its centre', after.typeScale > 1 && after.typeScale < 8, `scale ${after.typeScale}`);
     check('js: hero photo widens slightly with it', after.pictureScale > 1 && after.pictureScale < 1.12, `scale ${after.pictureScale}`);
@@ -362,6 +366,7 @@ async function runJs() {
       const root = getComputedStyle(document.querySelector('[data-nav]'));
       return {
         y: Math.round(scrollY),
+        scrolled: document.querySelector('[data-nav]').classList.contains('is-scrolled'),
         height: Math.round(inner.getBoundingClientRect().height * 10) / 10,
         logo: Math.round(logo.getBoundingClientRect().width * 10) / 10,
         full: parseFloat(root.getPropertyValue('--nav-height')),
@@ -376,6 +381,12 @@ async function runJs() {
     };
     const pinEnd = await page.evaluate(`Math.round(innerHeight * 1.5)`);
     if (width >= 768) {
+      // Background state: off just before the copy reveal (0.72 of the pin), on right after
+      const reveal = Math.round(pinEnd * 0.72);
+      const beforeReveal = await navAt(reveal - 60);
+      const atReveal = await navAt(reveal + 20);
+      check('js: nav background off just before the copy reveal', !beforeReveal.scrolled, `y ${beforeReveal.y}`);
+      check('js: nav background on as the copy lines appear', atReveal.scrolled, `y ${atReveal.y}`);
       const navStart = await navAt(pinEnd);
       const navMid = await navAt(pinEnd + 150);
       const navEnd = await navAt(pinEnd + 300);
@@ -395,6 +406,8 @@ async function runJs() {
         JSON.stringify(navEnd),
       );
     } else {
+      const heroOut = await navAt(await page.evaluate(`Math.round(document.querySelector('[data-hero]').getBoundingClientRect().bottom + scrollY)`));
+      check('js: nav .is-scrolled once the hero has left (no pin)', heroOut.scrolled, `y ${heroOut.y}`);
       const mobile = await page.evaluate(`(() => {
         const inner = document.querySelector('[data-nav-inner]');
         const logo = document.querySelector('[data-nav-logo]');
