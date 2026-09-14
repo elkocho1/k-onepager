@@ -254,7 +254,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Befund.** `<Picture>` in `Founder.astro` setzte keine `quality`; Astro reicht dann nichts an sharp durch und AVIF fällt auf den sharp-Standard **50**. Das 713-px-Porträt lag bei 9,7 kB, die 1426-px-Variante (DPR > 1) bei 25,6 kB – Haut und Stoff glattgebügelt, Kanten blockig. **Behoben:** `quality={82}` (wie die JPG-Vorstufe aus `prepare-images.mjs`). Größen danach: 342 w 9,0 kB · 684 w 24,1 · 713 w 25,7 · 1426 w 74,3 kB AVIF (WebP 15/47 kB). Vorher/nachher-Zoom auf Uhr und Ärmel: Textur erhalten statt verschmiert. Die übrigen Fotos (Hero, Vision, Schwerpunkte, Spotlights) laufen noch mit dem Standard – falls dort dasselbe auffällt, gleiche Maßnahme.
 
-### Phase 7 – Animationen, Teil B/8 (Hex-Cursor: Spotlight + Zellen-Trail) · 2026-09-14 · Branch `feat/hex-cursor-trail`, Commit `d92542e` – **nicht gemerged**
+### Phase 7 – Animationen, Teil B/8 (Hex-Cursor: Spotlight + Zellen-Trail) · 2026-09-14 · Branch `feat/hex-cursor-trail`, Commit `21ae313` – **nicht gemerged**
 
 **Auftrag:** Der Hex-Cursor wirkte wie ein statisches Raster, das per Maske freigelegt wird – zu großflächig (Radius 220), kein Nachziehen, kein Abklingen. Ersetzen durch Spotlight + Zellen-Trail.
 
@@ -272,7 +272,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei; `motion-check.mjs` Hex-Probe umgebaut (Schwenk in 8 Schritten per CDP; neu: Spotlight bei der Maus, Trail am Startpunkt, nichts in 400 px, unter der Nav/click-through/screen, **alles weg nach 1,6 s Ruhe**), 1920 alle Checks grün; no-js und reduced: Canvas bleibt `hidden`.
 
-### Phase 7 – Animationen, Teil B/9 (Vision/Mission-Reveal gestaffelt) · 2026-09-14 · Commit `d92542e` (Komponenten – von der parallelen Hex-Cursor-Session mit eingesammelt) + Doku `da367f7`
+### Phase 7 – Animationen, Teil B/9 (Vision/Mission-Reveal gestaffelt) · 2026-09-14 · Commit `21ae313` (Komponenten – von der parallelen Hex-Cursor-Session mit eingesammelt) + Doku `05feb06`
 
 **Auftrag:** Die Sektion „Vision und Mission" soll beim Scrollen dieselbe Einblendung bekommen wie die Textblöcke davor – alle Textelemente und das Bild, gleiche Werte, einmalig, reduced motion respektiert, kein Layout-Shift.
 
@@ -284,7 +284,7 @@ _(Claude Code trägt hier je Phase Datum, Commit-Hash und Besonderheiten ein.)_
 
 **Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei, `motion-check.mjs` 1920 (`--mode=all`): alle Checks grün („below-fold reveals start hidden" jetzt 8/8 statt 10/10 – zwei Blöcke sind Stagger-Ziele). Phase-7-Doc Punkt 5 ergänzt. Branch `feat/hex-cursor-trail`, nicht gemergt.
 
-### Phase 7 – Animationen, Teil B/10 (Schwerpunkte: Hintergrundbild aus dem Figma) · 2026-09-14 · Commits `51dc387` + `22d7504`
+### Phase 7 – Animationen, Teil B/10 (Schwerpunkte: Hintergrundbild aus dem Figma) · 2026-09-14 · Commits `3386540` + `22d7504`
 
 **Auftrag:** Die Sektion „Wo wir investieren" zeigte noch das Kran-Foto als Platzhalter; gewünscht ist das Bild aus dem Figma-Design.
 
