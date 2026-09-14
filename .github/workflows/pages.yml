@@ -6,8 +6,8 @@
 # publishes it with the official Astro action. Production for IONOS stays
 # deploy.yml – it builds without these variables, so base is '/'.
 #
-# One-time repository setting: Settings → Pages → Build and deployment →
-# Source: "GitHub Actions".
+# Pages is enabled by the workflow itself (actions/configure-pages,
+# enablement: true) – the repository has to be public or on a paid plan.
 
 name: Pages preview
 
@@ -39,6 +39,13 @@ jobs:
       - name: Read Node version from package.json
         id: node
         run: echo "version=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")" >> "$GITHUB_OUTPUT"
+
+      # Enables Pages with source "GitHub Actions" on first use (needs a public
+      # repo or a paid plan) – nothing to set by hand under Settings → Pages
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Build with Astro
         uses: withastro/action@v6
