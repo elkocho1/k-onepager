@@ -128,8 +128,8 @@ Der Build ist in neun Phasen aufgeteilt: `CLAUDE.md` (Regeln), `docs/BUILD-PHASE
 Blockierend für den Build-Start: keine – Start mit Platzhaltern.
 
 Vom Kunden:
-1. Mailadresse für Pitch/Kontakt (aktuell `mailto:pitch@kplus.de` / `mailto:info@kplus.de` als Platzhalter)
-2. Impressum und Datenschutzerklärung (IONOS als Hoster muss drinstehen)
+1. Mailadresse für Pitch/Kontakt – **geliefert (2026-09-14):** `pitch@kplus.build` / `kontakt@kplus.build`, in `de.json` eingetragen
+2. Impressum und Datenschutzerklärung – **Entwurf drin (2026-09-14):** von kappes.group übernommen und auf die Kplus GmbH angepasst (`de.json` `legal.pages.*.sections`, gerendert von `Legal.astro`; IONOS als Hoster, keine Cookies/Analytics, Kontakt per E-Mail). **Vom Kunden noch zu liefern:** Telefonnummer, HRB-Nummer, USt-IdNr. (Platzhalter `[folgt]`), Aussage ob ein Datenschutzbeauftragter bestellt ist, ggf. Credit „Website Konzeption & Umsetzung". Danach `legal.noindex: false`.
 3. Domain + IONOS-Hosting-Paket, danach FTPS-Zugangsdaten → als GitHub-Secrets für die Deploy-Action (`IONOS_HOST`, `IONOS_USER`, `IONOS_PASSWORD`, `IONOS_STAGING_DIR`, `IONOS_REMOTE_DIR` – `.github/workflows/deploy.yml`); mit der Domain `meta.siteUrl` in `de.json`, `public/robots.txt` und den www-Redirect in `public/.htaccess` final setzen
 4. Website-URLs der sechs Beteiligungen (`url` in `de.json` noch leer außer kappes.group)
 5. Logos als SVG bzw. transparente PNGs ≥ 800 px (siehe Tabelle)

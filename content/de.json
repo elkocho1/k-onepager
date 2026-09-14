@@ -300,11 +300,11 @@
     "text": "Du entwickelst eine Technologie, ein Geschäftsmodell oder eine Idee, die das Bauen verändern kann?\nDann wollen wir sie kennenlernen.",
     "primaryCta": {
       "label": "Pitch einreichen",
-      "href": "mailto:pitch@kplus.de"
+      "href": "mailto:pitch@kplus.build"
     },
     "secondaryCta": {
       "label": "Kontakt aufnehmen",
-      "href": "mailto:info@kplus.de"
+      "href": "mailto:kontakt@kplus.build"
     }
   },
   "footer": {
@@ -337,17 +337,266 @@
   "legal": {
     "noindex": true,
     "backLabel": "Zurück zur Startseite",
-    "placeholder": "Inhalt folgt vom Kunden.",
+    "updated": "Stand: September 2026",
     "pages": {
       "impressum": {
         "title": "Impressum",
         "metaTitle": "Impressum | K+",
-        "description": "Impressum der Kplus GmbH, Stuttgart."
+        "description": "Impressum der Kplus GmbH, Stuttgart.",
+        "sections": [
+          {
+            "level": 2,
+            "heading": "Angaben gemäß § 5 DDG",
+            "blocks": [
+              "Kplus GmbH\nRamsbachstr. 3\n70597 Stuttgart"
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Vertreten durch den Geschäftsführer",
+            "blocks": [
+              "Dr. Alexander Kappes"
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Kontakt",
+            "blocks": [
+              "Telefon: [Telefonnummer folgt]\nE-Mail: kontakt@kplus.build"
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Registereintrag",
+            "blocks": [
+              "Eintragung im Handelsregister.\nRegistergericht: Amtsgericht Stuttgart\nRegisternummer: HRB [folgt]"
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Umsatzsteuer",
+            "blocks": [
+              "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:\nDE [folgt]"
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Streitschlichtung",
+            "blocks": [
+              "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Nutzungsbedingungen der Website",
+            "blocks": [
+              "Die Leistungen, die die Kplus GmbH Ihnen in diesem Internetauftritt anbietet, unterliegen den folgenden Nutzungsbedingungen. Die Kplus GmbH behält sich das Recht vor, diese Nutzungsbedingungen jederzeit ohne vorherige Benachrichtigung zu aktualisieren."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Beschreibung der Leistungen",
+            "blocks": [
+              "Durch diesen Internetauftritt verschafft die Kplus GmbH Ihnen Zugang zu Informationen über das Unternehmen, seine Beteiligungen und Schwerpunkte sowie zu Kontaktmöglichkeiten (zusammen folgend „Leistungen\" genannt). Diese Leistungen sind Gegenstand dieser Nutzungsbedingungen."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Beschränkung auf nichtkommerzielle Nutzung",
+            "blocks": [
+              "Die auf diesem Internetauftritt bereitgestellten Informationen und Leistungen dienen der allgemeinen Information über unser Unternehmen, unsere Beteiligungen sowie der Geschäftsanbahnung. Sie dürfen die Website und deren Inhalte zu diesen Informationszwecken sowie zur Anbahnung oder Durchführung einer Geschäftsbeziehung mit der Kplus GmbH nutzen.",
+              "Ohne unsere vorherige ausdrückliche Zustimmung ist es Ihnen jedoch untersagt, die auf der Website bereitgestellten Inhalte, Daten, Texte oder Bilder für eigene gewerbliche Zwecke weiterzuverwenden, die nicht in direkter Verbindung mit einer Geschäftsbeziehung zu uns stehen. Insbesondere ist es nicht gestattet, die Inhalte systematisch auszulesen (z. B. durch Data Mining, Scraping oder ähnliche Verfahren), zu verändern, zu vervielfältigen, zu lizenzieren, zu verkaufen oder auf anderen Websites oder Plattformen zu veröffentlichen."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Verhaltenspflichten & Links auf Seiten Dritter",
+            "blocks": [
+              "Ihre Nutzung der Leistungen ist unter der Bedingung gestattet, dass Sie die Leistungen nicht für Zwecke verwenden, die rechtswidrig sind oder gegen diese Nutzungsbedingungen verstoßen. Die auf den Webseiten der Kplus GmbH enthaltenen Links ermöglichen es Ihnen, zu anderen Webseiten zu springen – etwa zu den Websites unserer Beteiligungen. Diese fremden Webseiten werden nicht von der Kplus GmbH kontrolliert. Die Kplus GmbH macht sich deren Inhalte nicht zu Eigen und ist für diese nicht verantwortlich."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Haftung für Inhalte",
+            "blocks": [
+              "Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+              "Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "Urheberrecht",
+            "blocks": [
+              "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.",
+              "Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis."
+            ]
+          }
+        ]
       },
       "datenschutz": {
         "title": "Datenschutzerklärung",
         "metaTitle": "Datenschutzerklärung | K+",
-        "description": "Datenschutzerklärung der Kplus GmbH, Stuttgart."
+        "description": "Datenschutzerklärung der Kplus GmbH, Stuttgart.",
+        "sections": [
+          {
+            "level": 2,
+            "heading": "1. Datenschutz auf einen Blick",
+            "blocks": []
+          },
+          {
+            "level": 3,
+            "heading": "Allgemeine Hinweise",
+            "blocks": [
+              "Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie unsere Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Datenerfassung auf dieser Website",
+            "blocks": [
+              "Wer ist verantwortlich für die Datenerfassung auf dieser Website?\nDie Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur verantwortlichen Stelle\" in dieser Datenschutzerklärung entnehmen.",
+              "Wie erfassen wir Ihre Daten?\nIhre Daten werden zum einen dadurch erhoben, dass Sie sie uns mitteilen – etwa, wenn Sie uns per E-Mail kontaktieren oder einen Pitch einreichen. Andere Daten werden automatisch beim Besuch der Website durch unsere IT-Systeme bzw. die unseres Hosters erfasst. Das sind vor allem technische Daten (z. B. Browser, Betriebssystem oder Uhrzeit des Seitenaufrufs). Diese Website setzt keine Cookies ein und verwendet keine Analyse- oder Tracking-Dienste.",
+              "Welche Rechte haben Sie bezüglich Ihrer Daten?\nSie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung, Einschränkung der Verarbeitung oder Löschung dieser Daten zu verlangen. Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden. Des Weiteren steht Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "2. Allgemeine Hinweise und Pflichtinformationen",
+            "blocks": []
+          },
+          {
+            "level": 3,
+            "heading": "Datenschutz",
+            "blocks": [
+              "Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung. Wir weisen darauf hin, dass die Datenübertragung im Internet (z. B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Hinweis zur verantwortlichen Stelle",
+            "blocks": [
+              "Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:\nKplus GmbH\nRamsbachstr. 3\n70597 Stuttgart\nVertreten durch den Geschäftsführer: Dr. Alexander Kappes\nTelefon: [Telefonnummer folgt]\nE-Mail: kontakt@kplus.build",
+              "Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z. B. Namen, E-Mail-Adressen o. Ä.) entscheidet."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Widerruf Ihrer Einwilligung zur Datenverarbeitung",
+            "blocks": [
+              "Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) möglich. Sie können eine bereits erteilte Einwilligung jederzeit widerrufen. Dazu reicht eine formlose Mitteilung per E-Mail an uns. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Beschwerderecht bei der zuständigen Aufsichtsbehörde",
+            "blocks": [
+              "Im Falle datenschutzrechtlicher Verstöße steht dem Betroffenen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu. Zuständige Aufsichtsbehörde in datenschutzrechtlichen Fragen ist der Landesdatenschutzbeauftragte des Bundeslandes, in dem unser Unternehmen seinen Sitz hat – für Baden-Württemberg der Landesbeauftragte für den Datenschutz und die Informationsfreiheit (https://www.baden-wuerttemberg.datenschutz.de). Eine Liste der Datenschutzbeauftragten sowie deren Kontaktdaten können folgendem Link entnommen werden: https://www.bfdi.bund.de/DE/Infothek/Anschriften_Links/anschriften_links-node.html"
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Recht auf Datenübertragbarkeit",
+            "blocks": [
+              "Sie haben das Recht, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an einen Dritten in einem gängigen, maschinenlesbaren Format aushändigen zu lassen. Sofern Sie die direkte Übertragung der Daten an einen anderen Verantwortlichen verlangen, erfolgt dies nur, soweit es technisch machbar ist."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "SSL- bzw. TLS-Verschlüsselung",
+            "blocks": [
+              "Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://\" auf „https://\" wechselt und an dem Schloss-Symbol in Ihrer Browserzeile. Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Auskunft, Einschränkung der Verarbeitung, Löschung",
+            "blocks": [
+              "Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung, Einschränkung der Verarbeitung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit an uns wenden."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Widerspruch gegen Werbe-Mails",
+            "blocks": [
+              "Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-E-Mails, vor."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "3. Hosting",
+            "blocks": []
+          },
+          {
+            "level": 3,
+            "heading": "IONOS",
+            "blocks": [
+              "Wir hosten die Inhalte unserer Website bei folgendem Anbieter: IONOS SE, Elgendorfer Str. 57, 56410 Montabaur (nachfolgend „IONOS\"). Wenn Sie unsere Website besuchen, erfasst IONOS verschiedene Logfiles inklusive Ihrer IP-Adresse. Details entnehmen Sie der Datenschutzerklärung von IONOS: https://www.ionos.de/terms-gtc/datenschutzerklaerung/",
+              "Die Verwendung von IONOS erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer möglichst zuverlässigen Darstellung unserer Website. Wir haben mit IONOS einen Vertrag über Auftragsverarbeitung (AVV) gemäß Art. 28 DSGVO geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass IONOS die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "4. Datenerfassung auf dieser Website",
+            "blocks": []
+          },
+          {
+            "level": 3,
+            "heading": "Cookies und vergleichbare Technologien",
+            "blocks": [
+              "Diese Website setzt keine Cookies und verwendet keine vergleichbaren Technologien (z. B. Local Storage), um Sie oder Ihr Endgerät wiederzuerkennen. Es kommen keine Analyse-, Tracking- oder Marketing-Dienste zum Einsatz, und es werden keine Inhalte von Drittanbietern nachgeladen. Ein Cookie-Hinweis ist deshalb nicht erforderlich."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Server-Log-Dateien",
+            "blocks": [
+              "Der Provider der Seiten erhebt und speichert automatisch Informationen in sogenannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt. Dies sind:",
+              [
+                "Browsertyp und -version",
+                "verwendetes Betriebssystem",
+                "Referrer URL",
+                "Hostname des zugreifenden Rechners",
+                "Uhrzeit der Serveranfrage",
+                "IP-Adresse"
+              ],
+              "Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Grundlage für die Datenverarbeitung ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse besteht in der fehlerfreien Darstellung und der Gewährleistung der IT-Sicherheit unserer Website."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Kontakt per E-Mail und Einreichung von Pitches",
+            "blocks": [
+              "Wenn Sie uns per E-Mail Anfragen zukommen lassen – etwa über die Buttons „Kontakt aufnehmen\" oder „Pitch einreichen\" –, werden Ihre Angaben inklusive der von Ihnen dort angegebenen Kontaktdaten sowie eventuell mitgesandter Unterlagen (z. B. Pitch-Decks) zwecks Bearbeitung der Anfrage bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.",
+              "Die Verarbeitung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage mit der Erfüllung eines Vertrags zusammenhängt oder zur Durchführung vorvertraglicher Maßnahmen erforderlich ist. In allen übrigen Fällen beruht die Verarbeitung auf unserem berechtigten Interesse an der effektiven Bearbeitung der an uns gerichteten Anfragen (Art. 6 Abs. 1 lit. f DSGVO) oder auf Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), sofern diese abgefragt wurde. Die Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung widerrufen oder der Zweck entfällt."
+            ]
+          },
+          {
+            "level": 2,
+            "heading": "5. Schriftarten, Medien und externe Links",
+            "blocks": []
+          },
+          {
+            "level": 3,
+            "heading": "Lokal eingebundene Schriftarten",
+            "blocks": [
+              "Diese Seite nutzt zur einheitlichen Darstellung von Schriftarten sogenannte Web Fonts. Die Schriftarten sind lokal auf unserem eigenen Webspace installiert. Eine Verbindung zu Servern Dritter findet beim Aufruf unserer Website nicht statt; es werden keine personenbezogenen Daten (wie die IP-Adresse) an Schriftanbieter übertragen. Die Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer einheitlichen und ansprechenden Darstellung)."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Bilder und Videos",
+            "blocks": [
+              "Alle Bilder und Videos auf dieser Website werden von unserem eigenen Webspace ausgeliefert. Es werden keine Videoportale (z. B. YouTube oder Vimeo) und keine Kartendienste eingebunden."
+            ]
+          },
+          {
+            "level": 3,
+            "heading": "Links zu externen Websites",
+            "blocks": [
+              "Unsere Website enthält Links zu den Websites unserer Beteiligungen und zu weiteren externen Angeboten. Beim Anklicken eines solchen Links verlassen Sie unsere Website; es gelten dann die Datenschutzbestimmungen des jeweiligen Anbieters. Auf deren Inhalte und Datenverarbeitung haben wir keinen Einfluss."
+            ]
+          }
+        ]
       }
     }
   }

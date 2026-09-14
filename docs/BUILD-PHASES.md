@@ -388,7 +388,7 @@ _(B/8 Hex-Cursor-Trail und B/9 Vision/Mission-Reveal liegen auf `feat/hex-cursor
 
 **Abnahme.** `astro check` 0 Fehler, `npm run build` fehlerfrei, `dist/` mit `.htaccess`, `404.html`, `og/kplus-build-beyond.jpg`, `robots.txt`, `sitemap-index.xml`; `motion-check.mjs` alle drei Modi grün (die `sizes`-Änderung hat nichts verschoben). README um `subset-fonts` und `og-image` ergänzt.
 
-**Offen (Kunde / nach Livegang):** Domain (`de.json` `meta.siteUrl`, `robots.txt`, `.htaccess`-Host), IONOS-Secrets → erster Staging-Deploy, Rechtstexte (dann `legal.noindex: false`), Mailadressen, Beteiligungs-URLs, Font-Lizenz, Video-Lizenz, Rich-Results-Test und Search Console auf der Live-URL.
+**Offen (Kunde / nach Livegang):** Domain (`de.json` `meta.siteUrl`, `robots.txt`, `.htaccess`-Host), IONOS-Secrets → erster Staging-Deploy, Rechtstexte – Entwurf steht, Platzhalter Telefon/HRB/USt-IdNr. (dann `legal.noindex: false`), Beteiligungs-URLs, Font-Lizenz, Video-Lizenz, Rich-Results-Test und Search Console auf der Live-URL.
 
 
 ### Phase 8 – Nachtrag: Kunden-Vorschau auf GitHub Pages · 2026-09-14 · Branch `feat/pages-preview`

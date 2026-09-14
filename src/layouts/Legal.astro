@@ -1,13 +1,15 @@
 ---
 /**
  * Layout for the legal pages (Impressum, Datenschutz): narrow text column,
- * placeholder copy and `noindex` until the client delivers the texts
- * (content/de.json legal.noindex – astro.config.mjs reads the same flag to
- * keep the pages out of the sitemap). Once real content exists, pass it via
- * the default slot and set the flag to false.
+ * copy from content/de.json (legal.pages.<key>.sections). A section renders
+ * as <h2> (or <h3> with level 3) followed by its blocks: a string is a
+ * paragraph ("\n" → <br>), a string array an unordered list. URLs and mail
+ * addresses inside a paragraph become links – no set:html involved.
+ * `noindex` stays on until the client has confirmed the placeholders
+ * (legal.noindex – astro.config.mjs reads the same flag for the sitemap).
  */
 import Base from './Base.astro';
-import { content } from '../lib/content';
+import { content, nl2br } from '../lib/content';
 import { home } from '../lib/paths';
 
 type LegalPageKey = keyof typeof content.legal.pages;
@@ -20,13 +22,48 @@ interface Props {
 const { legal } = content;
 const { page: key, noindex = legal.noindex } = Astro.props;
 const page = legal.pages[key];
+
+// Splits a line into plain text and link tokens (https URLs, mail addresses).
+const LINK = /(https?:\/\/[^\s)]+[^\s.,;:)]|[\w.+-]+@[\w-]+\.[\w.-]+)/g;
+type Token = { text: string; href?: string };
+function tokenize(line: string): Token[] {
+  const tokens: Token[] = [];
+  let last = 0;
+  for (const match of line.matchAll(LINK)) {
+    const index = match.index ?? 0;
+    if (index > last) tokens.push({ text: line.slice(last, index) });
+    const text = match[0];
+    tokens.push({ text, href: text.includes('@') ? `mailto:${text}` : text });
+    last = index + text.length;
+  }
+  if (last < line.length) tokens.push({ text: line.slice(last) });
+  return tokens;
+}
 ---
 
 <Base title={page.metaTitle} description={page.description} noindex={noindex}>
   <article class="legal container">
     <h1 class="legal__title">{page.title}</h1>
-    <p class="legal__placeholder">{legal.placeholder}</p>
-    <slot />
+    {page.sections.map((section) => (
+      <section class="legal__section">
+        {section.level === 3 ? <h3>{section.heading}</h3> : <h2>{section.heading}</h2>}
+        {section.blocks.map((block) =>
+          Array.isArray(block) ? (
+            <ul>{block.map((item) => <li>{item}</li>)}</ul>
+          ) : (
+            <p>
+              {nl2br(block).map((line, i) => (
+                <>
+                  {i > 0 && <br />}
+                  {tokenize(line).map((t) => (t.href ? <a href={t.href}>{t.text}</a> : t.text))}
+                </>
+              ))}
+            </p>
+          ),
+        )}
+      </section>
+    ))}
+    <p class="legal__updated">{legal.updated}</p>
     <a href={home} class="legal__back">{legal.backLabel}</a>
   </article>
 </Base>
@@ -48,6 +85,12 @@ const page = legal.pages[key];
     color: var(--c-teal);
   }
 
+  .legal__section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   .legal :global(h2) {
     margin-top: 16px;
     font-size: var(--fs-h3);
@@ -56,16 +99,33 @@ const page = legal.pages[key];
     color: var(--c-lime);
   }
 
-  .legal :global(p) {
+  .legal :global(h3) {
+    font-size: var(--fs-body);
+    font-weight: 700;
+    line-height: var(--lh-body);
+    color: var(--c-teal);
+  }
+
+  .legal :global(p),
+  .legal :global(li) {
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     color: var(--c-white);
+  }
+
+  .legal :global(ul) {
+    padding-left: 1.25em;
   }
 
   .legal :global(a) {
     color: var(--c-teal);
     text-decoration: underline;
     text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
+  }
+
+  .legal__updated {
+    color: var(--c-teal);
   }
 
   .legal__back {
